@@ -19,7 +19,7 @@ export default function SettingsSection({ title, children, marginTop = 30 }: Set
           fontWeight: "800",
           marginBottom: 12,
           textAlign: "center",
-          color: tokens.textPrimary
+          color: tokens.textOnAccent
         }}
       >
         {title}

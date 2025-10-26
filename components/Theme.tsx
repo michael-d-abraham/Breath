@@ -1,8 +1,8 @@
 import React, {
-    createContext,
-    useContext,
-    useMemo,
-    useState
+  createContext,
+  useContext,
+  useMemo,
+  useState
 } from "react";
 // import { TextStyle, ViewStyle } from "react-native";
 import { PlatformColor, useColorScheme } from 'react-native';
@@ -24,61 +24,61 @@ type Tokens = {
 const palettes: Record<ThemeName, Record<Mode, Tokens>> = {
     grounded: {
       light: {
-        sceneBackground: '#F7F5F0',
+        sceneBackground: '#F5F3ED',
         surface: '#FFFFFF',
-        accentPrimary: '#6B8E4E',
-        accentMuted: '#A8C686',
-        textOnAccent: '#FFFFFF',
-        borderSubtle: '#E6E2D9',
+        accentPrimary: '#5A7A3F',
+        accentMuted: '#B4D39A',
+        textOnAccent: '#1C1E1A',
+        borderSubtle: '#E0DDD5',
         shadow: '#000000',
       },
       dark: {
-        sceneBackground: '#121312',
-        surface: '#1B1D1A',
-        accentPrimary: '#9CC76B',
-        accentMuted: '#6B8E4E',
-        textOnAccent: '#0B0C0A',
-        borderSubtle: '#2A2D27',
+        sceneBackground: '#0F110E',
+        surface: '#1C1E1A',
+        accentPrimary: '#8FB968',
+        accentMuted: '#5A7A3F',
+        textOnAccent: '#FFFFFF',
+        borderSubtle: '#2D3028',
         shadow: '#000000',
       },
     },
     calm: {
       light: {
-        sceneBackground: '#EAF5FF',
+        sceneBackground: '#F0F7FC',
         surface: '#FFFFFF',
-        accentPrimary: '#3FA7F5',
-        accentMuted: '#A6D6FF',
-        textOnAccent: '#FFFFFF',
-        borderSubtle: '#E3EEF8',
+        accentPrimary: '#2B8FD9',
+        accentMuted: '#A3D5F5',
+        textOnAccent: '#141820',
+        borderSubtle: '#DDE9F3',
         shadow: '#000000',
       },
       dark: {
-        sceneBackground: '#0D1116',
-        surface: '#151A21',
-        accentPrimary: '#7BC4FF',
-        accentMuted: '#3FA7F5',
-        textOnAccent: '#0A0C0E',
-        borderSubtle: '#222A34',
+        sceneBackground: '#0A0E12',
+        surface: '#141820',
+        accentPrimary: '#5FB3F0',
+        accentMuted: '#2B8FD9',
+        textOnAccent: '#FFFFFF',
+        borderSubtle: '#222832',
         shadow: '#000000',
       },
     },
     uplifting: {
       light: {
-        sceneBackground: '#F6F3FF',
+        sceneBackground: '#F7F4FF',
         surface: '#FFFFFF',
-        accentPrimary: '#7C6EE6',
-        accentMuted: '#C9C3F5',
-        textOnAccent: '#FFFFFF',
-        borderSubtle: '#EDEBFA',
+        accentPrimary: '#6B5BD0',
+        accentMuted: '#C5BAEB',
+        textOnAccent: '#1A1625',
+        borderSubtle: '#E6E1F7',
         shadow: '#000000',
       },
       dark: {
-        sceneBackground: '#0F0F16',
-        surface: '#181824',
-        accentPrimary: '#A9A1FF',
-        accentMuted: '#7C6EE6',
-        textOnAccent: '#0A0A10',
-        borderSubtle: '#26263A',
+        sceneBackground: '#0D0B14',
+        surface: '#1A1625',
+        accentPrimary: '#9B8AE8',
+        accentMuted: '#6B5BD0',
+        textOnAccent: '#FFFFFF',
+        borderSubtle: '#2A2535',
         shadow: '#000000',
       },
     },
@@ -88,17 +88,17 @@ const palettes: Record<ThemeName, Record<Mode, Tokens>> = {
     grounded: {
       name: 'Grounded',
       description: 'Natural, earthy tones',
-      preview: '#F7F5F0'
+      preview: '#5A7A3F'
     },
     calm: {
       name: 'Calm', 
       description: 'Peaceful blue tones',
-      preview: '#EAF5FF'
+      preview: '#2B8FD9'
     },
     uplifting: {
       name: 'Uplifting',
       description: 'Energetic purple tones', 
-      preview: '#F6F3FF'
+      preview: '#6B5BD0'
     }
   } as const;
 

@@ -5,11 +5,14 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import AppearancePicker from "../components/AppearancePicker";
 import SettingsSection from "../components/SettingsSection";
 import SoundHapticsPicker from "../components/SoundHapticsPicker";
+import { useTheme } from "../components/Theme";
 import ThemePicker from "../components/ThemePicker";
 
 export default function SettingsScreen() {
+  const { tokens } = useTheme();
+  
   return (
-    <SafeAreaView style={{ flex: 1, padding: 12 }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: tokens.sceneBackground, padding: 12 }}>
       <Stack.Screen options={{ headerShown: true }} />
 
       <ScrollView 

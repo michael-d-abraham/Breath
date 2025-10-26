@@ -3,8 +3,8 @@ import { useState } from "react";
 import { ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import BackButton from "../components/BackButton";
-import SettingsSection from "../components/SettingsSection";
 import CustomSlider from "../components/Slider";
+import StartButton from "../components/startbutton";
 import { useTheme } from "../components/Theme";
 
 export default function BreathingSetup() {
@@ -14,10 +14,19 @@ export default function BreathingSetup() {
   const [hold1, setHold1] = useState(4);
   const [exhale, setExhale] = useState(4);
   const [hold2, setHold2] = useState(4);
-  const [cycles, setCycles] = useState(10);
 
   const handleBackPress = () => {
     router.back();
+  };
+
+  const handleSavePress = () => {
+    // Custom save logic - you can implement whatever you need here
+    console.log('Saving custom breathing settings:', {
+      inhale,
+      hold1,
+      exhale,
+      hold2,
+    });
   };
 
   return (
@@ -26,6 +35,7 @@ export default function BreathingSetup() {
       backgroundColor: tokens.sceneBackground,
       padding: 24
     }}>
+
       {/* Back Button */}
       <BackButton onPress={handleBackPress} />
       
@@ -51,21 +61,12 @@ export default function BreathingSetup() {
             textAlign: 'center',
             lineHeight: 20
           }}>
-            Inhale{inhale}s → Hold {hold1}s → Exhale{exhale}s → Hold{hold2}s
-          </Text>
-          <Text style={{
-            color: tokens.textPrimary,
-            fontSize: 14,
-            textAlign: 'center',
-            marginTop: 8,
-            fontWeight: '500'
-          }}>
-            {cycles} cycles
+            Inhale {inhale}s → Hold {hold1}s → Exhale {exhale}s → Hold {hold2}s
           </Text>
         </View>
         
         {/* Breathing Pattern Settings */}
-        <SettingsSection title="Breathing Pattern">
+        <View>
           <CustomSlider
             label="Inhale"
             value={inhale}
@@ -105,17 +106,14 @@ export default function BreathingSetup() {
             onValueChange={setHold2}
             unit="s"
           />
-          
-          <CustomSlider
-            label="Cycles"
-            value={cycles}
-            min={1}
-            max={30}
-            step={1}
-            onValueChange={setCycles}
-            unit=""
-          />
-        </SettingsSection>
+        </View>
+
+        {/* Save Button */}
+        <View style={{ marginTop: 20, alignItems: 'center' }}>
+          <StartButton onPress={handleSavePress}>
+            Save
+          </StartButton>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );

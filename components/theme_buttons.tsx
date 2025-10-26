@@ -24,7 +24,7 @@ export default function ThemeButton({ children, isSelected, onPress }: ThemeButt
       onPress={onPress}
     >
       <Text style={{
-        color: isSelected ? tokens.textOnAccent : tokens.textPrimary,
+        color: tokens.textOnAccent,
         fontSize: 18,
         fontWeight: '600',
         textAlign: 'center',

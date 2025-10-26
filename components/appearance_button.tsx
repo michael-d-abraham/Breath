@@ -25,7 +25,7 @@ export default function AppearanceButton({ children, isSelected, onPress }: Appe
       onPress={onPress}
     >
       <Text style={{
-        color: isSelected ? tokens.textOnAccent : tokens.textPrimary,
+        color: tokens.textOnAccent,
         fontSize: 18,
         fontWeight: '600',
         textAlign: 'center',

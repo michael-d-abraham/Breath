@@ -12,7 +12,7 @@ export default function BackButton({ onPress }: BackButtonProps) {
   return (
     <Pressable
       style={{
-        backgroundColor: tokens.surface,
+        backgroundColor: tokens.accentPrimary,
         borderRadius: 8,
         paddingHorizontal: 16,
         paddingVertical: 12,
@@ -24,7 +24,7 @@ export default function BackButton({ onPress }: BackButtonProps) {
       onPress={onPress}
     >
       <Text style={{
-        color: tokens.textPrimary,
+        color: tokens.textOnAccent,
         fontSize: 16,
         fontWeight: '500'
       }}>
