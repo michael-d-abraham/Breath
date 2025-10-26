@@ -48,3 +48,21 @@ Join our community of developers creating universal apps.
 
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+
+
+Description: My app is a breathing app with custom themes for certain emotions. It includes mulitple breathing options and animation, sounds and haptics to help guide the user through the practice. 
+
+Screen shot of my outline of my project
+
+![Outline](assets/images/wireframe.png)
+
+
+2-3 Paragraphs explaining how you implemented Human Interface Guidelines in your application.
+
+For the accessiblility in the adaptable section, I added light/dark mode based on the users prefreneces. I used useColorScheme to do this. 
+
+In the dark mode best practices apple suggestion that you avoid offering an app-specific appearance settings. I understand this but still wanted my users the ability to choose if they wanted to. So in my settings I give the options of light/dark/prefrence. So that in genral it will jsut use the users prefrences but if the users want to choose a specific theme they have the ability to. Best of both world. 
+
+
+In the haptics section it suggest using haptics to enhance or complement the sound of the app and thats what I did in my braething section. I incluided custom haptics to help enhace the breathing experiance. 
+
