@@ -7,14 +7,16 @@ import SettingsSection from "../components/SettingsSection";
 import SoundHapticsPicker from "../components/SoundHapticsPicker";
 import { useTheme } from "../components/Theme";
 import ThemePicker from "../components/ThemePicker";
+import BackButton from "../components/BackButton";
+import { router } from "expo-router";
 
 export default function SettingsScreen() {
   const { tokens } = useTheme();
   
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: tokens.sceneBackground, padding: 12 }}>
-      <Stack.Screen options={{ headerShown: true }} />
-
+      <Stack.Screen options={{ headerShown: false }} />
+      <BackButton onPress={() => router.back()} />
       <ScrollView 
         style={{ flex: 1 }}
         contentContainerStyle={{ 
