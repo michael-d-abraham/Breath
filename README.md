@@ -169,15 +169,31 @@ The meditation section is still a very important part of the app but will be a l
 - Terms and conditions
 - Privacy Policy
 - Donations!!
-A way to donate to me so I can go to Japan to help on a snowboard / ski hostel for my senior trip!!!
+- A way to donate to help fund the JaPOW Trip!!!!!!!
+
+
 
 ## Learn Section (Optional / In Progress)
 I want to add a **Learn** section in some form, but I’m still deciding how deep to go.  
 Maybe it’s a collection of my favorite books and articles that have influenced this project.  
+Or guided lessons im not sure yet. 
 
-Im still thinking about adding the **LLM integration** to summarize or explain content simply for users and have layers to show this is ligit stuff but also still include information that this might be hippy logic(just as important) And to ensure to also add where the LLM found the information with a link to the article.  But I’m not sold on this yet.  
 
-Its going to take a lot of effort for a feature im not sure will be that used. AND I realllly wnat this project to stay completely free becuase first this stuff SHOULD be free but also I really really dont want any reason for the user to not use the app and be motivated to consistanly breath/ mediate. 
+I will use an LLM model consume a archive of urls and documents I give it and will go out and consume all of that information and than return in the data stucture needed for my project on a bunch of different breahing excierses. Will return information like
+
+Breath excerise name: sting
+Short description of excersise: string
+In depth description
+Benfits (of the breathing excerise)
+Method (how the excersise should be preformed / what to focus on)
+Metadata: before bed, calming, energizing ect. (will be used in the datastructure to quickly search for excerises)
+Source of where it found this information
+
+
+
+And also Im still thinking about adding the **LLM integration** to summarize or explain content simply for users within the app. A little chat bot and have layers to show this is ligit stuff but also still include information that is more hippy logic(just as important). And to ensure to also add where the LLM found the information with a link to the article.  But I’m not sold on this yet.
+
+Its going to take a lot of effort for a feature im not sure will be that used. AND I realllly wnat this project to stay completely free.
 
 So im not 100% sure on this yet
 
@@ -192,13 +208,16 @@ After testing and feel really good about  the flow of the app and placement of t
 ## Senior project / publish it to app store
 
 This project means a lot to me.  
-I do plan to publish it on the App Store eventually, I’ve submitted it as my **senior project** so I can keep building it next semester and incorporate more of my art and music into it. As I want to show case all the skills ive learned in my college experiance, (psychology, music, art, software engeinerring, data scinece)
+I do plan to publish it on the App Store eventually, But I’ve submitted it as my **senior project** so I can keep building it next semester and incorporate more of my art and music into it. As I want to show case all the skills ive learned in my college experiance, (psychology, music, art, software engeinerring, data scinece)
 
 I will personally write, play, and record the music, soundscapes, and interval sounds.
 I will hand-draw all the symbols, and either draw out animations
  or build them programmatically. (I’ve already built a few with p5.js and LOVE these!)
+I will incorperate data science into this in the form of stats (how many mindful minutes along with an animated bamboo plants that grows each day you practice mindfulness breathing or mediation)
 
-And so yes I WILL post this app on the app store but I do want to add more to it, more than just the coding side and this is going to take alot of time and effort / will go into my senoir project. 
+But Also I want to do ALOT more research on this. This is a realllly cool topic and I have a few books I still want to read on it and also I want to take this as an opportinity to go meet with some gurus on the topic. I have a few yoga/mediation teachers I want to talk to, psychologics and therapists, but also I want to try to talk to people like Wim Hof, Patrick Mckeown, Dan Brule. And use this app to really become a student of breahing and mindfulness. 
 
-Question tho, Is there an advantage to try to publish a first version of it to the app store this semester for this class and than just push updates to it as I work on it next semester?  Or Should I just keep my plan of posting it for my senior project next semester? 
+ So yes I WILL post this app on the app store but I have so much more that I want to learn and add to it before I will feel its ready to be published. 
+
+Question tho, That said Is there an advantage to try to publish a first version of it to the app store this semester for this class and than just push updates to it as I work on it next semester?  Or Should I just keep my plan of posting it for my senior project next semester? 
 
