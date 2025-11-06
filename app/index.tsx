@@ -1,46 +1,143 @@
-import React, { useState } from 'react';
-import { ScrollView, Text, View } from "react-native";
+import React from 'react';
+import { Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ExercisePresetPicker } from '../components/ExercisePresetPicker';
-import StartButton from '../components/startbutton';
+import RoundButton from '../components/RoundButton';
 import { useTheme } from '../components/Theme';
-import { useBreathing } from '../contexts/breathingContext';
-import { defaultExercises, Exercise } from '../lib/storage';
+import ZenQuote from '../components/ZenQuote';
 
 export default function Index() {
   const { tokens } = useTheme();
-  const { currentExercise, updateExercise } = useBreathing();
-  const [exercises, setExercises] = useState<Exercise[]>(defaultExercises);
-
-  const handleSelectExercise = async (exercise: Exercise) => {
-    await updateExercise(exercise);
-  };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: tokens.sceneBackground }}>
-      <ScrollView style={{ flex: 1, padding: 24 }}>
-        <View style={{ alignItems: 'center', marginBottom: 20 }}>
-          <Text style={{ color: tokens.textOnAccent, fontSize: 20, fontWeight: '600', marginBottom: 8 }}>
-            {currentExercise?.title || 'No Exercise Selected'}
-          </Text>
-          {currentExercise && (
-            <Text style={{ color: tokens.textOnAccent, fontSize: 16, textAlign: 'center', marginBottom: 8 }}>
-              Inhale: {currentExercise.inhale}s → Hold: {currentExercise.hold1}s → Exhale: {currentExercise.exhale}s → Hold: {currentExercise.hold2}s
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1 }}>
+        
+        {/* Header Section - Moon & Support */}
+        <View style={{ 
+          flexDirection: 'row', 
+          justifyContent: 'space-between', 
+          paddingHorizontal: 24, 
+          paddingTop: 12,
+          paddingBottom: 8,
+          minHeight: '10%'
+        }}>
+          <Pressable onPress={() => console.log('Navigate to Moon')}>
+            <Text style={{ color: tokens.textOnAccent, fontSize: 18, fontWeight: '500' }}>
+              Moon
             </Text>
-          )}
+          </Pressable>
+          
+          <Pressable onPress={() => console.log('Navigate to Support')}>
+            <Text style={{ color: tokens.textOnAccent, fontSize: 18, fontWeight: '500' }}>
+              Support
+            </Text>
+          </Pressable>
         </View>
 
-        <ExercisePresetPicker
-          exercises={exercises}
-          currentExercise={currentExercise}
-          onSelectExercise={handleSelectExercise}
-        />
-
-        <View style={{ alignItems: 'center', marginTop: 20, gap: 12 }}>
-          <StartButton path="/breathing">Start</StartButton>
-          <StartButton path="/settings">Settings</StartButton>
-          {/* <StartButton path="/breathsetup">SetUp</StartButton> */}
+        {/* Daily Quote Section */}
+        <View style={{ 
+          paddingHorizontal: 24,
+          minHeight: '25%',
+          justifyContent: 'center'
+        }}>
+          <ZenQuote mode="today" showRefreshButton={false} />
         </View>
+
+        {/* Main Buttons Section - Start, Settings, Setup */}
+        <View style={{ 
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          paddingVertical: 20,
+          minHeight: '35%'
+        }}>
+          <View style={{ 
+            flexDirection: 'row', 
+            alignItems: 'flex-end', 
+            justifyContent: 'center',
+            gap: 20
+          }}>
+            {/* Settings Button - Left */}
+            <RoundButton 
+              text="Settings" 
+              radius={40} 
+              path="/settings" 
+            />
+            
+            {/* Start Button - Center (Larger) */}
+            <RoundButton 
+              text="Start" 
+              radius={80} 
+              path="/exercises" 
+            />
+            
+            {/* Setup Button - Right */}
+            <RoundButton 
+              text="Setup" 
+              radius={40} 
+              path="/breathsetup" 
+            />
+          </View>
+        </View>
+
+        {/* Footer Section - Learn, Breathe, Meditate */}
+        <View style={{ 
+          flexDirection: 'row', 
+          justifyContent: 'space-around', 
+          alignItems: 'center',
+          paddingHorizontal: 24,
+          paddingBottom: 20,
+          minHeight: '15%'
+        }}>
+          <Pressable 
+            style={{ 
+              backgroundColor: tokens.accentPrimary,
+              borderRadius: 8,
+              paddingVertical: 12,
+              paddingHorizontal: 24,
+              minWidth: 90,
+              alignItems: 'center'
+            }}
+            onPress={() => console.log('Navigate to Learn')}
+          >
+            <Text style={{ color: tokens.textOnAccent, fontSize: 16, fontWeight: '600' }}>
+              Learn
+            </Text>
+          </Pressable>
+
+          <Pressable 
+            style={{ 
+              backgroundColor: tokens.accentPrimary,
+              borderRadius: 8,
+              paddingVertical: 12,
+              paddingHorizontal: 24,
+              minWidth: 90,
+              alignItems: 'center'
+            }}
+            onPress={() => console.log('Navigate to Breathe')}
+          >
+            <Text style={{ color: tokens.textOnAccent, fontSize: 16, fontWeight: '600' }}>
+              Breathe
+            </Text>
+          </Pressable>
+
+          <Pressable 
+            style={{ 
+              backgroundColor: tokens.accentPrimary,
+              borderRadius: 8,
+              paddingVertical: 12,
+              paddingHorizontal: 24,
+              minWidth: 90,
+              alignItems: 'center'
+            }}
+            onPress={() => console.log('Navigate to Meditate')}
+          >
+            <Text style={{ color: tokens.textOnAccent, fontSize: 16, fontWeight: '600' }}>
+              Meditate
+            </Text>
+          </Pressable>
+        </View>
+
       </ScrollView>
     </SafeAreaView>
   );

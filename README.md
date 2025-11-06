@@ -67,3 +67,138 @@ My breathing app implements several key principles from Apple's Human Interface 
 
 **Theme System & Consistency**: The theming architecture ensures visual consistency across all screens. Each screen component (like `app/index.tsx`, `app/breathing.tsx`, and `app/settings.tsx`) uses the `useTheme()` hook to access color tokens, applying `tokens.sceneBackground` to SafeAreaView backgrounds and `tokens.textOnAccent` for readable text. The UI components in the settings screen (`ThemePicker`, `AppearancePicker`, and `SoundHapticsPicker`) all use themed buttons with consistent styling, borderRadius, and color tokens, creating a cohesive design that adapts seamlessly between themes and appearance modes while maintaining the visual hierarchy and clarity recommended by the HIG. 
 
+
+
+
+Work In progress will add more details as I go! 
+
+# Breathing App Backlog  
+*(what I’m wanting to do / how much effort I’m putting into this)*
+
+---
+
+## Vision
+The main idea of this app is that everything is **tailored to what the user needs in that moment.**  
+Whether someone wants to calm down, focus, energize, or release emotion — the entire experience will shift to support that state.
+
+---
+
+## Breathing Exercise Categories
+Breathing exercises will be organized into four main sections, each with its own style and purpose:
+
+- **Calm / Sleep** → long, gentle exhale patterns  
+- **Focus / Flow** → balanced rhythmic breathing  
+- **Energy / Activation** → quick, powerful exhales  
+- **Release / Transformation** → extended rhythmic cycles  
+
+Each section will have visuals, sound, and haptic patterns that reinforce the intended feeling.
+
+---
+
+## Development Approach
+I’m going to start by adding as much as possible — exercises, features, information, and functionality — and then work **backwards** to simplify it through user testing and feedback.
+
+The goal is to make the app:
+- **Simple yet robust**
+- **Intuitive yet customizable**
+
+I’ll rely heavily on **user testing** to refine the experience and keep only what truly helps users feel what they’re meant to feel.
+
+### User Testing Focus
+- **UI / UX flow:** How easy and intuitive it is to navigate the app. (I want it as simple as possible, but with the option for users that want more custimzability and depth if needed.)  
+- **Haptics:** Do the vibrations enforce the feeling I’m trying to create? (Calm, Focus, Energy, Release)  
+- **Colors:** Do they reinforce the feeling *and* stay easy to see and understand?  
+- **Animations:** Do they enhance or distract from the feeling?  
+- **Exercise timing:** Are inhale/exhale/hold lengths universally effective, or do I need to add custom user preferences?  
+- **Information:** Is it accurate and helpful, or distracting and confusing?
+
+---
+
+## Platform Integration
+- Follow **Apple Human Interface Guidelines (HIG)** for clarity and accessibility.  
+- Adapt to user preferences (light/dark mode, text size).  
+- Integrate with **Apple HealthKit** to log mindfulness minutes.
+
+---
+
+## Themes (Full Immersive Experience)
+Right now, themes are just colors — but I want to expand them into full sensory environments based on color psychology and user feedback.
+
+- Colors will shift depending on the mood (calm, grounded, enlightened).  
+- Backgrounds (forest, river, rain, sky, etc.) will match each theme.  
+- Soundscapes (rain, water, forest, etc.) will enhance immersion.  
+- All sounds will be **recorded and mixed by me.**
+
+---
+
+## Animations
+I want to create at least **three custom animations** to visually guide breathing and enhance the overall experience.
+
+They will be:
+- **Dynamic** → expanding and contracting with each breath.  
+- **Emotionally responsive** → colors shift gently as the user settles in.  
+- **Functional** → helps users follow the breath rhythm visually.  
+
+---
+
+## Haptics
+I want to **dial in the haptics** so they feel *alive* — like part of the breath itself.
+
+- Different types for different states (deep grounding vs. energetic activation).  
+- Users should be able to feel the rhythm through haptics alone — whether they’re looking at the screen or not.  
+- I want the haptics to grow and shrink with the breath, getting more intense at the top of the exhale.  
+
+**Still trying To figure out:** How to haptically show the *holds* in a way that feels intuitive.
+
+---
+
+## Meditation Section
+The meditation section is still a very important part of the app but will be a lot simiplier. 
+
+- Extremely simple and intuitive to start (3 taps MAX to begin a session).  
+- Uses the same soundscapes and themes for consistency.  
+- Option to begin meditation with **guided breathing** (e.g. 10 cycles of box breathing leading into the timed meditation).  
+- Minimal visuals and calm transitions.
+
+---
+
+## support page
+- about me
+- way to contact me
+- bug reporting 
+- Terms and conditions
+- Privacy Policy
+- Donations!!
+A way to donate to me so I can go to Japan to help on a snowboard / ski hostel for my senior trip!!!
+
+## Learn Section (Optional / In Progress)
+I want to add a **Learn** section in some form, but I’m still deciding how deep to go.  
+Maybe it’s a collection of my favorite books and articles that have influenced this project.  
+
+Im still thinking about adding the **LLM integration** to summarize or explain content simply for users and have layers to show this is ligit stuff but also still include information that this might be hippy logic(just as important) And to ensure to also add where the LLM found the information with a link to the article.  But I’m not sold on this yet.  
+
+Its going to take a lot of effort for a feature im not sure will be that used. AND I realllly wnat this project to stay completely free becuase first this stuff SHOULD be free but also I really really dont want any reason for the user to not use the app and be motivated to consistanly breath/ mediate. 
+
+So im not 100% sure on this yet
+
+
+## UX + UI Plan
+After testing and feel really good about  the flow of the app and placement of things.
+- Simplify design by adding symbols instead of words.
+- Start just abstracting anything I can out ( I want as least amount of content and distance and words)
+
+---
+
+## Senior project / publish it to app store
+
+This project means a lot to me.  
+I do plan to publish it on the App Store eventually, I’ve submitted it as my **senior project** so I can keep building it next semester and incorporate more of my art and music into it. As I want to show case all the skills ive learned in my college experiance, (psychology, music, art, software engeinerring, data scinece)
+
+I will personally write, play, and record the music, soundscapes, and interval sounds.
+I will hand-draw all the symbols, and either draw out animations
+ or build them programmatically. (I’ve already built a few with p5.js and LOVE these!)
+
+And so yes I WILL post this app on the app store but I do want to add more to it, more than just the coding side and this is going to take alot of time and effort / will go into my senoir project. 
+
+Question tho, Is there an advantage to try to publish a first version of it to the app store this semester for this class and than just push updates to it as I work on it next semester?  Or Should I just keep my plan of posting it for my senior project next semester? 
+
