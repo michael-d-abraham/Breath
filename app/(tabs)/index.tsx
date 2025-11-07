@@ -1,10 +1,10 @@
+import RoundButton from '@/components/RoundButton';
+import { useTheme } from '@/components/Theme';
+import ZenQuote from '@/components/ZenQuote';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
-import RoundButton from '../components/RoundButton';
-import { useTheme } from '../components/Theme';
-import ZenQuote from '../components/ZenQuote';
 
 export default function Index() {
   const { tokens } = useTheme();
@@ -12,7 +12,7 @@ export default function Index() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: tokens.sceneBackground }}>
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1 }}>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1, paddingBottom: 100 }}>
         
         {/* Header Section - Moon & Support */}
         <View style={{ 
@@ -29,7 +29,7 @@ export default function Index() {
             </Text>
           </Pressable>
           
-          <Pressable onPress={() => console.log('Navigate to Support')}>
+          <Pressable onPress={() => router.push('/support')}>
             <Text style={{ color: tokens.textOnAccent, fontSize: 18, fontWeight: '500' }}>
               Support
             </Text>
@@ -51,7 +51,7 @@ export default function Index() {
           justifyContent: 'center',
           alignItems: 'center',
           paddingVertical: 20,
-          minHeight: '35%'
+          paddingBottom: 40
         }}>
           <View style={{ 
             flexDirection: 'row', 
@@ -80,64 +80,6 @@ export default function Index() {
               path="/breathsetup" 
             />
           </View>
-        </View>
-
-        {/* Footer Section - Learn, Breathe, Meditate */}
-        <View style={{ 
-          flexDirection: 'row', 
-          justifyContent: 'space-around', 
-          alignItems: 'center',
-          paddingHorizontal: 24,
-          paddingBottom: 20,
-          minHeight: '15%'
-        }}>
-          <Pressable 
-            style={{ 
-              backgroundColor: tokens.accentPrimary,
-              borderRadius: 8,
-              paddingVertical: 12,
-              paddingHorizontal: 24,
-              minWidth: 90,
-              alignItems: 'center'
-            }}
-            onPress={() => console.log('Navigate to Learn')}
-          >
-            <Text style={{ color: tokens.textOnAccent, fontSize: 16, fontWeight: '600' }}>
-              Learn
-            </Text>
-          </Pressable>
-
-          <Pressable 
-            style={{ 
-              backgroundColor: tokens.accentPrimary,
-              borderRadius: 8,
-              paddingVertical: 12,
-              paddingHorizontal: 24,
-              minWidth: 90,
-              alignItems: 'center'
-            }}
-            onPress={() => console.log('Navigate to Breathe')}
-          >
-            <Text style={{ color: tokens.textOnAccent, fontSize: 16, fontWeight: '600' }}>
-              Breathe
-            </Text>
-          </Pressable>
-
-          <Pressable 
-            style={{ 
-              backgroundColor: tokens.accentPrimary,
-              borderRadius: 8,
-              paddingVertical: 12,
-              paddingHorizontal: 24,
-              minWidth: 90,
-              alignItems: 'center'
-            }}
-            onPress={() => console.log('Navigate to Meditate')}
-          >
-            <Text style={{ color: tokens.textOnAccent, fontSize: 16, fontWeight: '600' }}>
-              Meditate
-            </Text>
-          </Pressable>
         </View>
 
       </ScrollView>
