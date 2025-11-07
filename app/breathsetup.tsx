@@ -6,9 +6,11 @@ import BackButton from "../components/BackButton";
 import CustomSlider from "../components/Slider";
 import StartButton from "../components/startbutton";
 import { useTheme } from "../components/Theme";
+import { useBreathing } from "../contexts/breathingContext";
 
 export default function BreathingSetup() {
   const { tokens } = useTheme();
+  const { updateExercise } = useBreathing();
   
   const [inhale, setInhale] = useState(4);
   const [hold1, setHold1] = useState(4);
@@ -19,14 +21,23 @@ export default function BreathingSetup() {
     router.back();
   };
 
-  const handleSavePress = () => {
-    // Custom save logic - you can implement whatever you need here
-    console.log('Saving custom breathing settings:', {
+  const handleSavePress = async () => {
+    const customExercise = {
+      id: 'custom',
+      title: 'Custom Breathing',
       inhale,
       hold1,
       exhale,
       hold2,
-    });
+      shortDescription: 'Your personalized breathing pattern',
+      description: 'A custom breathing exercise tailored to your preferences.',
+      benefit: 'Personalized benefits based on your chosen breathing pattern.',
+      method: 'Follow your custom breathing rhythm.',
+      symbol: '⚙️',
+    };
+    
+    await updateExercise(customExercise);
+    router.push('/breathing');
   };
 
   return (

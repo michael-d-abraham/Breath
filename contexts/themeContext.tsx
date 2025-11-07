@@ -29,7 +29,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   });
 
   const updateSettings = (newSettings: Partial<AppSettings>) => {
-    console.log("Updating settings:", newSettings);
     setSettings(prev => ({ ...prev, ...newSettings }));
   };
 

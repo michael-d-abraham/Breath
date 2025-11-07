@@ -1,3 +1,46 @@
+/**
+ * BREATHING PAGE - FLAGGED FOR REFACTORING
+ * 
+ * ⚠️ COMPLEXITY ISSUES:
+ * This component currently handles too many responsibilities:
+ * 1. Audio playback management
+ * 2. Haptic feedback orchestration
+ * 3. Animation state and timing
+ * 4. Breathing cycle state machine
+ * 5. Cleanup logic for multiple systems
+ * 
+ * 🔍 SUGGESTED REFACTORING:
+ * Extract into custom hooks for better separation of concerns:
+ * 
+ * 1. useBreathingAudio(settings, isRunning)
+ *    - Manages bell3Player lifecycle
+ *    - Handles audio playback at cycle start
+ *    - Returns: { playSound, cleanup }
+ * 
+ * 2. useBreathingHaptics(settings, isRunning, phase)
+ *    - Manages vibration intervals
+ *    - Handles continuous vibration during inhale
+ *    - Ensures proper cleanup on stop
+ *    - Returns: { startContinuousVibration, stopVibration, triggerHaptic }
+ * 
+ * 3. useBreathingAnimation(isRunning)
+ *    - Manages radius and strokeWidth shared values
+ *    - Handles animation timing for inhale/exhale
+ *    - Returns: { radius, strokeWidth, animateInhale, animateExhale, reset }
+ * 
+ * 4. useBreathingCycle(exercise, isRunning)
+ *    - Manages phase state and timing
+ *    - Orchestrates the breathing cycle loop
+ *    - Returns: { phase, timeLeft, start, stop }
+ * 
+ * BENEFITS:
+ * - Each hook has single responsibility
+ * - Easier to test individual systems
+ * - Cleaner component orchestration
+ * - Reusable hooks for other breathing features
+ * - Simpler cleanup logic
+ */
+
 import { useAudioPlayer } from "expo-audio";
 import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
@@ -18,6 +61,8 @@ export default function BreathingPage() {
   const { tokens } = useTheme();
   const { currentExercise } = useBreathing();
   const { settings } = useApp();
+  
+  // 🔍 REFACTOR: Extract to useBreathingAudio hook
   const bell3Player = useAudioPlayer(require('../assets/sounds/bells/bell3.mp3'));
   const bell3PlayerRef = useRef(bell3Player);
   
@@ -29,12 +74,16 @@ export default function BreathingPage() {
   const exercise = currentExercise || { inhale: 4, hold1: 4, exhale: 4, hold2: 4 };
   const { inhale, hold1, exhale, hold2 } = exercise;
 
+  // 🔍 REFACTOR: Extract to useBreathingCycle hook
   const [phase, setPhase] = useState<'inhale' | 'hold1' | 'exhale' | 'hold2' | 'idle'>('idle');
   const [timeLeft, setTimeLeft] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const isRunningRef = useRef(false);
+  
+  // 🔍 REFACTOR: Extract to useBreathingHaptics hook
   const vibrationIntervalRef = useRef<number | null>(null);
 
+  // 🔍 REFACTOR: Extract to useBreathingAnimation hook
   const radius = useSharedValue(66);
   const strokeWidth = useSharedValue(3);
 
@@ -106,8 +155,10 @@ export default function BreathingPage() {
     }
   };
 
+  // 🔍 REFACTOR: This function orchestrates multiple systems
+  // Consider splitting into smaller, focused functions within extracted hooks
   const runCycle = async () => {
-    // Play bell and vibrate at the start of each cycle
+    // 🔍 AUDIO: Should be handled by useBreathingAudio hook
     if (settings.soundEnabled) {
       try {
         // Only play if the player is properly initialized
@@ -122,7 +173,7 @@ export default function BreathingPage() {
       }
     }
     
-    // Trigger initial haptic feedback at the same time as the bell
+    // 🔍 HAPTICS: Should be handled by useBreathingHaptics hook
     if (settings.hapticsEnabled) {
       try {
         await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -131,13 +182,15 @@ export default function BreathingPage() {
       }
     }
     
-    // Inhale with continuous vibration
+    // 🔍 CYCLE: Phase management - useBreathingCycle hook
     setPhase('inhale');
     setTimeLeft(inhale);
+    
+    // 🔍 ANIMATION: Inhale animation - useBreathingAnimation hook
     radius.value = withTiming(179, { duration: inhale * 1000 });
     strokeWidth.value = withTiming(6, { duration: inhale * 1000 });
     
-    // Start continuous vibration during inhale
+    // 🔍 HAPTICS: Continuous vibration management - useBreathingHaptics hook
     if (settings.hapticsEnabled) {
       vibrationIntervalRef.current = setInterval(() => {
         // Double-check if still running before vibrating

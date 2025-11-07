@@ -54,7 +54,7 @@ export function useZenQuotes(options: UseZenQuotesOptions = {}): UseZenQuotesRet
         setLastFetchDate(cachedDate);
       }
     } catch (e) {
-      console.error('Error loading cached quote:', e);
+      // Silently fail
     } finally {
       setIsInitialized(true);
     }
@@ -92,7 +92,6 @@ export function useZenQuotes(options: UseZenQuotesOptions = {}): UseZenQuotesRet
       }
     } catch (e) {
       setError(String(e));
-      console.error('ZenQuotes fetch error:', e);
     } finally {
       setLoading(false);
     }

@@ -79,7 +79,7 @@ const ExerciseDetailSheet = forwardRef<ExerciseDetailSheetHandle, ExerciseDetail
 
               <CollapsibleSection 
                 title="BENEFITS" 
-                content={exercise.benfit} 
+                content={exercise.benefit} 
                 expanded={benefitsExpanded} 
                 onToggle={() => setBenefitsExpanded(!benefitsExpanded)} 
               />

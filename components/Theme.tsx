@@ -4,7 +4,6 @@ import React, {
   useMemo,
   useState
 } from "react";
-// import { TextStyle, ViewStyle } from "react-native";
 import { PlatformColor, useColorScheme } from 'react-native';
 
 type Mode = 'light' | 'dark';
@@ -153,28 +152,4 @@ export function useTheme() {
   const ctx = useContext(ThemeContext);
   if (!ctx) throw new Error('useTheme must be used inside <ThemeProvider>');
   return ctx;
-}
-
-// Convenience function to get theme colors
-export function useThemeColors() {
-  const { tokens } = useTheme();
-  return tokens;
-}
-
-export function stylesFromTheme(theme: ReturnType<typeof useTheme>) {
-  return {
-    screen: {
-      flex: 1,
-      backgroundColor: theme.tokens.sceneBackground,
-    },
-    text: {
-      color: theme.tokens.textPrimary,
-    },
-    surface: {
-      backgroundColor: theme.tokens.surface,
-    },
-    accent: {
-      backgroundColor: theme.tokens.accentPrimary,
-    }
-  };
 }

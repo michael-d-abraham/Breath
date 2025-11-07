@@ -1,4 +1,3 @@
-import React from 'react';
 import AppearanceButton from './appearance_button';
 
 interface ToggleButtonProps {

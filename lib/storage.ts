@@ -9,7 +9,7 @@ export type Exercise = {
   hold2: number;
   shortDescription: string;
   description: string;  
-  benfit: string;
+  benefit: string;
   method: string; 
   symbol: string;
 };
@@ -25,7 +25,7 @@ export const defaultExercises: Exercise[] = [
     hold2: 0,
     shortDescription: "Calm your nervous system with slow, controlled breaths",
     description: "Deep breathing, also known as diaphragmatic or belly breathing, is a foundational practice that engages your diaphragm to promote full oxygen exchange. This technique activates the parasympathetic nervous system, shifting your body from 'fight or flight' mode into a state of calm and restoration. By breathing slowly and deeply into your belly rather than shallowly into your chest, you encourage complete air circulation and reduce tension throughout your body.",
-    benfit: "Reduces stress and anxiety, lowers heart rate and blood pressure, improves focus and mental clarity, promotes better sleep, strengthens the diaphragm, increases oxygen flow to the brain, and helps manage pain and chronic conditions.",
+    benefit: "Reduces stress and anxiety, lowers heart rate and blood pressure, improves focus and mental clarity, promotes better sleep, strengthens the diaphragm, increases oxygen flow to the brain, and helps manage pain and chronic conditions.",
     method: "Find a comfortable seated or lying position. Place one hand on your chest and one on your belly. Inhale slowly through your nose for 6 seconds, allowing your belly to rise while your chest remains relatively still. Exhale gently through your nose or mouth for 6 seconds, feeling your belly fall. The hand on your belly should move more than the one on your chest. Repeat for 5-10 minutes.",
     symbol: "🌙",
   },
@@ -38,7 +38,7 @@ export const defaultExercises: Exercise[] = [
     hold2: 4,
     shortDescription: "Four equal sides of breath for mental clarity and focus",
     description: "Box breathing, also called square breathing or four-square breathing, is a powerful stress-relief technique used by Navy SEALs, police officers, and athletes to maintain calm and focus in high-pressure situations. The practice involves four equal parts—inhale, hold, exhale, hold—creating a 'box' pattern that helps regulate the autonomic nervous system and brings immediate mental clarity. This rhythmic pattern interrupts stress responses and resets your breathing to a calm, controlled state.",
-    benfit: "Enhances concentration and performance under pressure, reduces anxiety and panic, regulates the nervous system, improves emotional control, lowers cortisol levels, increases CO2 tolerance, sharpens mental clarity, and helps manage PTSD symptoms.",
+    benefit: "Enhances concentration and performance under pressure, reduces anxiety and panic, regulates the nervous system, improves emotional control, lowers cortisol levels, increases CO2 tolerance, sharpens mental clarity, and helps manage PTSD symptoms.",
     method: "Sit upright with your feet flat on the floor and hands resting comfortably. Exhale completely to empty your lungs. Inhale through your nose for 4 counts, filling your lungs completely. Hold your breath for 4 counts, maintaining a relaxed body. Exhale slowly through your mouth for 4 counts, emptying your lungs fully. Hold empty for 4 counts. Visualize tracing the four sides of a box as you breathe. Repeat for 5-10 rounds.",
     symbol: "🕹",
   },
@@ -51,7 +51,7 @@ export const defaultExercises: Exercise[] = [
     hold2: 1,
     shortDescription: "Fast-acting technique for instant stress relief",
     description: "Quick Calm is a rapid relaxation technique designed for moments when you need immediate stress relief but don't have time for extended practice. With shorter breath counts and minimal holds, this exercise can be done anywhere—before a meeting, during a stressful commute, or when you feel anxiety rising. The brief pauses between breaths help you regain control without requiring deep concentration, making it perfect for acute stress situations or as a gateway to longer breathing practices.",
-    benfit: "Provides rapid anxiety relief, quickly interrupts stress response, easy to practice discreetly in any situation, improves immediate emotional regulation, reduces muscle tension, lowers acute stress hormones, accessible for beginners, and serves as an effective reset during busy days.",
+    benefit: "Provides rapid anxiety relief, quickly interrupts stress response, easy to practice discreetly in any situation, improves immediate emotional regulation, reduces muscle tension, lowers acute stress hormones, accessible for beginners, and serves as an effective reset during busy days.",
     method: "This exercise can be done sitting, standing, or even walking. Close your eyes if possible, or soften your gaze. Inhale through your nose for 3 counts, breathing naturally without forcing. Hold gently for 1 count. Exhale smoothly through your nose or mouth for 3 counts. Hold for 1 count before beginning the next breath. Maintain a steady, comfortable rhythm. Practice for 1-3 minutes or until you feel calmer.",
     symbol: "💨",
   },
@@ -71,7 +71,6 @@ export const getExercises = async (): Promise<Exercise[]> => {
     // Return default exercises if none stored
     return defaultExercises;
   } catch (error) {
-    console.error('Error getting exercises:', error);
     return defaultExercises;
   }
 };
@@ -81,7 +80,7 @@ export const saveExercises = async (exercises: Exercise[]): Promise<void> => {
   try {
     await AsyncStorage.setItem(EXERCISES_KEY, JSON.stringify(exercises));
   } catch (error) {
-    console.error('Error saving exercises:', error);
+    // Silently fail
   }
 };
 
@@ -94,7 +93,6 @@ export const getCurrentExercise = async (): Promise<Exercise | null> => {
     }
     return null;
   } catch (error) {
-    console.error('Error getting current exercise:', error);
     return null;
   }
 };
@@ -104,7 +102,7 @@ export const saveCurrentExercise = async (exercise: Exercise): Promise<void> => 
   try {
     await AsyncStorage.setItem(CURRENT_EXERCISE_KEY, JSON.stringify(exercise));
   } catch (error) {
-    console.error('Error saving current exercise:', error);
+    // Silently fail
   }
 };
 
@@ -116,7 +114,7 @@ export const initializeStorage = async (): Promise<void> => {
       await saveExercises(defaultExercises);
     }
   } catch (error) {
-    console.error('Error initializing storage:', error);
+    // Silently fail
   }
 };
 
@@ -126,9 +124,8 @@ export const resetStorage = async (): Promise<void> => {
     await AsyncStorage.removeItem(EXERCISES_KEY);
     await AsyncStorage.removeItem(CURRENT_EXERCISE_KEY);
     await saveExercises(defaultExercises);
-    console.log('Storage reset to defaults');
   } catch (error) {
-    console.error('Error resetting storage:', error);
+    // Silently fail
   }
 };
 
@@ -136,8 +133,7 @@ export const resetStorage = async (): Promise<void> => {
 export const forceUpdateToDefaults = async (): Promise<void> => {
   try {
     await saveExercises(defaultExercises);
-    console.log('Exercises updated to current defaults');
   } catch (error) {
-    console.error('Error updating to defaults:', error);
+    // Silently fail
   }
 };

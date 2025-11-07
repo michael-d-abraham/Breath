@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useMemo } from 'react';
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useTypingEffect } from '../hooks/useTypingEffect';
 import { useZenQuotes } from '../hooks/useZenQuotes';
 import { useTheme } from './Theme';
 
@@ -12,47 +13,22 @@ export default function ZenQuote({ mode = 'today', showRefreshButton = false }: 
   const { tokens } = useTheme();
   const { quote, loading, error, refetch } = useZenQuotes({ mode });
   
-  const [displayedQuote, setDisplayedQuote] = useState('');
-  const [displayedAuthor, setDisplayedAuthor] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
-
-  useEffect(() => {
-    if (quote) {
-      setIsTyping(true);
-      setDisplayedQuote('');
-      setDisplayedAuthor('');
-      
-      const fullQuote = `"${quote.q}"`;
-      const fullAuthor = `— ${quote.a}`;
-      let quoteIndex = 0;
-      let authorIndex = 0;
-      
-      // Type out the quote first
-      const quoteInterval = setInterval(() => {
-        if (quoteIndex < fullQuote.length) {
-          setDisplayedQuote(fullQuote.slice(0, quoteIndex + 1));
-          quoteIndex++;
-        } else {
-          clearInterval(quoteInterval);
-          
-          // Then type out the author
-          const authorInterval = setInterval(() => {
-            if (authorIndex < fullAuthor.length) {
-              setDisplayedAuthor(fullAuthor.slice(0, authorIndex + 1));
-              authorIndex++;
-            } else {
-              clearInterval(authorInterval);
-              setIsTyping(false);
-            }
-          }, 60);
-        }
-      }, 50);
-      
-      return () => {
-        clearInterval(quoteInterval);
-      };
-    }
-  }, [quote]);
+  const fullQuote = useMemo(() => quote ? `"${quote.q}"` : '', [quote]);
+  const fullAuthor = useMemo(() => quote ? `— ${quote.a}` : '', [quote]);
+  
+  const quoteTyping = useTypingEffect({ 
+    text: fullQuote, 
+    speed: 50,
+    enabled: true 
+  });
+  
+  const authorTyping = useTypingEffect({ 
+    text: fullAuthor, 
+    speed: 60,
+    enabled: !quoteTyping.isTyping 
+  });
+  
+  const isTyping = quoteTyping.isTyping || authorTyping.isTyping;
 
   const styles = StyleSheet.create({
     container: {
@@ -126,8 +102,8 @@ export default function ZenQuote({ mode = 'today', showRefreshButton = false }: 
 
   return (
     <View style={styles.container}>
-      <Text style={styles.quoteText}>{displayedQuote}</Text>
-      {displayedAuthor && <Text style={styles.author}>{displayedAuthor}</Text>}
+      <Text style={styles.quoteText}>{quoteTyping.displayedText}</Text>
+      {authorTyping.displayedText && <Text style={styles.author}>{authorTyping.displayedText}</Text>}
       
       {showRefreshButton && mode === 'random' && !isTyping && (
         <TouchableOpacity style={styles.refreshButton} onPress={refetch}>

@@ -1,29 +1,39 @@
-import { Stack } from "expo-router";
-import React from "react";
-import { ScrollView } from "react-native";
+import { router, Stack } from "expo-router";
+import { ScrollView, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import AppearancePicker from "../components/AppearancePicker";
+import BackButton from "../components/BackButton";
 import SettingsSection from "../components/SettingsSection";
 import SoundHapticsPicker from "../components/SoundHapticsPicker";
 import { useTheme } from "../components/Theme";
 import ThemePicker from "../components/ThemePicker";
-import BackButton from "../components/BackButton";
-import { router } from "expo-router";
 
 export default function SettingsScreen() {
   const { tokens } = useTheme();
   
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: tokens.sceneBackground,
+      padding: 12,
+    },
+    scrollView: {
+      flex: 1,
+    },
+    scrollContent: {
+      gap: 15,
+      justifyContent: 'center',
+      paddingVertical: 20,
+    },
+  });
+  
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: tokens.sceneBackground, padding: 12 }}>
+    <SafeAreaView style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
       <BackButton onPress={() => router.back()} />
       <ScrollView 
-        style={{ flex: 1 }}
-        contentContainerStyle={{ 
-          gap: 15, 
-          justifyContent: 'center',
-          paddingVertical: 20
-        }}
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
         <SettingsSection title="Pick A Theme">

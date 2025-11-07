@@ -1,4 +1,3 @@
-import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { Exercise } from '../lib/storage';
 import { useTheme } from './Theme';

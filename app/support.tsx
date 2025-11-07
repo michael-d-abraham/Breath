@@ -9,8 +9,22 @@ import { useTheme } from "../components/Theme";
 export default function SupportScreen() {
   const { tokens } = useTheme();
 
-  const handleYouTubePress = () => {
-    Linking.openURL('https://www.youtube.com/watch?v=8WPaO819-_g');
+  const handleEmailPress = () => {
+    Linking.openURL('mailto:support@breathapp.com');
+  };
+
+  const handleFeedbackPress = () => {
+    Linking.openURL('mailto:feedback@breathapp.com?subject=Breath%20App%20Feedback');
+  };
+
+  const handlePrivacyPress = () => {
+    // TODO: Replace with actual privacy policy URL when available
+    Linking.openURL('https://breathapp.com/privacy');
+  };
+
+  const handleTermsPress = () => {
+    // TODO: Replace with actual terms of service URL when available
+    Linking.openURL('https://breathapp.com/terms');
   };
   
   return (
@@ -78,7 +92,7 @@ export default function SupportScreen() {
               padding: 16,
               alignItems: 'center'
             }}
-            onPress={handleYouTubePress}
+            onPress={handleEmailPress}
           >
             <Text style={{ 
               color: tokens.textOnAccent, 
@@ -107,7 +121,7 @@ export default function SupportScreen() {
               padding: 16,
               alignItems: 'center'
             }}
-            onPress={handleYouTubePress}
+            onPress={handleFeedbackPress}
           >
             <Text style={{ 
               color: tokens.textOnAccent, 
@@ -140,7 +154,7 @@ export default function SupportScreen() {
                 justifyContent: 'space-between',
                 alignItems: 'center'
               }}
-              onPress={handleYouTubePress}
+              onPress={handlePrivacyPress}
             >
               <Text style={{ color: tokens.textOnAccent, fontSize: 16 }}>
                 Privacy Policy
@@ -159,7 +173,7 @@ export default function SupportScreen() {
                 justifyContent: 'space-between',
                 alignItems: 'center'
               }}
-              onPress={handleYouTubePress}
+              onPress={handleTermsPress}
             >
               <Text style={{ color: tokens.textOnAccent, fontSize: 16 }}>
                 Terms of Service
