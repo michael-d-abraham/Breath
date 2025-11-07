@@ -215,7 +215,7 @@ I will hand-draw all the symbols, and either draw out animations
  or build them programmatically. (I’ve already built a few with p5.js and LOVE these!)
 I will incorperate data science into this in the form of stats (how many mindful minutes along with an animated bamboo plants that grows each day you practice mindfulness breathing or mediation)
 
-But Also I want to do ALOT more research on this. This is a realllly cool topic and I have a few books I still want to read on it and also I want to take this as an opportinity to go meet with some gurus on the topic. I have a few yoga/mediation teachers I want to talk to, psychologics and therapists, but also I want to try to talk to people like Wim Hof, Patrick Mckeown, Dan Brule. And use this app to really become a student of breahing and mindfulness. 
+But Also I want to do ALOT more research on this. This is a realllly cool topic and I have a few books I still want to read on it and also I want to take this as an opportinity to go meet with some gurus on the topic. I have a few yoga/mediation teachers I want to talk to, psychologics and therapists. I want to use this app as an opportinuity to really become a student of breahing and mindfulness. 
 
  So yes I WILL post this app on the app store but I have so much more that I want to learn and add to it before I will feel its ready to be published. 
 

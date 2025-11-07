@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router';
 import React from 'react';
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -7,6 +8,7 @@ import ZenQuote from '../components/ZenQuote';
 
 export default function Index() {
   const { tokens } = useTheme();
+  const router = useRouter();
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: tokens.sceneBackground }}>
@@ -21,7 +23,7 @@ export default function Index() {
           paddingBottom: 8,
           minHeight: '10%'
         }}>
-          <Pressable onPress={() => console.log('Navigate to Moon')}>
+          <Pressable onPress={() => router.push('/moonvisualization')}>
             <Text style={{ color: tokens.textOnAccent, fontSize: 18, fontWeight: '500' }}>
               Moon
             </Text>

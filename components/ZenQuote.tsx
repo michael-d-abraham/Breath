@@ -14,10 +14,7 @@ export default function ZenQuote({ mode = 'today', showRefreshButton = false }: 
 
   const styles = StyleSheet.create({
     container: {
-      backgroundColor: tokens.accentMuted,
-      borderRadius: 12,
-      padding: 20,
-      marginVertical: 16,
+      // Background removed - text only display
     },
     quoteText: {
       color: tokens.textOnAccent,
@@ -35,7 +32,6 @@ export default function ZenQuote({ mode = 'today', showRefreshButton = false }: 
       opacity: 0.8,
     },
     loadingContainer: {
-      padding: 20,
       alignItems: 'center',
     },
     errorText: {
