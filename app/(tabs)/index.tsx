@@ -88,9 +88,9 @@ export default function Index() {
               path="/exercises" 
             />
             
-            {/* Setup Button - Right */}
+            {/* Simple Start Button - Right */}
             <RoundButton 
-              text="Setup" 
+              text="Simple Start" 
               radius={40} 
               path="/breathsetup" 
             />
@@ -101,3 +101,5 @@ export default function Index() {
     </SafeAreaView>
   );
 }
+
+
