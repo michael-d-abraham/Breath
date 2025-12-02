@@ -29,14 +29,16 @@ export function useBreathingHaptics({ hapticsEnabled, isRunning }: UseBreathingH
     };
   }, []);
 
+  // const triggerHaptic = async (style: Haptics.ImpactFeedbackStyle = Haptics.ImpactFeedbackStyle.Medium) => {
+  //   if (!hapticsEnabled) return;
+    
+  //   await Haptics.impactAsync(style);
+  // };
+
   const triggerHaptic = async (style: Haptics.ImpactFeedbackStyle = Haptics.ImpactFeedbackStyle.Medium) => {
     if (!hapticsEnabled) return;
     
-    try {
-      await Haptics.impactAsync(style);
-    } catch (error) {
-      console.warn('Failed to trigger haptics:', error);
-    }
+    await Haptics.impactAsync(style);
   };
 
   const startContinuousVibration = () => {
@@ -52,11 +54,7 @@ export function useBreathingHaptics({ hapticsEnabled, isRunning }: UseBreathingH
         return;
       }
       
-      try {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft);
-      } catch (error) {
-        console.warn('Failed to trigger haptics:', error);
-      }
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft);
     }, 100); // Vibrate every 100ms
   };
 
@@ -67,6 +65,13 @@ export function useBreathingHaptics({ hapticsEnabled, isRunning }: UseBreathingH
     }
   };
 
-  return { triggerHaptic, startContinuousVibration, stopVibration };
+  const forceStop = () => {
+    // Force stop all vibrations immediately
+    stopVibration();
+    // Cancel any pending haptic feedback
+    // Note: expo-haptics doesn't have a cancel method, but stopping the interval should be enough
+  };
+
+  return { triggerHaptic, startContinuousVibration, stopVibration, forceStop };
 }
 

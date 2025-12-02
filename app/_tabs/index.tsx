@@ -55,6 +55,7 @@ export default function Index() {
       flex: 1,
       paddingHorizontal: 24,
       alignItems: 'center',
+      justifyContent: 'center',
     },
     subtitle: {
       color: tokens.textOnAccent,
@@ -133,9 +134,6 @@ export default function Index() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <BottomSheetModalProvider>
         <SafeAreaView style={styles.container}>
-          
-          {/* Top Title */}
-          <Text style={styles.title}>Breath Bro</Text>
 
           {/* Main Content */}
           <View style={styles.contentContainer}>

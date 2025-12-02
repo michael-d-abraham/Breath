@@ -63,77 +63,49 @@ const CURRENT_EXERCISE_KEY = 'current_exercise';
 
 // Get all exercises
 export const getExercises = async (): Promise<Exercise[]> => {
-  try {
-    const stored = await AsyncStorage.getItem(EXERCISES_KEY);
-    if (stored) {
-      return JSON.parse(stored);
-    }
-    // Return default exercises if none stored
-    return defaultExercises;
-  } catch (error) {
-    return defaultExercises;
+  const stored = await AsyncStorage.getItem(EXERCISES_KEY);
+  if (stored) {
+    return JSON.parse(stored);
   }
+  // Return default exercises if none stored
+  return defaultExercises;
 };
 
 // Save exercises
 export const saveExercises = async (exercises: Exercise[]): Promise<void> => {
-  try {
-    await AsyncStorage.setItem(EXERCISES_KEY, JSON.stringify(exercises));
-  } catch (error) {
-    // Silently fail
-  }
+  await AsyncStorage.setItem(EXERCISES_KEY, JSON.stringify(exercises));
 };
 
 // Get current exercise
 export const getCurrentExercise = async (): Promise<Exercise | null> => {
-  try {
-    const stored = await AsyncStorage.getItem(CURRENT_EXERCISE_KEY);
-    if (stored) {
-      return JSON.parse(stored);
-    }
-    return null;
-  } catch (error) {
-    return null;
+  const stored = await AsyncStorage.getItem(CURRENT_EXERCISE_KEY);
+  if (stored) {
+    return JSON.parse(stored);
   }
+  return null;
 };
 
 // Save current exercise
 export const saveCurrentExercise = async (exercise: Exercise): Promise<void> => {
-  try {
-    await AsyncStorage.setItem(CURRENT_EXERCISE_KEY, JSON.stringify(exercise));
-  } catch (error) {
-    // Silently fail
-  }
+  await AsyncStorage.setItem(CURRENT_EXERCISE_KEY, JSON.stringify(exercise));
 };
 
 // Initialize storage with default data
 export const initializeStorage = async (): Promise<void> => {
-  try {
-    const existing = await AsyncStorage.getItem(EXERCISES_KEY);
-    if (!existing) {
-      await saveExercises(defaultExercises);
-    }
-  } catch (error) {
-    // Silently fail
+  const existing = await AsyncStorage.getItem(EXERCISES_KEY);
+  if (!existing) {
+    await saveExercises(defaultExercises);
   }
 };
 
 // Clear all stored data and reset to defaults (useful for development)
 export const resetStorage = async (): Promise<void> => {
-  try {
-    await AsyncStorage.removeItem(EXERCISES_KEY);
-    await AsyncStorage.removeItem(CURRENT_EXERCISE_KEY);
-    await saveExercises(defaultExercises);
-  } catch (error) {
-    // Silently fail
-  }
+  await AsyncStorage.removeItem(EXERCISES_KEY);
+  await AsyncStorage.removeItem(CURRENT_EXERCISE_KEY);
+  await saveExercises(defaultExercises);
 };
 
 // Force update exercises to current defaults (overwrites stored data)
 export const forceUpdateToDefaults = async (): Promise<void> => {
-  try {
-    await saveExercises(defaultExercises);
-  } catch (error) {
-    // Silently fail
-  }
+  await saveExercises(defaultExercises);
 };

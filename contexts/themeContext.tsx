@@ -2,11 +2,14 @@ import { useTheme as useBaseTheme } from '@/components/Theme';
 import { createContext, ReactNode, useContext, useState } from 'react';
 import { View } from 'react-native';
 
+export type SoundType = 'synth' | 'breath' | 'bell';
+
 type AppSettings = {
   soundEnabled: boolean;
   hapticsEnabled: boolean;
   animationsEnabled: boolean;
   backgroundType: 'solid';
+  soundType: SoundType;
 };
 
 type AppContextType = {
@@ -16,6 +19,7 @@ type AppContextType = {
   toggleSound: () => void;
   toggleHaptics: () => void;
   toggleAnimations: () => void;
+  setSoundType: (soundType: SoundType) => void;
 };
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -26,6 +30,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     hapticsEnabled: true,
     animationsEnabled: true,
     backgroundType: 'solid',
+    soundType: 'synth',
   });
 
   const updateSettings = (newSettings: Partial<AppSettings>) => {
@@ -35,6 +40,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const toggleSound = () => setSettings(prev => ({ ...prev, soundEnabled: !prev.soundEnabled }));
   const toggleHaptics = () => setSettings(prev => ({ ...prev, hapticsEnabled: !prev.hapticsEnabled }));
   const toggleAnimations = () => setSettings(prev => ({ ...prev, animationsEnabled: !prev.animationsEnabled }));
+  const setSoundType = (soundType: SoundType) => setSettings(prev => ({ ...prev, soundType }));
 
   return (
     <AppContext.Provider value={{ 
@@ -42,7 +48,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       updateSettings,
       toggleSound,
       toggleHaptics,
-      toggleAnimations
+      toggleAnimations,
+      setSoundType
     }}>
       <ThemedWrapper>
         {children}

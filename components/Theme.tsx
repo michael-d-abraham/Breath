@@ -122,7 +122,7 @@ const palettes: Record<ThemeName, Record<Mode, Tokens>> = {
   export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const sys = useColorScheme() ?? 'light';
     
-    const [themeName, setThemeName] = useState<ThemeName>('grounded');
+    const [themeName, setThemeName] = useState<ThemeName>('uplifting');
     const [appearance, setAppearance] = useState<AppearancePref>('system');
 
     const mode: Mode = appearance === 'system' ? (sys as Mode) : (appearance as Mode);

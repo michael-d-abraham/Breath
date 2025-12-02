@@ -41,23 +41,18 @@ export function useZenQuotes(options: UseZenQuotesOptions = {}): UseZenQuotesRet
 
   // Load cached quote from storage
   const loadCachedQuote = async () => {
-    try {
-      const [cachedQuote, cachedDate] = await Promise.all([
-        AsyncStorage.getItem(STORAGE_KEY_QUOTE),
-        AsyncStorage.getItem(STORAGE_KEY_DATE),
-      ]);
-      
-      if (cachedQuote) {
-        setQuote(JSON.parse(cachedQuote));
-      }
-      if (cachedDate) {
-        setLastFetchDate(cachedDate);
-      }
-    } catch (e) {
-      // Silently fail
-    } finally {
-      setIsInitialized(true);
+    const [cachedQuote, cachedDate] = await Promise.all([
+      AsyncStorage.getItem(STORAGE_KEY_QUOTE),
+      AsyncStorage.getItem(STORAGE_KEY_DATE),
+    ]);
+    
+    if (cachedQuote) {
+      setQuote(JSON.parse(cachedQuote));
     }
+    if (cachedDate) {
+      setLastFetchDate(cachedDate);
+    }
+    setIsInitialized(true);
   };
 
   const fetchQuote = async () => {
@@ -90,8 +85,6 @@ export function useZenQuotes(options: UseZenQuotesOptions = {}): UseZenQuotesRet
       } else {
         throw new Error('No quote data received');
       }
-    } catch (e) {
-      setError(String(e));
     } finally {
       setLoading(false);
     }

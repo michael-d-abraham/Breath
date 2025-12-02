@@ -5,6 +5,8 @@ import AppearancePicker from "../components/AppearancePicker";
 import BackButton from "../components/BackButton";
 import SettingsSection from "../components/SettingsSection";
 import SoundHapticsPicker from "../components/SoundHapticsPicker";
+import SoundPicker from "../components/SoundPicker";
+import SoundscapePicker from "../components/SoundscapePicker";
 import { useTheme } from "../components/Theme";
 import ThemePicker from "../components/ThemePicker";
 
@@ -36,6 +38,14 @@ export default function SettingsScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
+        <SettingsSection title="Sound">
+          <SoundPicker />
+        </SettingsSection>
+
+        <SettingsSection title="Soundscape">
+          <SoundscapePicker />
+        </SettingsSection>
+
         <SettingsSection title="Pick A Theme">
           <ThemePicker />
         </SettingsSection>
