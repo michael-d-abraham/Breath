@@ -29,11 +29,7 @@ export function useBreathingHaptics({ hapticsEnabled, isRunning }: UseBreathingH
     };
   }, []);
 
-  // const triggerHaptic = async (style: Haptics.ImpactFeedbackStyle = Haptics.ImpactFeedbackStyle.Medium) => {
-  //   if (!hapticsEnabled) return;
-    
-  //   await Haptics.impactAsync(style);
-  // };
+
 
   const triggerHaptic = async (style: Haptics.ImpactFeedbackStyle = Haptics.ImpactFeedbackStyle.Medium) => {
     if (!hapticsEnabled) return;
@@ -55,7 +51,7 @@ export function useBreathingHaptics({ hapticsEnabled, isRunning }: UseBreathingH
       }
       
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft);
-    }, 100); // Vibrate every 100ms
+    }, 118); // Vibrate every 140ms
   };
 
   const stopVibration = () => {
