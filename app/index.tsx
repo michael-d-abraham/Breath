@@ -41,10 +41,6 @@ export default function Index() {
     });
   };
 
-  const handleHapticPlaygroundPress = () => {
-    router.push('/hapticplayground');
-  };
-
   const styles = StyleSheet.create({
     container: {
       flex: 1,
@@ -134,32 +130,12 @@ export default function Index() {
       fontSize: 14,
       fontWeight: '600',
     },
-    hapticButton: {
-      position: 'absolute',
-      top: 40,
-      right: 24,
-      padding: 12,
-      borderRadius: 8,
-      backgroundColor: tokens.accentMuted,
-      borderWidth: 1,
-      borderColor: tokens.accentPrimary,
-    },
-    hapticButtonText: {
-      color: tokens.textOnAccent,
-      fontSize: 12,
-      fontWeight: '600',
-    },
   });
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <BottomSheetModalProvider>
         <SafeAreaView style={styles.container}>
-          {/* Haptic Playground Button */}
-          <Pressable onPress={handleHapticPlaygroundPress} style={styles.hapticButton}>
-            <Text style={styles.hapticButtonText}>Haptics</Text>
-          </Pressable>
-
           {/* Main Content */}
           <View style={styles.contentContainer}>
             
