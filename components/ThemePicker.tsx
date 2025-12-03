@@ -1,6 +1,6 @@
 import React from 'react';
+import CircularOptionButton from './CircularOptionButton';
 import { THEMES, useTheme } from './Theme';
-import ThemeButton from './theme_buttons';
 
 export default function ThemePicker() {
   const { themeName, setThemeName } = useTheme();
@@ -8,13 +8,13 @@ export default function ThemePicker() {
   return (
     <>
       {Object.entries(THEMES).map(([key, t]) => (
-        <ThemeButton
+        <CircularOptionButton
           key={key}
+          label={t.name}
+          color={t.preview}
           isSelected={themeName === key}
           onPress={() => setThemeName(key as keyof typeof THEMES)}
-        >
-          {t.name}
-        </ThemeButton>
+        />
       ))}
     </>
   );

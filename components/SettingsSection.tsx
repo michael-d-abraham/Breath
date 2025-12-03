@@ -15,16 +15,27 @@ export default function SettingsSection({ title, children, marginTop = 30 }: Set
     <View style={{ marginTop }}>
       <Text
         style={{
-          fontSize: 25,
-          fontWeight: "800",
-          marginBottom: 12,
+          fontSize: 20,
+          fontWeight: "600",
+          marginBottom: 16,
           textAlign: "center",
           color: tokens.textOnAccent
         }}
       >
         {title}
       </Text>
-      {children}
+      <View
+        style={{
+          backgroundColor: tokens.surface + '80', // Semi-transparent
+          borderRadius: 16,
+          padding: 20,
+          flexDirection: 'row',
+          justifyContent: 'space-around',
+          alignItems: 'center',
+        }}
+      >
+        {children}
+      </View>
     </View>
   );
 }

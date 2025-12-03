@@ -1,32 +1,30 @@
 import React from 'react';
+import CircularOptionButton from './CircularOptionButton';
 import { useTheme } from './Theme';
-import AppearanceButton from './appearance_button';
 
 export default function AppearancePicker() {
   const { appearance, setAppearance } = useTheme();
 
   return (
     <>
-      <AppearanceButton 
-        isSelected={appearance === 'light'} 
+      <CircularOptionButton
+        label="Light"
+        icon="sunny"
+        isSelected={appearance === 'light'}
         onPress={() => setAppearance('light')}
-      >
-        Light Mode
-      </AppearanceButton>
-
-      <AppearanceButton 
-        isSelected={appearance === 'dark'} 
+      />
+      <CircularOptionButton
+        label="Dark"
+        icon="moon"
+        isSelected={appearance === 'dark'}
         onPress={() => setAppearance('dark')}
-      >
-        Dark Mode
-      </AppearanceButton>
-
-      <AppearanceButton 
-        isSelected={appearance === 'system'} 
+      />
+      <CircularOptionButton
+        label="System"
+        icon="phone-portrait"
+        isSelected={appearance === 'system'}
         onPress={() => setAppearance('system')}
-      >
-        System
-      </AppearanceButton>
+      />
     </>
   );
 }

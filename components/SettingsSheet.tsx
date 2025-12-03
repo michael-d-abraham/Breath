@@ -45,7 +45,7 @@ const SettingsSheet = forwardRef<SettingsSheetHandle, SettingsSheetProps>(
             Settings
           </Text>
 
-          <SettingsSection title="Sound">
+          <SettingsSection title="Inhale / Exhale Tone">
             <SoundPicker />
           </SettingsSection>
 

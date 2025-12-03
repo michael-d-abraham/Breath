@@ -2,7 +2,8 @@ import { useTheme as useBaseTheme } from '@/components/Theme';
 import { createContext, ReactNode, useContext, useState } from 'react';
 import { View } from 'react-native';
 
-export type SoundType = 'synth' | 'breath' | 'bell';
+export type SoundType = 'synth' | 'guzheng' | 'sine' | 'off';
+export type SoundscapeType = 'dream' | 'fuzzy' | 'keys' | 'off';
 
 type AppSettings = {
   soundEnabled: boolean;
@@ -10,6 +11,7 @@ type AppSettings = {
   animationsEnabled: boolean;
   backgroundType: 'solid';
   soundType: SoundType;
+  soundscape: SoundscapeType;
 };
 
 type AppContextType = {
@@ -20,6 +22,7 @@ type AppContextType = {
   toggleHaptics: () => void;
   toggleAnimations: () => void;
   setSoundType: (soundType: SoundType) => void;
+  setSoundscape: (soundscape: SoundscapeType) => void;
 };
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -30,7 +33,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     hapticsEnabled: true,
     animationsEnabled: true,
     backgroundType: 'solid',
-    soundType: 'synth',
+    soundType: 'sine',
+    soundscape: 'dream',
   });
 
   const updateSettings = (newSettings: Partial<AppSettings>) => {
@@ -41,6 +45,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const toggleHaptics = () => setSettings(prev => ({ ...prev, hapticsEnabled: !prev.hapticsEnabled }));
   const toggleAnimations = () => setSettings(prev => ({ ...prev, animationsEnabled: !prev.animationsEnabled }));
   const setSoundType = (soundType: SoundType) => setSettings(prev => ({ ...prev, soundType }));
+  const setSoundscape = (soundscape: SoundscapeType) => setSettings(prev => ({ ...prev, soundscape }));
 
   return (
     <AppContext.Provider value={{ 
@@ -49,7 +54,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       toggleSound,
       toggleHaptics,
       toggleAnimations,
-      setSoundType
+      setSoundType,
+      setSoundscape
     }}>
       <ThemedWrapper>
         {children}

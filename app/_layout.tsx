@@ -1,3 +1,4 @@
+import BackgroundSoundscapePlayer from "@/components/BackgroundSoundscapePlayer";
 import { ThemeProvider, useTheme } from "@/components/Theme";
 import { BreathingProvider } from "@/contexts/breathingContext";
 import { AppProvider } from "@/contexts/themeContext";
@@ -27,6 +28,7 @@ export default function RootLayout() {
     <ThemeProvider>
       <AppProvider>
         <BreathingProvider>
+          <BackgroundSoundscapePlayer />
           <RootContent />
         </BreathingProvider>
       </AppProvider>

@@ -16,7 +16,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import Animated, { useAnimatedProps } from "react-native-reanimated";
+import Animated, { useAnimatedProps, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Circle } from "react-native-svg";
 
@@ -35,6 +35,8 @@ export default function BreathingPage() {
   const settingsSheetRef = useRef<SettingsSheetHandle>(null);
   const hasAutoStarted = useRef(false);
   const uiHideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hasShownInitialUI = useRef(false);
+  const uiOpacity = useSharedValue(0);
   
   const exercise = currentExercise || { inhale: 4, hold1: 4, exhale: 4, hold2: 4 };
   const { inhale, hold1, exhale, hold2 } = exercise;
@@ -113,8 +115,27 @@ export default function BreathingPage() {
     strokeWidth: strokeWidth.value,
   }));
 
+  const uiAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: uiOpacity.value,
+  }));
+
   const handleStart = () => {
     start();
+    
+    // Show UI on first start, then fade away after 3 seconds
+    if (!hasShownInitialUI.current) {
+      hasShownInitialUI.current = true;
+      setIsUIVisible(true);
+      uiOpacity.value = withTiming(1, { duration: 300 });
+      
+      // Fade away after 3 seconds
+      setTimeout(() => {
+        uiOpacity.value = withTiming(0, { duration: 300 });
+        setTimeout(() => {
+          setIsUIVisible(false);
+        }, 300);
+      }, 3000);
+    }
   };
 
   const handlePause = () => {
@@ -194,12 +215,19 @@ export default function BreathingPage() {
         uiHideTimeoutRef.current = null;
       }
       
-      // If showing UI, set timeout to hide after 10 seconds
+      // Animate opacity based on visibility
       if (newValue) {
+        uiOpacity.value = withTiming(1, { duration: 300 });
+        // Set timeout to hide after 10 seconds
         uiHideTimeoutRef.current = setTimeout(() => {
-          setIsUIVisible(false);
-          uiHideTimeoutRef.current = null;
-        }, 10000);
+          uiOpacity.value = withTiming(0, { duration: 300 });
+          setTimeout(() => {
+            setIsUIVisible(false);
+            uiHideTimeoutRef.current = null;
+          }, 300);
+        }, 1000);
+      } else {
+        uiOpacity.value = withTiming(0, { duration: 300 });
       }
       
       return newValue;
@@ -213,6 +241,21 @@ export default function BreathingPage() {
       // Use a small delay to ensure all hooks are initialized
       const timer = setTimeout(() => {
         start();
+        
+        // Show UI on first start, then fade away after 3 seconds
+        if (!hasShownInitialUI.current) {
+          hasShownInitialUI.current = true;
+          setIsUIVisible(true);
+          uiOpacity.value = withTiming(1, { duration: 300 });
+          
+          // Fade away after 3 seconds
+          setTimeout(() => {
+            uiOpacity.value = withTiming(0, { duration: 300 });
+            setTimeout(() => {
+              setIsUIVisible(false);
+            }, 300);
+          }, 3000);
+        }
       }, 100);
       return () => clearTimeout(timer);
     }
@@ -282,20 +325,22 @@ export default function BreathingPage() {
           </Pressable>
 
           {/* Header - Back Arrow (Left) and Info Icon (Right) - Overlay, only visible when UI is shown */}
-          <View style={{ 
-            position: 'absolute',
-            top: insets.top,
-            left: 0,
-            right: 0,
-            flexDirection: 'row', 
-            justifyContent: 'space-between', 
-            alignItems: 'center',
-            paddingHorizontal: 24,
-            paddingTop: 12,
-            paddingBottom: 8,
-            opacity: isUIVisible ? 1 : 0,
-            pointerEvents: isUIVisible ? 'auto' : 'none',
-          }}>
+          <Animated.View style={[
+            { 
+              position: 'absolute',
+              top: insets.top,
+              left: 0,
+              right: 0,
+              flexDirection: 'row', 
+              justifyContent: 'space-between', 
+              alignItems: 'center',
+              paddingHorizontal: 24,
+              paddingTop: 12,
+              paddingBottom: 8,
+              pointerEvents: isUIVisible ? 'auto' : 'none',
+            },
+            uiAnimatedStyle
+          ]}>
             {/* Back Arrow */}
             <Pressable onPress={handleStopAndExit}>
               <Text style={{ color: tokens.textOnAccent, fontSize: 28 }}>←</Text>
@@ -313,23 +358,25 @@ export default function BreathingPage() {
             }}>
               <Text style={{ color: tokens.textOnAccent, fontSize: 16, fontWeight: '600' }}>i</Text>
             </Pressable>
-          </View>
+          </Animated.View>
 
           {/* Bottom Control Buttons Row - Overlay, only visible when UI is shown */}
-          <View style={{ 
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 40,
-            paddingBottom: 50,
-            paddingHorizontal: 24,
-            opacity: isUIVisible ? 1 : 0,
-            pointerEvents: isUIVisible ? 'auto' : 'none',
-          }}>
+          <Animated.View style={[
+            { 
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 40,
+              paddingBottom: 50,
+              paddingHorizontal: 24,
+              pointerEvents: isUIVisible ? 'auto' : 'none',
+            },
+            uiAnimatedStyle
+          ]}>
             {/* Settings Button - Left */}
             <Pressable
               onPress={handleSettingsPress}
@@ -388,7 +435,7 @@ export default function BreathingPage() {
                 color={tokens.textOnAccent} 
               />
             </Pressable>
-          </View>
+          </Animated.View>
 
           {/* Blurred backdrop (tap to dismiss) */}
           {isSheetOpen && (
