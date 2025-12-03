@@ -17,8 +17,18 @@ function RootContent() {
           contentStyle: {
             backgroundColor: 'transparent',
           },
+          animation: 'fade',
+          animationDuration: 800,
         }}
-      />
+      >
+        <Stack.Screen 
+          name="breathing" 
+          options={{
+            animation: 'fade',
+            animationDuration: 800,
+          }}
+        />
+      </Stack>
     </>
   );
 }

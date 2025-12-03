@@ -34,7 +34,7 @@ export default function SettingsSection({ title, children, marginTop = 30 }: Set
           alignItems: 'center',
         }}
       >
-        {children}
+      {children}
       </View>
     </View>
   );
