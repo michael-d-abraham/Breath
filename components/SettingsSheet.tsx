@@ -16,10 +16,11 @@ export type SettingsSheetHandle = {
 
 interface SettingsSheetProps {
   onChange?: (index: number) => void;
+  onDismiss?: () => void;
 }
 
 const SettingsSheet = forwardRef<SettingsSheetHandle, SettingsSheetProps>(
-  ({ onChange }, ref) => {
+  ({ onChange, onDismiss }, ref) => {
     const { tokens } = useTheme();
     const modalRef = useRef<BottomSheetModal>(null);
 
@@ -37,6 +38,7 @@ const SettingsSheet = forwardRef<SettingsSheetHandle, SettingsSheetProps>(
         enableOverDrag={false}
         enableDynamicSizing={false}
         onChange={onChange}
+        onDismiss={onDismiss}
         backgroundStyle={{ backgroundColor: tokens.sceneBackground }}
         handleIndicatorStyle={{ backgroundColor: tokens.textOnAccent }}
       >

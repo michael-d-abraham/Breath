@@ -169,6 +169,14 @@ export default function BreathingPage() {
     forceStopSoundRef.current?.();
     reset();
     
+    // Immediately hide UI controls to prevent them from lingering
+    if (uiHideTimeoutRef.current) {
+      clearTimeout(uiHideTimeoutRef.current);
+      uiHideTimeoutRef.current = null;
+    }
+    setIsUIVisible(false);
+    uiOpacity.value = 0; // Set opacity to 0 immediately (no animation)
+    
     // Small delay to ensure everything is stopped before navigation
     setTimeout(() => {
       router.push('/');
@@ -199,12 +207,19 @@ export default function BreathingPage() {
     setIsSheetOpen(index >= 0);
   }, []);
 
+  const handleSheetDismiss = useCallback(() => {
+    setIsSheetOpen(false);
+  }, []);
+
   const closeSheet = () => {
     sheetRef.current?.close();
     settingsSheetRef.current?.close();
   };
 
   const handleScreenTap = () => {
+    // Trigger play/pause (same as pause button)
+    handlePlayPause();
+    
     // Toggle UI visibility
     setIsUIVisible(prev => {
       const newValue = !prev;
@@ -218,14 +233,14 @@ export default function BreathingPage() {
       // Animate opacity based on visibility
       if (newValue) {
         uiOpacity.value = withTiming(1, { duration: 300 });
-        // Set timeout to hide after 10 seconds
+        // Set timeout to hide after 5 seconds
         uiHideTimeoutRef.current = setTimeout(() => {
           uiOpacity.value = withTiming(0, { duration: 300 });
           setTimeout(() => {
             setIsUIVisible(false);
             uiHideTimeoutRef.current = null;
           }, 300);
-        }, 1000);
+        }, 3500);
       } else {
         uiOpacity.value = withTiming(0, { duration: 300 });
       }
@@ -270,10 +285,13 @@ export default function BreathingPage() {
       forceStopHapticsRef.current?.();
       forceStopSoundRef.current?.();
       
-      // Clear UI hide timeout
+      // Clear UI hide timeout and immediately hide UI
       if (uiHideTimeoutRef.current) {
         clearTimeout(uiHideTimeoutRef.current);
+        uiHideTimeoutRef.current = null;
       }
+      setIsUIVisible(false);
+      uiOpacity.value = 0; // Set opacity to 0 immediately
     };
   }, [stop]);
 
@@ -449,11 +467,13 @@ export default function BreathingPage() {
             ref={sheetRef} 
             exercise={deepBreathingExercise}
             onChange={handleSheetChange}
+            onDismiss={handleSheetDismiss}
           />
           
           <SettingsSheet 
             ref={settingsSheetRef}
             onChange={handleSheetChange}
+            onDismiss={handleSheetDismiss}
           />
     </SafeAreaView>
       </BottomSheetModalProvider>

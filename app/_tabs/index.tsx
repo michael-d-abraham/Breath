@@ -29,6 +29,10 @@ export default function Index() {
     setIsSheetOpen(index >= 0);
   }, []);
 
+  const handleSheetDismiss = useCallback(() => {
+    setIsSheetOpen(false);
+  }, []);
+
   const closeSheet = () => {
     sheetRef.current?.close();
   };
@@ -175,6 +179,7 @@ export default function Index() {
             ref={sheetRef} 
             exercise={deepBreathingExercise}
             onChange={handleSheetChange}
+            onDismiss={handleSheetDismiss}
           />
         </SafeAreaView>
       </BottomSheetModalProvider>

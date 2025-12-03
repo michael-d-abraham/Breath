@@ -46,6 +46,10 @@ export default function ExercisesPage() {
     setIsSheetOpen(index >= 0); // -1 means closed
   }, []);
 
+  const handleSheetDismiss = useCallback(() => {
+    setIsSheetOpen(false);
+  }, []);
+
   const closeSheet = () => {
     sheetRef.current?.close();
   };
@@ -134,6 +138,7 @@ export default function ExercisesPage() {
             ref={sheetRef} 
             exercise={selectedExercise}
             onChange={handleSheetChange}
+            onDismiss={handleSheetDismiss}
           />
           </View>
         </SafeAreaView>

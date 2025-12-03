@@ -12,10 +12,11 @@ export type ExerciseDetailSheetHandle = {
 interface ExerciseDetailSheetProps {
   exercise: Exercise | null;
   onChange?: (index: number) => void;
+  onDismiss?: () => void;
 }
 
 const ExerciseDetailSheet = forwardRef<ExerciseDetailSheetHandle, ExerciseDetailSheetProps>(
-  ({ exercise, onChange }, ref) => {
+  ({ exercise, onChange, onDismiss }, ref) => {
     const { tokens } = useTheme();
     const modalRef = useRef<BottomSheetModal>(null);
     const [benefitsExpanded, setBenefitsExpanded] = useState(false);
@@ -57,6 +58,7 @@ const ExerciseDetailSheet = forwardRef<ExerciseDetailSheetHandle, ExerciseDetail
         enableOverDrag={false}
         enableDynamicSizing={false}
         onChange={onChange}
+        onDismiss={onDismiss}
         backgroundStyle={{ backgroundColor: tokens.sceneBackground }}
         handleIndicatorStyle={{ backgroundColor: tokens.textOnAccent }}
       >
