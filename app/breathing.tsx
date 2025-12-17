@@ -8,6 +8,7 @@ import { useBreathingAudio } from "@/hooks/useBreathingAudio";
 import { useBreathingCycle } from "@/hooks/useBreathingCycle";
 import { useBreathingHaptics } from "@/hooks/useBreathingHaptics";
 import { defaultExercises } from "@/lib/storage";
+import { trackBreathingEntered, trackBreathingExited, trackBreathingStarted } from "@/utils/sentryTracking";
 import { Ionicons } from '@expo/vector-icons';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { useFocusEffect } from "@react-navigation/native";
@@ -15,7 +16,7 @@ import { BlurView } from 'expo-blur';
 import * as Haptics from "expo-haptics";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Pressable, StatusBar, StyleSheet, Text, View } from "react-native";
+import { AppState, AppStateStatus, Pressable, StatusBar, StyleSheet, Text, View } from "react-native";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Animated, { useAnimatedProps, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
@@ -39,6 +40,13 @@ export default function BreathingPage() {
   const hasShownInitialUI = useRef(false);
   const shouldHideImmediatelyRef = useRef(false);
   const uiOpacity = useSharedValue(0);
+  
+  // Tracking refs
+  const sessionStartTimeRef = useRef<number | null>(null);
+  const breathingReadyTimeRef = useRef<number | null>(null);
+  const hasExitedRef = useRef(false);
+  const hasTrackedEnteredRef = useRef(false);
+  const hasTrackedStartedRef = useRef(false);
   
   const exercise = currentExercise || { inhale: 4, hold1: 4, exhale: 4, hold2: 4 };
   const { inhale, hold1, exhale, hold2 } = exercise;
@@ -110,6 +118,11 @@ export default function BreathingPage() {
     forceStopHapticsRef.current = forceStopHaptics;
     pauseAnimationRef.current = pauseAnimation;
     resumeAnimationRef.current = resumeAnimation;
+    
+    // Track breathing_ready when all hooks are initialized
+    if (breathingReadyTimeRef.current === null) {
+      breathingReadyTimeRef.current = Date.now();
+    }
   }, [playInhaleSound, playExhaleSound, stopSound, forceStopSound, triggerHaptic, startContinuousVibration, stopVibration, forceStopHaptics, pauseAnimation, resumeAnimation]);
 
   // Sync uiOpacity shared value with isUIVisible state (moved from render to effect)
@@ -164,6 +177,13 @@ export default function BreathingPage() {
   const handleStart = () => {
     start();
     
+    // Track breathing_started (only once per session)
+    if (!hasTrackedStartedRef.current) {
+      hasTrackedStartedRef.current = true;
+      sessionStartTimeRef.current = Date.now();
+      trackBreathingStarted(settings.soundEnabled, settings.hapticsEnabled);
+    }
+    
     // Show UI on first start, then fade away after 3 seconds
     if (!hasShownInitialUI.current) {
       hasShownInitialUI.current = true;
@@ -195,6 +215,25 @@ export default function BreathingPage() {
   };
 
   const handleStopAndExit = () => {
+    // Track exit before stopping
+    if (!hasExitedRef.current) {
+      hasExitedRef.current = true;
+      const elapsedSeconds = sessionStartTimeRef.current 
+        ? Math.floor((Date.now() - sessionStartTimeRef.current) / 1000)
+        : 0;
+      const breathingReadyMs = breathingReadyTimeRef.current && sessionStartTimeRef.current
+        ? sessionStartTimeRef.current - breathingReadyTimeRef.current
+        : undefined;
+      
+      trackBreathingExited(
+        settings.soundEnabled,
+        settings.hapticsEnabled,
+        elapsedSeconds,
+        'user_exit',
+        breathingReadyMs
+      );
+    }
+    
     // Force stop everything immediately, even mid-sound
     stop();
     pauseAnimationRef.current?.();
@@ -260,6 +299,15 @@ export default function BreathingPage() {
     setIsUIVisible(prev => !prev);
   };
 
+  // Track breathing_entered when component mounts
+  useEffect(() => {
+    if (!hasTrackedEnteredRef.current) {
+      hasTrackedEnteredRef.current = true;
+      breathingReadyTimeRef.current = Date.now();
+      trackBreathingEntered(settings.soundEnabled, settings.hapticsEnabled);
+    }
+  }, [settings.soundEnabled, settings.hapticsEnabled]);
+
   // Auto-start breathing exercise if navigating from index page
   useEffect(() => {
     if (autoStart === 'true' && !hasAutoStarted.current) {
@@ -267,6 +315,13 @@ export default function BreathingPage() {
       // Use a small delay to ensure all hooks are initialized
       const timer = setTimeout(() => {
         start();
+        
+        // Track breathing_started for auto-start
+        if (!hasTrackedStartedRef.current) {
+          hasTrackedStartedRef.current = true;
+          sessionStartTimeRef.current = Date.now();
+          trackBreathingStarted(settings.soundEnabled, settings.hapticsEnabled);
+        }
         
         // Show UI on first start, then fade away after 3 seconds
         if (!hasShownInitialUI.current) {
@@ -276,7 +331,7 @@ export default function BreathingPage() {
       }, 100);
       return () => clearTimeout(timer);
     }
-  }, [autoStart, start]);
+  }, [autoStart, start, settings.soundEnabled, settings.hapticsEnabled]);
 
   // Hide status bar when screen is focused, restore when screen loses focus
   // Using useFocusEffect ensures it works reliably with Expo Router navigation
@@ -292,9 +347,54 @@ export default function BreathingPage() {
     }, [])
   );
 
+  // Track AppState changes for background detection
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextAppState: AppStateStatus) => {
+      if (nextAppState === 'background' || nextAppState === 'inactive') {
+        // Track exit due to backgrounding
+        if (!hasExitedRef.current && sessionStartTimeRef.current) {
+          hasExitedRef.current = true;
+          const elapsedSeconds = Math.floor((Date.now() - sessionStartTimeRef.current) / 1000);
+          const breathingReadyMs = breathingReadyTimeRef.current && sessionStartTimeRef.current
+            ? sessionStartTimeRef.current - breathingReadyTimeRef.current
+            : undefined;
+          
+          trackBreathingExited(
+            settings.soundEnabled,
+            settings.hapticsEnabled,
+            elapsedSeconds,
+            'background',
+            breathingReadyMs
+          );
+        }
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, [settings.soundEnabled, settings.hapticsEnabled]);
+
   // Cleanup on unmount - force stop everything
   useEffect(() => {
     return () => {
+      // Track exit due to unmount (if not already tracked)
+      if (!hasExitedRef.current && sessionStartTimeRef.current) {
+        hasExitedRef.current = true;
+        const elapsedSeconds = Math.floor((Date.now() - sessionStartTimeRef.current) / 1000);
+        const breathingReadyMs = breathingReadyTimeRef.current && sessionStartTimeRef.current
+          ? sessionStartTimeRef.current - breathingReadyTimeRef.current
+          : undefined;
+        
+        trackBreathingExited(
+          settings.soundEnabled,
+          settings.hapticsEnabled,
+          elapsedSeconds,
+          'unmount',
+          breathingReadyMs
+        );
+      }
+      
       // Force stop everything when component unmounts
       stop();
       pauseAnimationRef.current?.();
@@ -310,7 +410,7 @@ export default function BreathingPage() {
       setIsUIVisible(false);
       // Note: uiOpacity.value will be set to 0 in useEffect when isUIVisible becomes false
     };
-  }, [stop]);
+  }, [stop, settings.soundEnabled, settings.hapticsEnabled]);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
