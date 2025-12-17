@@ -10,11 +10,12 @@ import { useBreathingHaptics } from "@/hooks/useBreathingHaptics";
 import { defaultExercises } from "@/lib/storage";
 import { Ionicons } from '@expo/vector-icons';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import { useFocusEffect } from "@react-navigation/native";
 import { BlurView } from 'expo-blur';
 import * as Haptics from "expo-haptics";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StatusBar, StyleSheet, Text, View } from "react-native";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Animated, { useAnimatedProps, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
@@ -36,6 +37,7 @@ export default function BreathingPage() {
   const hasAutoStarted = useRef(false);
   const uiHideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hasShownInitialUI = useRef(false);
+  const shouldHideImmediatelyRef = useRef(false);
   const uiOpacity = useSharedValue(0);
   
   const exercise = currentExercise || { inhale: 4, hold1: 4, exhale: 4, hold2: 4 };
@@ -110,6 +112,46 @@ export default function BreathingPage() {
     resumeAnimationRef.current = resumeAnimation;
   }, [playInhaleSound, playExhaleSound, stopSound, forceStopSound, triggerHaptic, startContinuousVibration, stopVibration, forceStopHaptics, pauseAnimation, resumeAnimation]);
 
+  // Sync uiOpacity shared value with isUIVisible state (moved from render to effect)
+  useEffect(() => {
+    // Clear existing timeout when visibility changes
+    if (uiHideTimeoutRef.current) {
+      clearTimeout(uiHideTimeoutRef.current);
+      uiHideTimeoutRef.current = null;
+    }
+
+    if (isUIVisible) {
+      // Show UI with animation
+      uiOpacity.value = withTiming(1, { duration: 300 });
+      
+      // Auto-hide after delay (3 seconds for initial start, 5 seconds for manual toggle)
+      const hideDelay = hasShownInitialUI.current ? 3500 : 3000;
+      uiHideTimeoutRef.current = setTimeout(() => {
+        uiOpacity.value = withTiming(0, { duration: 300 });
+        setTimeout(() => {
+          setIsUIVisible(false);
+          uiHideTimeoutRef.current = null;
+        }, 300);
+      }, hideDelay);
+    } else {
+      // Hide UI with animation (or immediately if needed)
+      if (shouldHideImmediatelyRef.current) {
+        uiOpacity.value = 0; // Set immediately without animation
+        shouldHideImmediatelyRef.current = false;
+      } else {
+        uiOpacity.value = withTiming(0, { duration: 300 });
+      }
+    }
+
+    // Cleanup timeout on unmount or when isUIVisible changes
+    return () => {
+      if (uiHideTimeoutRef.current) {
+        clearTimeout(uiHideTimeoutRef.current);
+        uiHideTimeoutRef.current = null;
+      }
+    };
+  }, [isUIVisible]);
+
   const animatedProps = useAnimatedProps(() => ({
     r: radius.value,
     strokeWidth: strokeWidth.value,
@@ -126,15 +168,6 @@ export default function BreathingPage() {
     if (!hasShownInitialUI.current) {
       hasShownInitialUI.current = true;
       setIsUIVisible(true);
-      uiOpacity.value = withTiming(1, { duration: 300 });
-      
-      // Fade away after 3 seconds
-      setTimeout(() => {
-        uiOpacity.value = withTiming(0, { duration: 300 });
-        setTimeout(() => {
-          setIsUIVisible(false);
-        }, 300);
-      }, 3000);
     }
   };
 
@@ -174,8 +207,8 @@ export default function BreathingPage() {
       clearTimeout(uiHideTimeoutRef.current);
       uiHideTimeoutRef.current = null;
     }
+    shouldHideImmediatelyRef.current = true;
     setIsUIVisible(false);
-    uiOpacity.value = 0; // Set opacity to 0 immediately (no animation)
     
     // Small delay to ensure everything is stopped before navigation
     setTimeout(() => {
@@ -217,36 +250,14 @@ export default function BreathingPage() {
   };
 
   const handleScreenTap = () => {
-    // Trigger play/pause (same as pause button)
-    handlePlayPause();
+    // Only toggle UI visibility, do not pause/resume exercise
+    // Clear existing timeout
+    if (uiHideTimeoutRef.current) {
+      clearTimeout(uiHideTimeoutRef.current);
+      uiHideTimeoutRef.current = null;
+    }
     
-    // Toggle UI visibility
-    setIsUIVisible(prev => {
-      const newValue = !prev;
-      
-      // Clear existing timeout
-      if (uiHideTimeoutRef.current) {
-        clearTimeout(uiHideTimeoutRef.current);
-        uiHideTimeoutRef.current = null;
-      }
-      
-      // Animate opacity based on visibility
-      if (newValue) {
-        uiOpacity.value = withTiming(1, { duration: 300 });
-        // Set timeout to hide after 5 seconds
-        uiHideTimeoutRef.current = setTimeout(() => {
-          uiOpacity.value = withTiming(0, { duration: 300 });
-          setTimeout(() => {
-            setIsUIVisible(false);
-            uiHideTimeoutRef.current = null;
-          }, 300);
-        }, 3500);
-      } else {
-        uiOpacity.value = withTiming(0, { duration: 300 });
-      }
-      
-      return newValue;
-    });
+    setIsUIVisible(prev => !prev);
   };
 
   // Auto-start breathing exercise if navigating from index page
@@ -261,20 +272,25 @@ export default function BreathingPage() {
         if (!hasShownInitialUI.current) {
           hasShownInitialUI.current = true;
           setIsUIVisible(true);
-          uiOpacity.value = withTiming(1, { duration: 300 });
-          
-          // Fade away after 3 seconds
-          setTimeout(() => {
-            uiOpacity.value = withTiming(0, { duration: 300 });
-            setTimeout(() => {
-              setIsUIVisible(false);
-            }, 300);
-          }, 3000);
         }
       }, 100);
       return () => clearTimeout(timer);
     }
   }, [autoStart, start]);
+
+  // Hide status bar when screen is focused, restore when screen loses focus
+  // Using useFocusEffect ensures it works reliably with Expo Router navigation
+  useFocusEffect(
+    useCallback(() => {
+      // Hide status bar when entering breathing screen
+      StatusBar.setHidden(true, 'fade');
+      
+      // Restore status bar when leaving breathing screen
+      return () => {
+        StatusBar.setHidden(false, 'fade');
+      };
+    }, [])
+  );
 
   // Cleanup on unmount - force stop everything
   useEffect(() => {
@@ -290,8 +306,9 @@ export default function BreathingPage() {
         clearTimeout(uiHideTimeoutRef.current);
         uiHideTimeoutRef.current = null;
       }
+      shouldHideImmediatelyRef.current = true;
       setIsUIVisible(false);
-      uiOpacity.value = 0; // Set opacity to 0 immediately
+      // Note: uiOpacity.value will be set to 0 in useEffect when isUIVisible becomes false
     };
   }, [stop]);
 
@@ -305,41 +322,55 @@ export default function BreathingPage() {
             style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
             onPress={handleScreenTap}
           >
-            {/* Breathing Animation */}
-            <View style={{ alignItems: 'center' }}>
-              <Svg width={400} height={400}>
-                {/* Outer circle */}
-                <Circle cx={200} cy={200} r={180} stroke={tokens.accentPrimary} strokeWidth={1} fill="none" opacity={0.3} />
-                {/* Middle circle */}
-                <Circle cx={200} cy={200} r={65} stroke={tokens.accentPrimary} strokeWidth={1} fill="none" opacity={0.5} />
-                {/* Inner animated circle */}
-                <AnimatedCircle 
-                  cx={200} 
-                  cy={200} 
-                  animatedProps={animatedProps} 
-                  stroke={tokens.borderSubtle} 
-                  fill={tokens.accentMuted} 
-                  strokeLinecap="round"
-                  opacity={0.8}
-                />
-              </Svg>
-              
-              {/* Phase text overlay */}
-              <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center' }}>
-                <Text style={{ 
-                  color: tokens.textPrimary, 
-                  fontSize: 32, 
-                  fontWeight: '300',
-                  letterSpacing: 2,
-                  textTransform: 'uppercase'
-                }}>
-                  {phase === 'inhale' ? 'Inhale' : 
-                   phase === 'hold1' ? 'Hold' : 
-                   phase === 'exhale' ? 'Exhale' : 
-                   phase === 'hold2' ? 'Hold' : ''}
-                </Text>
+            {/* Breathing Animation - Tap to pause/resume */}
+            <Pressable 
+              onPress={() => {
+                handlePlayPause();
+                // Also show UI when pausing/resuming for better UX
+                if (!isUIVisible) {
+                  // Clear existing timeout
+                  if (uiHideTimeoutRef.current) {
+                    clearTimeout(uiHideTimeoutRef.current);
+                  }
+                  setIsUIVisible(true);
+                }
+              }}
+            >
+              <View style={{ alignItems: 'center' }}>
+                <Svg width={400} height={400}>
+                  {/* Outer circle */}
+                  <Circle cx={200} cy={200} r={180} stroke={tokens.accentPrimary} strokeWidth={1} fill="none" opacity={0.3} />
+                  {/* Middle circle */}
+                  <Circle cx={200} cy={200} r={65} stroke={tokens.accentPrimary} strokeWidth={1} fill="none" opacity={0.5} />
+                  {/* Inner animated circle */}
+                  <AnimatedCircle 
+                    cx={200} 
+                    cy={200} 
+                    animatedProps={animatedProps} 
+                    stroke={tokens.borderSubtle} 
+                    fill={tokens.accentMuted} 
+                    strokeLinecap="round"
+                    opacity={0.8}
+                  />
+                </Svg>
+                
+                {/* Phase text overlay */}
+                <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center' }}>
+                  <Text style={{ 
+                    color: tokens.textPrimary, 
+                    fontSize: 32, 
+                    fontWeight: '300',
+                    letterSpacing: 2,
+                    textTransform: 'uppercase'
+                  }}>
+                    {phase === 'inhale' ? 'Inhale' : 
+                     phase === 'hold1' ? 'Hold' : 
+                     phase === 'exhale' ? 'Exhale' : 
+                     phase === 'hold2' ? 'Hold' : ''}
+                  </Text>
+                </View>
               </View>
-            </View>
+            </Pressable>
           </Pressable>
 
           {/* Header - Back Arrow (Left) and Info Icon (Right) - Overlay, only visible when UI is shown */}

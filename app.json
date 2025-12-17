@@ -40,7 +40,8 @@
           }
         }
       ],
-      "expo-audio"
+      "expo-audio",
+      "sentry-expo"
     ],
     "experiments": {
       "typedRoutes": true,
