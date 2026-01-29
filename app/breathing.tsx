@@ -422,55 +422,68 @@ export default function BreathingPage() {
             style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
             onPress={handleScreenTap}
           >
-            {/* Breathing Animation - Tap to pause/resume */}
-            <Pressable 
-              onPress={() => {
-                handlePlayPause();
-                // Also show UI when pausing/resuming for better UX
-                if (!isUIVisible) {
-                  // Clear existing timeout
-                  if (uiHideTimeoutRef.current) {
-                    clearTimeout(uiHideTimeoutRef.current);
-                  }
-                  setIsUIVisible(true);
-                }
-              }}
-            >
-              <View style={{ alignItems: 'center' }}>
-                <Svg width={400} height={400}>
-                  {/* Outer circle */}
-                  <Circle cx={200} cy={200} r={180} stroke={tokens.accentPrimary} strokeWidth={1} fill="none" opacity={0.3} />
-                  {/* Middle circle */}
-                  <Circle cx={200} cy={200} r={65} stroke={tokens.accentPrimary} strokeWidth={1} fill="none" opacity={0.5} />
-                  {/* Inner animated circle */}
-                  <AnimatedCircle 
-                    cx={200} 
-                    cy={200} 
-                    animatedProps={animatedProps} 
-                    stroke={tokens.borderSubtle} 
-                    fill={tokens.accentMuted} 
-                    strokeLinecap="round"
-                    opacity={0.8}
-                  />
-                </Svg>
-                
-                {/* Phase text overlay */}
-                <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center' }}>
-                  <Text style={{ 
-                    color: tokens.textPrimary, 
-                    fontSize: 32, 
-                    fontWeight: '300',
-                    letterSpacing: 2,
-                    textTransform: 'uppercase'
-                  }}>
-                    {phase === 'inhale' ? 'Inhale' : 
-                     phase === 'hold1' ? 'Hold' : 
-                     phase === 'exhale' ? 'Exhale' : 
-                     phase === 'hold2' ? 'Hold' : ''}
-                  </Text>
-                </View>
+            {/* Breathing Animation */}
+            <View style={{ alignItems: 'center', position: 'relative' }}>
+              <Svg width={400} height={400}>
+                {/* Outer circle */}
+                <Circle cx={200} cy={200} r={180} stroke={tokens.accentPrimary} strokeWidth={1} fill="none" opacity={0.3} />
+                {/* Middle circle */}
+                <Circle cx={200} cy={200} r={65} stroke={tokens.accentPrimary} strokeWidth={1} fill="none" opacity={0.5} />
+                {/* Inner animated circle */}
+                <AnimatedCircle 
+                  cx={200} 
+                  cy={200} 
+                  animatedProps={animatedProps} 
+                  stroke={tokens.borderSubtle} 
+                  fill={tokens.accentMuted} 
+                  strokeLinecap="round"
+                  opacity={0.8}
+                />
+              </Svg>
+              
+              {/* Phase text overlay */}
+              <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center' }}>
+                <Text style={{ 
+                  color: tokens.textPrimary, 
+                  fontSize: 32, 
+                  fontWeight: '300',
+                  letterSpacing: 2,
+                  textTransform: 'uppercase'
+                }}>
+                  {phase === 'inhale' ? 'Inhale' : 
+                   phase === 'hold1' ? 'Hold' : 
+                   phase === 'exhale' ? 'Exhale' : 
+                   phase === 'hold2' ? 'Hold' : ''}
+                </Text>
               </View>
-            </Pressable>
+              
+              {/* Inner circle tap area - only the small inner circle is tappable */}
+              <Pressable 
+                onPress={() => {
+                  handlePlayPause();
+                  // Also show UI when pausing/resuming for better UX
+                  if (!isUIVisible) {
+                    // Clear existing timeout
+                    if (uiHideTimeoutRef.current) {
+                      clearTimeout(uiHideTimeoutRef.current);
+                    }
+                    setIsUIVisible(true);
+                  }
+                }}
+                style={{
+                  position: 'absolute',
+                  width: 140, // Slightly larger than minimum inner circle (radius 66 = diameter 132) for easier tapping
+                  height: 140,
+                  borderRadius: 70,
+                  top: '50%',
+                  left: '50%',
+                  marginTop: -70, // Center the pressable (half of height)
+                  marginLeft: -70, // Center the pressable (half of width)
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+              />
+            </View>
           </Pressable>
 
           {/* Header - Back Arrow (Left) and Info Icon (Right) - Overlay, only visible when UI is shown */}

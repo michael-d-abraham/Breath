@@ -93,7 +93,7 @@ export default function SupportScreen() {
               marginTop: 4,
               opacity: 0.8
             }}>
-              support@breathapp.com
+              hello@breathbro.app
             </Text>
           </Pressable>
         </SettingsSection>

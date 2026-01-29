@@ -1,4 +1,5 @@
 import ExerciseDetailSheet, { ExerciseDetailSheetHandle } from '@/components/ExerciseDetailSheet';
+import SupportSheet, { SupportSheetHandle } from '@/components/SupportSheet';
 import { useTheme } from '@/components/Theme';
 import { useBreathing } from '@/contexts/breathingContext';
 import { defaultExercises } from '@/lib/storage';
@@ -8,14 +9,17 @@ import { useRouter } from 'expo-router';
 import React, { useCallback, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function Index() {
   const { tokens } = useTheme();
   const router = useRouter();
   const { updateExercise } = useBreathing();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [isSupportSheetOpen, setIsSupportSheetOpen] = useState(false);
   const sheetRef = useRef<ExerciseDetailSheetHandle>(null);
+  const supportSheetRef = useRef<SupportSheetHandle>(null);
+  const insets = useSafeAreaInsets();
 
   // Get Deep Breathing exercise (id: "1")
   const deepBreathingExercise = defaultExercises.find(ex => ex.id === "1") || defaultExercises[0];
@@ -43,6 +47,23 @@ export default function Index() {
       pathname: '/breathing',
       params: { autoStart: 'true' }
     });
+  };
+
+  const handleSupportPress = () => {
+    setIsSupportSheetOpen(true);
+    supportSheetRef.current?.open();
+  };
+
+  const handleSupportSheetChange = useCallback((index: number) => {
+    setIsSupportSheetOpen(index >= 0);
+  }, []);
+
+  const handleSupportSheetDismiss = useCallback(() => {
+    setIsSupportSheetOpen(false);
+  }, []);
+
+  const closeSupportSheet = () => {
+    supportSheetRef.current?.close();
   };
 
   const styles = StyleSheet.create({
@@ -134,12 +155,30 @@ export default function Index() {
       fontSize: 14,
       fontWeight: '600',
     },
+    heartIcon: {
+      fontSize: 32,
+      color: tokens.textOnAccent,
+    },
   });
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <BottomSheetModalProvider>
         <SafeAreaView style={styles.container}>
+          {/* Heart Button - Top Right */}
+          <Pressable 
+            onPress={handleSupportPress} 
+            style={{
+              position: 'absolute',
+              top: insets.top + 8,
+              right: 16,
+              padding: 8,
+              zIndex: 10,
+            }}
+          >
+            <Text style={styles.heartIcon}>♡</Text>
+          </Pressable>
+
           {/* Main Content */}
           <View style={styles.contentContainer}>
             
@@ -169,18 +208,29 @@ export default function Index() {
           </View>
 
           {/* Blurred backdrop (tap to dismiss) */}
-          {isSheetOpen && (
-            <Pressable onPress={closeSheet} style={StyleSheet.absoluteFill}>
+          {(isSheetOpen || isSupportSheetOpen) && (
+            <Pressable 
+              onPress={() => {
+                if (isSheetOpen) closeSheet();
+                if (isSupportSheetOpen) closeSupportSheet();
+              }} 
+              style={StyleSheet.absoluteFill}
+            >
               <BlurView intensity={20} style={StyleSheet.absoluteFill} />
             </Pressable>
           )}
 
-          {/* Bottom Sheet Modal */}
+          {/* Bottom Sheet Modals */}
           <ExerciseDetailSheet 
             ref={sheetRef} 
             exercise={deepBreathingExercise}
             onChange={handleSheetChange}
             onDismiss={handleSheetDismiss}
+          />
+          <SupportSheet
+            ref={supportSheetRef}
+            onChange={handleSupportSheetChange}
+            onDismiss={handleSupportSheetDismiss}
           />
         </SafeAreaView>
       </BottomSheetModalProvider>
