@@ -36,6 +36,18 @@ type AppContextType = {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
+/** Keep ThemeProvider palette in sync with persisted animation theme. */
+function ThemePaletteSync() {
+  const { setThemeName } = useBaseTheme();
+  const { settings } = useContext(AppContext)!;
+
+  useEffect(() => {
+    setThemeName(settings.animationTheme);
+  }, [settings.animationTheme, setThemeName]);
+
+  return null;
+}
+
 export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [settings, setSettings] = useState<AppSettings>({
     soundEnabled: true,
@@ -113,6 +125,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       setSoundscape,
       setAnimationTheme
     }}>
+      <ThemePaletteSync />
       <ThemedWrapper>
         {children}
       </ThemedWrapper>

@@ -94,14 +94,14 @@ const BaseBottomSheet = forwardRef<BaseBottomSheetHandle, BaseBottomSheetProps>(
 
     const sheetBackgroundColor = useMemo(() => {
       if (headerless) {
-        return tokens.systemGroupedBg;
+        return tokens.sceneBackground;
       }
       const bg = tokens.bottomSheetBg;
       if (typeof bg === 'string' && /^#[0-9A-Fa-f]{6}$/.test(bg)) {
         return hexWithAlpha(bg, BOTTOM_SHEET_BACKGROUND_ALPHA);
       }
       return bg;
-    }, [headerless, tokens.bottomSheetBg, tokens.systemGroupedBg]);
+    }, [headerless, tokens.bottomSheetBg, tokens.sceneBackground]);
 
     /** Match drag handle to title — settingsLabel for inset-grouped sheets, bottomSheetText otherwise. */
     const handleColor = headerless ? tokens.settingsLabel : tokens.bottomSheetText;

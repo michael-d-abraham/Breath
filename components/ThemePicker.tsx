@@ -1,12 +1,12 @@
-import { settingsPickerSurfaceColor } from "@/components/settingsScreenTokens";
 import ThemeCard from "@/components/ThemeCard";
 import { SettingsOptionCardRow, usePickerCardWidth } from "@/components/SettingsOptionCard";
 import { useAppSettings } from "@/contexts/appSettingsContext";
 import { getThemeChromeTint } from "@/components/animationTheme";
 import CircularOptionButton from "./CircularOptionButton";
 import { THEMES, ThemeName, useTheme } from "./Theme";
-import React from "react";
+import React, { useCallback } from "react";
 
+/** @deprecated Both pickers now update app palette + breathing ring together. */
 type ThemePickerTarget = "app" | "animation";
 type ThemePickerVariant = "page" | "bottomSheet";
 
@@ -18,23 +18,32 @@ interface ThemePickerProps {
 const THEME_ORDER: ThemeName[] = ["basic", "grounded", "calm", "uplifting"];
 
 export default function ThemePicker({
-  target = "app",
   variant = "page",
 }: ThemePickerProps) {
   return variant === "bottomSheet" ? (
-    <TileThemePicker target={target} />
+    <TileThemePicker />
   ) : (
-    <CircleThemePicker target={target} />
+    <CircleThemePicker />
   );
 }
 
-function CircleThemePicker({ target }: { target: ThemePickerTarget }) {
-  const themeContext = useTheme();
-  const appSettings = useAppSettings();
+function useThemePickerSelection() {
+  const { themeName, setThemeName } = useTheme();
+  const { setAnimationTheme } = useAppSettings();
 
-  const isApp = target === "app";
-  const selectedTheme = isApp ? themeContext.themeName : appSettings.settings.animationTheme;
-  const setTheme = isApp ? themeContext.setThemeName : appSettings.setAnimationTheme;
+  const setTheme = useCallback(
+    (key: ThemeName) => {
+      setThemeName(key);
+      void setAnimationTheme(key);
+    },
+    [setAnimationTheme, setThemeName],
+  );
+
+  return { selectedTheme: themeName, setTheme };
+}
+
+function CircleThemePicker() {
+  const { selectedTheme, setTheme } = useThemePickerSelection();
 
   return (
     <>
@@ -54,19 +63,11 @@ function CircleThemePicker({ target }: { target: ThemePickerTarget }) {
   );
 }
 
-function TileThemePicker({ target }: { target: ThemePickerTarget }) {
-  const themeContext = useTheme();
-  const appSettings = useAppSettings();
-  const { mode, tokens } = themeContext;
-  const cardSurface = settingsPickerSurfaceColor(
-    mode,
-    tokens.systemSecondaryGroupedBg,
-  );
+function TileThemePicker() {
+  const { tokens } = useTheme();
+  const { selectedTheme, setTheme } = useThemePickerSelection();
+  const cardSurface = tokens.surface;
   const cardWidth = usePickerCardWidth();
-
-  const isApp = target === "app";
-  const selectedTheme = isApp ? themeContext.themeName : appSettings.settings.animationTheme;
-  const setTheme = isApp ? themeContext.setThemeName : appSettings.setAnimationTheme;
 
   return (
     <SettingsOptionCardRow>

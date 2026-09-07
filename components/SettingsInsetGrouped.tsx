@@ -490,7 +490,7 @@ export function SettingsInsetGroupedLayout({
 
   return (
     <View
-      style={[styles.root, { backgroundColor: tokens.systemGroupedBg }]}
+      style={[styles.root, { backgroundColor: tokens.sceneBackground }]}
     >
       {isBottomSheet ? (
         <SheetDismissControl
@@ -508,7 +508,7 @@ export function SettingsInsetGroupedLayout({
             {
               paddingTop: headerInsetTop,
               height: topBarHeight,
-              backgroundColor: tokens.systemGroupedBg,
+              backgroundColor: tokens.sceneBackground,
             },
           ]}
         >
@@ -721,12 +721,12 @@ export function SettingsGroupedSection({
         },
         card: {
           marginHorizontal: HORIZONTAL_INSET,
-          backgroundColor: tokens.systemSecondaryGroupedBg,
+          backgroundColor: tokens.surface,
           borderRadius: CARD_RADIUS,
           overflow: overflowVisible ? "visible" : "hidden",
         },
       }),
-    [tokens.systemSecondaryGroupedBg, overflowVisible],
+    [tokens.surface, overflowVisible],
   );
 
   const childArray = React.Children.toArray(children);
