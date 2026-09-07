@@ -1,19 +1,8 @@
+import { themedSceneBackground } from '@/components/settingsScreenTokens';
 import { BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import React, { forwardRef, useImperativeHandle, useMemo, useRef } from 'react';
 import { Text, View } from 'react-native';
 import { useTheme } from './Theme';
-
-/** Light frosted sheet: ~12% see-through over content behind. */
-const BOTTOM_SHEET_BACKGROUND_ALPHA = 0.88;
-
-function hexWithAlpha(hex: string, alpha: number): string {
-  const clean = hex.replace('#', '');
-  if (clean.length !== 6) return hex;
-  const a = Math.min(255, Math.max(0, Math.round(alpha * 255)))
-    .toString(16)
-    .padStart(2, '0');
-  return `#${clean}${a}`;
-}
 
 /**
  * Handle type for imperative control of BaseBottomSheet
@@ -93,15 +82,12 @@ const BaseBottomSheet = forwardRef<BaseBottomSheetHandle, BaseBottomSheetProps>(
     const modalRef = useRef<BottomSheetModal>(null);
 
     const sheetBackgroundColor = useMemo(() => {
-      if (headerless) {
-        return tokens.sceneBackground;
-      }
-      const bg = tokens.bottomSheetBg;
+      const bg = tokens.sceneBackground;
       if (typeof bg === 'string' && /^#[0-9A-Fa-f]{6}$/.test(bg)) {
-        return hexWithAlpha(bg, BOTTOM_SHEET_BACKGROUND_ALPHA);
+        return themedSceneBackground(bg);
       }
       return bg;
-    }, [headerless, tokens.bottomSheetBg, tokens.sceneBackground]);
+    }, [tokens.sceneBackground]);
 
     /** Match drag handle to title — settingsLabel for inset-grouped sheets, bottomSheetText otherwise. */
     const handleColor = headerless ? tokens.settingsLabel : tokens.bottomSheetText;

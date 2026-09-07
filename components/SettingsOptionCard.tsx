@@ -147,6 +147,7 @@ type CardProps = {
   /** Accent for preview circle only — not selection chrome. */
   accentColor: unknown;
   backgroundColor: ColorValue;
+  titleColor?: ColorValue;
   width?: number;
   height?: number;
   testID?: string;
@@ -161,6 +162,7 @@ export function SettingsOptionCard({
   onPress,
   accentColor,
   backgroundColor,
+  titleColor,
   width,
   height = settingsPickerCard.contentCardHeight,
   testID,
@@ -179,7 +181,7 @@ export function SettingsOptionCard({
         card: {
           ...settingsPickerBorderStyle(
             selected,
-            tokens.settingsSeparator,
+            tokens.bottomSheetSeparator,
           ),
           backgroundColor,
           height,
@@ -193,7 +195,7 @@ export function SettingsOptionCard({
           justifyContent: "center",
         },
         title: {
-          color: tokens.settingsLabel,
+          color: titleColor ?? tokens.bottomSheetText,
           fontSize: settingsPickerCard.titleSize,
           fontWeight: "600",
           letterSpacing: -0.2,
@@ -207,8 +209,9 @@ export function SettingsOptionCard({
       backgroundColor,
       height,
       selected,
-      tokens.settingsLabel,
-      tokens.settingsSeparator,
+      titleColor,
+      tokens.bottomSheetSeparator,
+      tokens.bottomSheetText,
       width,
     ],
   );

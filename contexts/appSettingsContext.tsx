@@ -1,8 +1,7 @@
-import { useTheme as useBaseTheme, ThemeName } from '@/components/Theme';
-import { DEFAULT_ZENSCAPE_BACKGROUND_FILENAME, isKnownZenscapeFilename, ZENSCAPE_IMAGE_MAP } from '@/constants/wallpapers';
+import { DEFAULT_ZENSCAPE_BACKGROUND_FILENAME, isKnownZenscapeFilename } from '@/constants/wallpapers';
 import { getBackgroundImage, getAnimationTheme, saveAnimationTheme, saveBackgroundImage } from '@/lib/storage';
+import { ThemeName } from '@/components/Theme';
 import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
-import { ImageBackground, View } from 'react-native';
 
 export type SoundType = 'synth' | 'guzheng' | 'sine' | 'off';
 export type SoundscapeType = 'dream' | 'fuzzy' | 'keys' | 'off';
@@ -18,10 +17,8 @@ type AppSettings = {
 };
 
 type AppContextType = {
-  // App-specific settings
   settings: AppSettings;
   backgroundImage: string | null;
-  /** True while Scenes/settings soundscape picker is visible — enables preview. */
   soundscapeAudition: boolean;
   setSoundscapeAudition: (active: boolean) => void;
   updateSettings: (settings: Partial<AppSettings>) => void;
@@ -36,18 +33,6 @@ type AppContextType = {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-/** Keep ThemeProvider palette in sync with persisted animation theme. */
-function ThemePaletteSync() {
-  const { setThemeName } = useBaseTheme();
-  const { settings } = useContext(AppContext)!;
-
-  useEffect(() => {
-    setThemeName(settings.animationTheme);
-  }, [settings.animationTheme, setThemeName]);
-
-  return null;
-}
-
 export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [settings, setSettings] = useState<AppSettings>({
     soundEnabled: true,
@@ -58,7 +43,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     soundscape: 'dream',
     animationTheme: 'calm',
   });
-  // Start with default zenscape so the first paint matches first-launch storage (no solid flash).
   const [backgroundImage, setBackgroundImageState] = useState<string | null>(
     DEFAULT_ZENSCAPE_BACKGROUND_FILENAME,
   );
@@ -81,7 +65,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     let cancelled = false;
-    // Load background image on mount; first install or bad legacy value → default zenscape + persist
     (async () => {
       const storedImage = await getBackgroundImage();
       if (cancelled) return;
@@ -93,7 +76,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       }
     })();
 
-    // Load animation theme from storage
     getAnimationTheme().then(stored => {
       if (stored) {
         setSettings(prev => ({ ...prev, animationTheme: stored as ThemeName }));
@@ -111,8 +93,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const setSoundscape = (soundscape: SoundscapeType) => setSettings(prev => ({ ...prev, soundscape }));
 
   return (
-    <AppContext.Provider value={{ 
-      settings, 
+    <AppContext.Provider value={{
+      settings,
       backgroundImage,
       soundscapeAudition,
       setSoundscapeAudition,
@@ -123,48 +105,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       toggleAnimations,
       setSoundType,
       setSoundscape,
-      setAnimationTheme
+      setAnimationTheme,
     }}>
-      <ThemePaletteSync />
-      <ThemedWrapper>
-        {children}
-      </ThemedWrapper>
-    </AppContext.Provider>
-  );
-};
-
-// Separate component that can safely use theme
-const ThemedWrapper = ({ children }: { children: ReactNode }) => {
-  const theme = useBaseTheme(); // Safe to call here
-  const appContext = useContext(AppContext);
-  const backgroundImage = appContext?.backgroundImage || null;
-  
-  const backgroundStyle = {
-    flex: 1,
-    backgroundColor: theme.tokens.sceneBackground,
-  };
-
-  const resolvedFilename = isKnownZenscapeFilename(backgroundImage)
-    ? backgroundImage
-    : DEFAULT_ZENSCAPE_BACKGROUND_FILENAME;
-  const imageSource = ZENSCAPE_IMAGE_MAP[resolvedFilename];
-
-  if (imageSource != null) {
-    return (
-      <ImageBackground
-        source={imageSource}
-        style={backgroundStyle}
-        resizeMode="cover"
-      >
-        {children}
-      </ImageBackground>
-    );
-  }
-
-  return (
-    <View style={backgroundStyle}>
       {children}
-    </View>
+    </AppContext.Provider>
   );
 };
 

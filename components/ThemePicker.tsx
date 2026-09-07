@@ -1,17 +1,14 @@
 import ThemeCard from "@/components/ThemeCard";
 import { SettingsOptionCardRow, usePickerCardWidth } from "@/components/SettingsOptionCard";
-import { useAppSettings } from "@/contexts/appSettingsContext";
-import { getThemeChromeTint } from "@/components/animationTheme";
 import CircularOptionButton from "./CircularOptionButton";
-import { THEMES, ThemeName, useTheme } from "./Theme";
-import React, { useCallback } from "react";
+import { THEMES, ThemeName, palettes, useTheme } from "./Theme";
+import React from "react";
 
-/** @deprecated Both pickers now update app palette + breathing ring together. */
-type ThemePickerTarget = "app" | "animation";
 type ThemePickerVariant = "page" | "bottomSheet";
 
 interface ThemePickerProps {
-  target?: ThemePickerTarget;
+  /** @deprecated Ignored — app palette and breathing ring share one theme. */
+  target?: "app" | "animation";
   variant?: ThemePickerVariant;
 }
 
@@ -27,23 +24,8 @@ export default function ThemePicker({
   );
 }
 
-function useThemePickerSelection() {
-  const { themeName, setThemeName } = useTheme();
-  const { setAnimationTheme } = useAppSettings();
-
-  const setTheme = useCallback(
-    (key: ThemeName) => {
-      setThemeName(key);
-      void setAnimationTheme(key);
-    },
-    [setAnimationTheme, setThemeName],
-  );
-
-  return { selectedTheme: themeName, setTheme };
-}
-
 function CircleThemePicker() {
-  const { selectedTheme, setTheme } = useThemePickerSelection();
+  const { themeName, setThemeName } = useTheme();
 
   return (
     <>
@@ -54,8 +36,8 @@ function CircleThemePicker() {
             key={key}
             label={t.name}
             color={t.preview}
-            isSelected={selectedTheme === key}
-            onPress={() => setTheme(key)}
+            isSelected={themeName === key}
+            onPress={() => setThemeName(key)}
           />
         );
       })}
@@ -64,25 +46,24 @@ function CircleThemePicker() {
 }
 
 function TileThemePicker() {
-  const { tokens } = useTheme();
-  const { selectedTheme, setTheme } = useThemePickerSelection();
-  const cardSurface = tokens.surface;
+  const { mode, themeName, setThemeName } = useTheme();
   const cardWidth = usePickerCardWidth();
 
   return (
     <SettingsOptionCardRow>
       {THEME_ORDER.map((key) => {
         const meta = THEMES[key];
-        const chromeTint = getThemeChromeTint(key);
+        const palette = palettes[key][mode];
         return (
           <ThemeCard
             key={key}
             title={meta.name}
             themeName={key}
-            selected={selectedTheme === key}
-            onPress={() => setTheme(key)}
-            accentColor={chromeTint}
-            backgroundColor={cardSurface}
+            selected={themeName === key}
+            onPress={() => setThemeName(key)}
+            accentColor={palette.accentPrimary}
+            backgroundColor={palette.sceneBackground}
+            titleColor={palette.textPrimary}
             width={cardWidth}
             testID={`scenes.theme-${key}`}
           />

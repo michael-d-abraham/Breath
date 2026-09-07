@@ -1,4 +1,5 @@
 import { useTheme } from "@/components/Theme";
+import { themedSceneBackground } from "@/components/settingsScreenTokens";
 import { getAppVersionMetadata } from "@/lib/appVersion";
 import { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { Ionicons } from "@expo/vector-icons";
@@ -305,6 +306,11 @@ export function SettingsInsetGroupedLayout({
   const insets = useSafeAreaInsets();
   const scrollY = useSharedValue(0);
 
+  const sheetBackground = useMemo(() => {
+    const bg = tokens.sceneBackground;
+    return typeof bg === "string" ? themedSceneBackground(bg) : bg;
+  }, [tokens.sceneBackground]);
+
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (event) => {
       scrollY.value = event.contentOffset.y;
@@ -490,7 +496,7 @@ export function SettingsInsetGroupedLayout({
 
   return (
     <View
-      style={[styles.root, { backgroundColor: tokens.sceneBackground }]}
+      style={[styles.root, { backgroundColor: sheetBackground }]}
     >
       {isBottomSheet ? (
         <SheetDismissControl
@@ -508,7 +514,7 @@ export function SettingsInsetGroupedLayout({
             {
               paddingTop: headerInsetTop,
               height: topBarHeight,
-              backgroundColor: tokens.sceneBackground,
+              backgroundColor: sheetBackground,
             },
           ]}
         >
@@ -689,7 +695,7 @@ export function SettingsSectionHeader({ title }: { title: string }) {
   return (
     <Text
       style={{
-        color: tokens.settingsSecondaryLabel,
+        color: tokens.bottomSheetSecondaryText,
         fontSize: SECTION_HEADER_SIZE,
         fontWeight: "500",
         letterSpacing: 0,

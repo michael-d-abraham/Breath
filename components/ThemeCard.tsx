@@ -14,6 +14,7 @@ type Props = {
   themeName: ThemeName;
   accentColor: string;
   backgroundColor: ColorValue;
+  titleColor?: ColorValue;
   selected: boolean;
   onPress: () => void;
   width: number;
@@ -26,6 +27,7 @@ export default function ThemeCard({
   themeName,
   accentColor,
   backgroundColor,
+  titleColor,
   selected,
   onPress,
   width,
@@ -38,6 +40,7 @@ export default function ThemeCard({
       onPress={onPress}
       accentColor={accentColor}
       backgroundColor={backgroundColor}
+      titleColor={titleColor}
       width={width}
       testID={testID}
     >

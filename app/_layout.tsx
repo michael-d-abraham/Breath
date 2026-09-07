@@ -1,7 +1,8 @@
 import BackgroundSoundscapePlayer from "@/components/BackgroundSoundscapePlayer";
+import ThemedAppBackground from "@/components/ThemedAppBackground";
 import { ThemeProvider, useTheme } from "@/components/Theme";
-import { BreathingProvider } from "@/contexts/breathingContext";
 import { AppProvider, useAppSettings } from "@/contexts/appSettingsContext";
+import { BreathingProvider } from "@/contexts/breathingContext";
 import { setAudioModeAsync } from "expo-audio";
 import * as Sentry from "@sentry/react-native";
 import * as Application from "expo-application";
@@ -135,13 +136,15 @@ function RootContent() {
 export default Sentry.wrap(function RootLayout() {
   useConfigureAudioMode();
   return (
-    <ThemeProvider>
-      <AppProvider>
-        <BreathingProvider>
-          <BackgroundSoundscapePlayer />
-          <RootContent />
-        </BreathingProvider>
-      </AppProvider>
-    </ThemeProvider>
+    <AppProvider>
+      <ThemeProvider>
+        <ThemedAppBackground>
+          <BreathingProvider>
+            <BackgroundSoundscapePlayer />
+            <RootContent />
+          </BreathingProvider>
+        </ThemedAppBackground>
+      </ThemeProvider>
+    </AppProvider>
   );
 });

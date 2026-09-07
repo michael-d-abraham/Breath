@@ -1,5 +1,7 @@
+import { useAppSettings } from '@/contexts/appSettingsContext';
 import React, {
   createContext,
+  useCallback,
   useContext,
   useMemo,
   useState,
@@ -50,7 +52,7 @@ type ThemeContextValue = {
     settingsSeparator: any;
     settingsLink: any;
     settingsSystemBlue: any;
-    // Dynamic colors for bottom sheets (follow app mode, independent of theme):
+    // Palette-driven sheet colors (follow selected theme):
     bottomSheetBg: any;
     bottomSheetText: any;
     bottomSheetSecondaryText: any;
@@ -67,25 +69,32 @@ type ThemeContextValue = {
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 // ============================================================================
-// Provider
+// Provider — themeName comes from persisted app settings (single source of truth)
 // ============================================================================
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const sys = useColorScheme() ?? 'light';
+  const { settings, setAnimationTheme } = useAppSettings();
 
-  const [themeName, setThemeName] = useState<ThemeName>('uplifting');
+  const themeName = settings.animationTheme;
   const [appearance, setAppearance] = useState<AppearancePref>('system');
 
   const mode: Mode = appearance === 'system' ? (sys as Mode) : (appearance as Mode);
+
+  const setThemeName = useCallback(
+    (theme: ThemeName) => {
+      void setAnimationTheme(theme);
+    },
+    [setAnimationTheme],
+  );
 
   const tokens = useMemo(() => {
     const base = palettes[themeName][mode];
     return {
       ...base,
-      // textPrimary/textSecondary come from palette so they follow app mode
       separator: PlatformColor('separator'),
       systemBg: PlatformColor('systemBackground'),
-      systemGroupedBg: PlatformColor('systemGroupedBackground'),
+      systemGroupedBg: PlatformColor('systemBackground'),
       systemSecondaryGroupedBg: PlatformColor('secondarySystemGroupedBackground'),
       settingsLabel: PlatformColor('label'),
       settingsSecondaryLabel: PlatformColor('secondaryLabel'),
@@ -93,7 +102,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       settingsSeparator: PlatformColor('separator'),
       settingsLink: PlatformColor('link'),
       settingsSystemBlue: PlatformColor('systemBlue'),
-      // Bottom sheets: follow app mode so they match the rest of the app
       bottomSheetBg: base.surface,
       bottomSheetText: base.textPrimary,
       bottomSheetSecondaryText: base.textSecondary,
@@ -103,7 +111,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   const value: ThemeContextValue = useMemo(
     () => ({ themeName, appearance, mode, tokens, setThemeName, setAppearance }),
-    [themeName, appearance, mode, tokens]
+    [themeName, appearance, mode, tokens, setThemeName],
   );
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;

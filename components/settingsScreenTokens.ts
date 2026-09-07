@@ -213,6 +213,19 @@ export function settingsPreviewCircleStyle(
   };
 }
 
+/** Scenes / Support sheet wash — palette scene background, slightly translucent like legacy Scenes page. */
+export const THEMED_SHEET_BACKGROUND_ALPHA = 0.96;
+
+export function themedSceneBackground(sceneBackground: string): string {
+  if (typeof sceneBackground !== "string") return sceneBackground;
+  const clean = sceneBackground.replace("#", "");
+  if (clean.length !== 6) return sceneBackground;
+  const a = Math.min(255, Math.max(0, Math.round(THEMED_SHEET_BACKGROUND_ALPHA * 255)))
+    .toString(16)
+    .padStart(2, "0");
+  return `#${clean}${a}`;
+}
+
 /** Neutral tile surface — no tinted selected fill. */
 export function settingsPickerSurfaceColor(
   mode: "light" | "dark",
