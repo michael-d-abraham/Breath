@@ -1,11 +1,10 @@
+import BreathingThemeGraphic from "@/components/BreathingThemeGraphic";
 import {
   themePickerCard,
   settingsSelectionIndicator,
 } from "@/components/settingsScreenTokens";
 import type { PaletteTokens, ThemeName } from "@/components/Theme";
 import { useTheme } from "@/components/Theme";
-import { THEME_SYMBOLS } from "@/components/themeTokens";
-import { Ionicons } from "@expo/vector-icons";
 import React, { useMemo } from "react";
 import {
   Pressable,
@@ -25,8 +24,9 @@ type Props = {
 };
 
 const CARD = themePickerCard;
+const RING_PREVIEW_SCALE = 0.36;
 
-/** Soft zen screen — accent wash from the theme palette, never a white tile. */
+/** Soft zen screen — accent wash with breathing ring preview. */
 function ZenThemeScreen({
   palette,
   themeName,
@@ -40,16 +40,14 @@ function ZenThemeScreen({
         pointerEvents="none"
         style={[zenStyles.glow, { backgroundColor: palette.accentPrimary }]}
       />
-      <Ionicons
-        name={THEME_SYMBOLS[themeName]}
-        size={CARD.symbolSize}
-        color={palette.accentPrimary}
-      />
+      <View style={{ transform: [{ scale: RING_PREVIEW_SCALE }] }}>
+        <BreathingThemeGraphic themeName={themeName} />
+      </View>
     </View>
   );
 }
 
-/** Scenes sheet theme tile — zen color screen, icon, quiet selected ring. */
+/** Scenes sheet theme tile — zen color screen, ring preview, quiet selected ring. */
 export default function ScenesThemeCard({
   title,
   themeName,

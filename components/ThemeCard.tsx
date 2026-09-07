@@ -1,12 +1,13 @@
+import BreathingThemeGraphic from "@/components/BreathingThemeGraphic";
 import {
   SettingsOptionCard,
   SettingsOptionPreviewCircle,
 } from "@/components/SettingsOptionCard";
-import { settingsPickerCard } from "@/components/settingsScreenTokens";
-import { THEME_SYMBOLS, type ThemeName } from "@/components/themeTokens";
-import { Ionicons } from "@expo/vector-icons";
+import { ThemeName } from "@/components/Theme";
 import React from "react";
-import { ColorValue } from "react-native";
+import { View, type ColorValue } from "react-native";
+
+const PREVIEW_SCALE = 0.4;
 
 type Props = {
   title: string;
@@ -19,7 +20,7 @@ type Props = {
   testID?: string;
 };
 
-/** Compact theme tile — tinted symbol circle + label. */
+/** Compact theme picker tile — breathing ring preview in Settings sheet. */
 export default function ThemeCard({
   title,
   themeName,
@@ -41,11 +42,9 @@ export default function ThemeCard({
       testID={testID}
     >
       <SettingsOptionPreviewCircle accentColor={accentColor}>
-        <Ionicons
-          name={THEME_SYMBOLS[themeName]}
-          size={settingsPickerCard.previewCircleSize * 0.62}
-          color={accentColor}
-        />
+        <View style={{ transform: [{ scale: PREVIEW_SCALE }] }}>
+          <BreathingThemeGraphic themeName={themeName} />
+        </View>
       </SettingsOptionPreviewCircle>
     </SettingsOptionCard>
   );

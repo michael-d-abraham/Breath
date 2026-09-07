@@ -66,7 +66,6 @@ export const themePickerCard = {
   themeCount: 3,
   radius: settingsGroupRadius,
   previewHeight: 48,
-  symbolSize: 22,
   labelSize: 13,
   labelMarginTop: 5,
   selectedBorderWidth: 2,
