@@ -59,27 +59,6 @@ export const settingsPickerCard = {
   sceneLabelInset: 12,
 } as const;
 
-/** Theme picker — exactly three zen palette tiles across the sheet width. */
-export const themePickerCard = {
-  gap: settingsPickerCard.gap,
-  screenInset: settingsPickerCard.screenInset,
-  themeCount: 3,
-  radius: settingsGroupRadius,
-  previewHeight: 48,
-  labelSize: 13,
-  labelMarginTop: 5,
-  selectedBorderWidth: 2,
-  unselectedOpacity: 0.88,
-  pressedOpacity: settingsSelectionIndicator.pressedOpacity,
-} as const;
-
-export function getThemePickerCardWidth(screenWidth: number): number {
-  const available = screenWidth - themePickerCard.screenInset * 2;
-  const gap = themePickerCard.gap;
-  const count = themePickerCard.themeCount;
-  return Math.floor((available - (count - 1) * gap) / count);
-}
-
 /** Immersive scene / zenscape cards — tall iPhone portrait preview. */
 export const sceneEnvironmentCard = {
   radius: 16,

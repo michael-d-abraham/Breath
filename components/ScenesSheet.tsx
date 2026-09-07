@@ -9,7 +9,7 @@ import SettingsBottomSheet, {
 } from "./SettingsBottomSheet";
 import { SettingsSection } from "./SettingsInsetGrouped";
 import SoundscapePicker from "./SoundscapePicker";
-import ScenesThemePicker from "./ScenesThemePicker";
+import ThemePicker from "./ThemePicker";
 import WallpaperCarousel from "./WallpaperCarousel";
 
 export type ScenesSheetHandle = SettingsBottomSheetHandle;
@@ -51,7 +51,7 @@ const ScenesSheet = forwardRef<ScenesSheetHandle, ScenesSheetProps>(
       >
         <View style={{ paddingTop: scenesLayout.contentTopInset }}>
           <SettingsSection title="Theme" bare>
-            <ScenesThemePicker />
+            <ThemePicker variant="bottomSheet" />
           </SettingsSection>
 
           <SettingsSection title="Soundscape" bare>
