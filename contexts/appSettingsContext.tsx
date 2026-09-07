@@ -1,6 +1,6 @@
 import { DEFAULT_ZENSCAPE_BACKGROUND_FILENAME, isKnownZenscapeFilename } from '@/constants/wallpapers';
 import { getBackgroundImage, getAnimationTheme, saveAnimationTheme, saveBackgroundImage } from '@/lib/storage';
-import { ThemeName } from '@/components/Theme';
+import { ThemeName, normalizeThemeName } from '@/components/Theme';
 import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 
 export type SoundType = 'synth' | 'guzheng' | 'sine' | 'off';
@@ -77,8 +77,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     })();
 
     getAnimationTheme().then(stored => {
-      if (stored) {
-        setSettings(prev => ({ ...prev, animationTheme: stored as ThemeName }));
+      const theme = normalizeThemeName(stored);
+      setSettings(prev => ({ ...prev, animationTheme: theme }));
+      if (stored === 'basic') {
+        void saveAnimationTheme(theme);
       }
     });
     return () => {

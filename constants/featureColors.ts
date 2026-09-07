@@ -18,10 +18,9 @@
  * Visual identifiers for each theme aesthetic — aligned with breathing ring / Scenes previews.
  */
 export const THEME_PREVIEW_COLORS = {
-  basic: "#8E8E93", // systemGray (breathing mainStroke)
-  grounded: "#697254", // Forest green (breathing mainStroke)
-  calm: "#DBD0C4", // Cream / tan (breathing mainFill)
-  uplifting: "#92735C", // Earth brown (breathing mainStroke)
+  grounded: "#697254",
+  calm: "#DBD0C4",
+  uplifting: "#92735C",
 } as const;
 
 /**

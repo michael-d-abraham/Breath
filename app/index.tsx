@@ -10,7 +10,8 @@ import { useAppSettings } from "@/contexts/appSettingsContext";
 import { useBreathing } from "@/contexts/breathingContext";
 import { useBreathingSheets } from "@/hooks/useBreathingSheets";
 import { defaultExercises } from "@/lib/storage";
-import { HOME_NAV_INACTIVE_OPACITY, HOME_NAV_ON_DARK } from "@/components/homeNavTokens";
+import { useTheme, useWallpaperForeground } from "@/components/Theme";
+import { homeNavIconSecondaryOpacity } from "@/components/homeNavTokens";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
@@ -50,6 +51,9 @@ const PAGES = [
 export default function Index() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const wallpaperFg = useWallpaperForeground();
+  const { tokens } = useTheme();
+  const inactiveOpacity = homeNavIconSecondaryOpacity(tokens.mode);
   const { currentExercise, updateExercise } = useBreathing();
   const sheets = useBreathingSheets();
   const { backgroundImage } = useAppSettings();
@@ -135,17 +139,17 @@ export default function Index() {
       justifyContent: "center",
     },
     subtitle: {
-      color: HOME_NAV_ON_DARK,
+      color: wallpaperFg,
       fontSize: 48,
       fontWeight: "700",
       textAlign: "center",
       marginBottom: 16,
     },
     description: {
-      color: HOME_NAV_ON_DARK,
+      color: wallpaperFg,
       fontSize: 18,
       textAlign: "center",
-      opacity: HOME_NAV_INACTIVE_OPACITY,
+      opacity: inactiveOpacity,
     },
   });
 

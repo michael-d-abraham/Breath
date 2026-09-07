@@ -1,36 +1,33 @@
+import HomeNavPressable from "@/components/HomeNavPressable";
+import { useTheme } from "@/components/Theme";
 import {
-  HOME_NAV_CHROME_SECONDARY_OPACITY,
-  HOME_NAV_ON_LIGHT,
   HOME_TECHNIQUE_PILL_FONT_SIZE,
   HOME_TECHNIQUE_PILL_HEIGHT,
   HOME_TECHNIQUE_PILL_HORIZONTAL_PADDING,
   HOME_TECHNIQUE_PILL_TRAILING_ICON_INSET,
   HOME_TECHNIQUE_PILL_WIDTH,
-  homeNavLightBorder,
-  homeNavLightSurface,
+  homeNavIconPrimary,
 } from "@/components/homeNavTokens";
 import React, { useMemo } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 type Props = {
   title: string;
   onPress: () => void;
 };
 
-/** Compact technique pill — light translucent material, black text. */
+/** Technique pill — matches selected footer tab chrome (frosted glass + active wash). */
 export default function HomeTechniquePicker({ title, onPress }: Props) {
+  const { tokens } = useTheme();
+  const chromeColor = homeNavIconPrimary(tokens.mode);
+
   const styles = useMemo(
     () =>
       StyleSheet.create({
-        pill: {
-          position: "relative",
-          width: HOME_TECHNIQUE_PILL_WIDTH,
-          height: HOME_TECHNIQUE_PILL_HEIGHT,
+        inner: {
+          width: "100%",
+          height: "100%",
           paddingHorizontal: HOME_TECHNIQUE_PILL_HORIZONTAL_PADDING,
-          borderRadius: 999,
-          borderWidth: StyleSheet.hairlineWidth,
-          borderColor: homeNavLightBorder(),
-          backgroundColor: homeNavLightSurface(),
           alignItems: "center",
           justifyContent: "center",
         },
@@ -40,41 +37,41 @@ export default function HomeTechniquePicker({ title, onPress }: Props) {
           fontSize: HOME_TECHNIQUE_PILL_FONT_SIZE,
           fontWeight: "500",
           letterSpacing: -0.1,
-          color: HOME_NAV_ON_LIGHT,
+          color: chromeColor,
         },
         chevron: {
           fontSize: 10,
           fontWeight: "600",
-          color: HOME_NAV_ON_LIGHT,
-          opacity: HOME_NAV_CHROME_SECONDARY_OPACITY,
-        },
-        pressed: {
-          opacity: 0.88,
+          color: chromeColor,
         },
       }),
-    [],
+    [chromeColor],
   );
 
   return (
-    <Pressable
-      accessibilityRole="button"
+    <HomeNavPressable
+      active
       accessibilityLabel={`Technique: ${title}`}
       onPress={onPress}
-      style={({ pressed }) => [pressed && styles.pressed]}
+      style={pillStyles.pill}
     >
-      <View style={styles.pill}>
+      <View style={styles.inner}>
         <Text style={styles.title} numberOfLines={1}>
           {title}
         </Text>
-        <View style={staticStyles.chevronSlot} pointerEvents="none">
+        <View style={pillStyles.chevronSlot} pointerEvents="none">
           <Text style={styles.chevron}>⌄</Text>
         </View>
       </View>
-    </Pressable>
+    </HomeNavPressable>
   );
 }
 
-const staticStyles = StyleSheet.create({
+const pillStyles = StyleSheet.create({
+  pill: {
+    width: HOME_TECHNIQUE_PILL_WIDTH,
+    height: HOME_TECHNIQUE_PILL_HEIGHT,
+  },
   chevronSlot: {
     position: "absolute",
     right: HOME_TECHNIQUE_PILL_TRAILING_ICON_INSET,

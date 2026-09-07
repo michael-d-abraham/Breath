@@ -1,14 +1,15 @@
 import HomeNavFrostedSurface from "@/components/HomeNavFrostedSurface";
 import HomeNavIconButton from "@/components/HomeNavIconButton";
 import HomeNavMenu from "@/components/HomeNavMenu";
+import { useTheme } from "@/components/Theme";
 import {
   HOME_NAV_CHROME_LABEL_LETTER_SPACING,
   HOME_NAV_CHROME_LABEL_SIZE,
   HOME_NAV_CHROME_LABEL_WEIGHT,
   HOME_NAV_ICON_SIZE,
-  HOME_NAV_INACTIVE_OPACITY,
-  HOME_NAV_ON_DARK,
-  homeNavActiveHighlight,
+  homeNavIconPrimary,
+  homeNavIconSecondaryOpacity,
+  homeNavInnerCapsuleWash,
 } from "@/components/homeNavTokens";
 import {
   CreateNavIcon,
@@ -26,7 +27,7 @@ type TabItem = {
   label: string;
   index: number;
   testID: string;
-  Icon: typeof CreateNavIcon;
+  TabIcon: typeof CreateNavIcon;
 };
 
 const TAB_ITEMS: TabItem[] = [
@@ -35,21 +36,21 @@ const TAB_ITEMS: TabItem[] = [
     label: "Create",
     index: 0,
     testID: "home.nav-create",
-    Icon: CreateNavIcon,
+    TabIcon: CreateNavIcon,
   },
   {
     id: "relax",
     label: "Meditate",
     index: 1,
     testID: "home.nav-meditate",
-    Icon: MeditateNavIcon,
+    TabIcon: MeditateNavIcon,
   },
   {
     id: "benefits",
     label: "Learn",
     index: 2,
     testID: "home.nav-learn",
-    Icon: LearnNavIcon,
+    TabIcon: LearnNavIcon,
   },
 ];
 
@@ -67,7 +68,6 @@ type Props = {
   onSettingsPress: () => void;
 };
 
-/** Home chrome — neutral dark glass top actions and floating bottom tabs. */
 export default function HomeNavigation({
   selectedIndex,
   onSelect,
@@ -78,6 +78,9 @@ export default function HomeNavigation({
 }: Props) {
   const insets = useSafeAreaInsets();
   const { width: screenWidth } = useWindowDimensions();
+  const { tokens } = useTheme();
+  const iconColor = homeNavIconPrimary(tokens.mode);
+  const inactiveOpacity = homeNavIconSecondaryOpacity(tokens.mode);
 
   const pillWidth = Math.min(
     screenWidth - HOME_NAV_HORIZONTAL_INSET * 2,
@@ -124,25 +127,25 @@ export default function HomeNavigation({
           gap: 4,
         },
         tabItemActive: {
-          backgroundColor: homeNavActiveHighlight(),
+          backgroundColor: homeNavInnerCapsuleWash(tokens.mode),
         },
         tabLabel: {
           fontSize: HOME_NAV_CHROME_LABEL_SIZE,
           fontWeight: HOME_NAV_CHROME_LABEL_WEIGHT,
           letterSpacing: HOME_NAV_CHROME_LABEL_LETTER_SPACING,
-          color: HOME_NAV_ON_DARK,
+          color: iconColor,
         },
         tabLabelActive: {
           opacity: 1,
         },
         tabLabelInactive: {
-          opacity: HOME_NAV_INACTIVE_OPACITY,
+          opacity: inactiveOpacity,
         },
         tabPressed: {
           opacity: 0.88,
         },
       }),
-    [insets.bottom, insets.top, pillWidth],
+    [iconColor, inactiveOpacity, insets.bottom, insets.top, pillWidth, tokens.mode],
   );
 
   return (
@@ -164,7 +167,7 @@ export default function HomeNavigation({
 
       <View style={styles.bottomBar} pointerEvents="box-none">
         <HomeNavFrostedSurface style={styles.tabPill}>
-          {TAB_ITEMS.map(({ id, label, index, testID, Icon }) => {
+          {TAB_ITEMS.map(({ id, label, index, testID, TabIcon }) => {
             const selected = selectedIndex === index;
             return (
               <Pressable
@@ -180,10 +183,8 @@ export default function HomeNavigation({
                   pressed && styles.tabPressed,
                 ]}
               >
-                <View
-                  style={{ opacity: selected ? 1 : HOME_NAV_INACTIVE_OPACITY }}
-                >
-                  <Icon size={HOME_NAV_ICON_SIZE} color={HOME_NAV_ON_DARK} />
+                <View style={{ opacity: selected ? 1 : inactiveOpacity }}>
+                  <TabIcon size={HOME_NAV_ICON_SIZE} color={iconColor} />
                 </View>
                 <Text
                   style={[

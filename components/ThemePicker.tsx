@@ -1,18 +1,18 @@
 import ThemeCard from "@/components/ThemeCard";
 import { SettingsOptionCardRow, usePickerCardWidth } from "@/components/SettingsOptionCard";
+import { getThemeAccent, THEME_ORDER } from "./themeAccentTokens";
+import { THEMES } from "./themeTokens";
 import CircularOptionButton from "./CircularOptionButton";
-import { THEMES, ThemeName, palettes, useTheme } from "./Theme";
+import { useTheme } from "./Theme";
 import React from "react";
 
 type ThemePickerVariant = "page" | "bottomSheet";
 
 interface ThemePickerProps {
-  /** @deprecated Ignored — app palette and breathing ring share one theme. */
+  /** @deprecated Ignored */
   target?: "app" | "animation";
   variant?: ThemePickerVariant;
 }
-
-const THEME_ORDER: ThemeName[] = ["basic", "grounded", "calm", "uplifting"];
 
 export default function ThemePicker({
   variant = "page",
@@ -45,15 +45,16 @@ function CircleThemePicker() {
   );
 }
 
+/** All tiles share mode surface; ring preview uses each theme's accent. */
 function TileThemePicker() {
-  const { mode, themeName, setThemeName } = useTheme();
+  const { tokens, themeName, setThemeName } = useTheme();
   const cardWidth = usePickerCardWidth();
 
   return (
     <SettingsOptionCardRow>
       {THEME_ORDER.map((key) => {
         const meta = THEMES[key];
-        const palette = palettes[key][mode];
+        const accent = getThemeAccent(key);
         return (
           <ThemeCard
             key={key}
@@ -61,9 +62,9 @@ function TileThemePicker() {
             themeName={key}
             selected={themeName === key}
             onPress={() => setThemeName(key)}
-            accentColor={palette.accentPrimary}
-            backgroundColor={palette.sceneBackground}
-            titleColor={palette.textPrimary}
+            accentColor={accent.highlight}
+            backgroundColor={tokens.surface}
+            titleColor={tokens.textPrimary}
             width={cardWidth}
             testID={`scenes.theme-${key}`}
           />

@@ -1,5 +1,6 @@
 import React, { forwardRef, useCallback, useImperativeHandle, useRef } from "react";
 import BaseBottomSheet, { BaseBottomSheetHandle } from "./BaseBottomSheet";
+import { useTheme } from "./Theme";
 import { SettingsInsetGroupedLayout } from "./SettingsInsetGrouped";
 
 export type SettingsBottomSheetHandle = BaseBottomSheetHandle;
@@ -75,6 +76,7 @@ const SettingsBottomSheet = forwardRef<
     },
     ref,
   ) => {
+    const { tokens } = useTheme();
     const sheetRef = useRef<BaseBottomSheetHandle>(null);
 
     useImperativeHandle(ref, () => ({
@@ -93,6 +95,7 @@ const SettingsBottomSheet = forwardRef<
         ref={sheetRef}
         headerless
         snapPoints={["90%"]}
+        backgroundColor={tokens.settingsSheetBackground}
         onChange={onChange}
         onDismiss={onDismiss}
       >

@@ -1,30 +1,30 @@
+import { useTheme } from '@/components/Theme';
 import {
   HOME_NAV_BLUR_INTENSITY,
   HOME_NAV_SHADOW_COLOR,
   HOME_NAV_SHADOW_OFFSET,
   HOME_NAV_SHADOW_OPACITY,
   HOME_NAV_SHADOW_RADIUS,
-  homeNavDarkBorderColor,
-  homeNavDarkSurfaceOverlay,
-} from "@/components/homeNavTokens";
-import { BlurView } from "expo-blur";
-import React, { useMemo } from "react";
-import { StyleSheet, View, type StyleProp, type ViewStyle } from "react-native";
+  homeNavGlassBorder,
+  homeNavGlassBlurTint,
+  homeNavGlassOverlay,
+} from '@/components/homeNavTokens';
+import { BlurView } from 'expo-blur';
+import React, { useMemo } from 'react';
+import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
 type Props = {
   children: React.ReactNode;
   style?: StyleProp<ViewStyle>;
   borderRadius?: number;
-  /** Override dark-glass overlay tint. */
   surfaceOverlay?: string;
-  /** Override dark-glass border color. */
   borderColor?: string;
   blurIntensity?: number;
   shadowColor?: string;
   shadowOpacity?: number;
 };
 
-/** Dark frosted glass — neutral black overlay, no theme tint. */
+/** Mode-aware frosted glass — light or dark over wallpaper, no theme tint. */
 export default function HomeNavFrostedSurface({
   children,
   style,
@@ -35,8 +35,12 @@ export default function HomeNavFrostedSurface({
   shadowColor = HOME_NAV_SHADOW_COLOR,
   shadowOpacity = HOME_NAV_SHADOW_OPACITY,
 }: Props) {
-  const overlay = surfaceOverlay ?? homeNavDarkSurfaceOverlay();
-  const border = borderColor ?? homeNavDarkBorderColor();
+  const { tokens } = useTheme();
+  const { mode } = tokens;
+
+  const overlay = surfaceOverlay ?? homeNavGlassOverlay(mode);
+  const border = borderColor ?? homeNavGlassBorder(mode);
+  const blurTint = homeNavGlassBlurTint(mode);
 
   const styles = useMemo(
     () =>
@@ -57,13 +61,13 @@ export default function HomeNavFrostedSurface({
     <View
       style={[
         styles.surface,
-        { borderRadius, overflow: "hidden" as const },
+        { borderRadius, overflow: 'hidden' as const },
         style,
       ]}
     >
       <BlurView
         intensity={blurIntensity}
-        tint="dark"
+        tint={blurTint}
         style={StyleSheet.absoluteFill}
       />
       <View

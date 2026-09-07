@@ -1,6 +1,5 @@
-import { themedSceneBackground } from '@/components/settingsScreenTokens';
 import { BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
-import React, { forwardRef, useImperativeHandle, useMemo, useRef } from 'react';
+import React, { forwardRef, useImperativeHandle, useRef } from 'react';
 import { Text, View } from 'react-native';
 import { useTheme } from './Theme';
 
@@ -29,6 +28,8 @@ interface BaseBottomSheetProps {
   subtitle?: string;
   snapPoints?: string[];
   headerless?: boolean;
+  /** Override modal fill — Settings / Scenes use tokens.settingsSheetBackground */
+  backgroundColor?: string;
   children: React.ReactNode;
   onChange?: (index: number) => void;
   onDismiss?: () => void;
@@ -77,20 +78,25 @@ interface BaseBottomSheetProps {
  * ```
  */
 const BaseBottomSheet = forwardRef<BaseBottomSheetHandle, BaseBottomSheetProps>(
-  ({ title, subtitle, snapPoints, headerless = false, children, onChange, onDismiss }, ref) => {
+  (
+    {
+      title,
+      subtitle,
+      snapPoints,
+      headerless = false,
+      backgroundColor,
+      children,
+      onChange,
+      onDismiss,
+    },
+    ref,
+  ) => {
     const { tokens } = useTheme();
     const modalRef = useRef<BottomSheetModal>(null);
 
-    const sheetBackgroundColor = useMemo(() => {
-      const bg = tokens.sceneBackground;
-      if (typeof bg === 'string' && /^#[0-9A-Fa-f]{6}$/.test(bg)) {
-        return themedSceneBackground(bg);
-      }
-      return bg;
-    }, [tokens.sceneBackground]);
+    const sheetBackgroundColor = backgroundColor ?? tokens.sceneBackground;
 
-    /** Match drag handle to title — settingsLabel for inset-grouped sheets, bottomSheetText otherwise. */
-    const handleColor = headerless ? tokens.settingsLabel : tokens.bottomSheetText;
+    const handleColor = tokens.bottomSheetText;
 
     useImperativeHandle(ref, () => ({
       open: () => modalRef.current?.present(),

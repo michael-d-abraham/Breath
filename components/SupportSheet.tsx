@@ -305,6 +305,7 @@ function ComingSoonScreen({
 
 const SupportSheet = forwardRef<SupportSheetHandle, SupportSheetProps>(
   ({ onChange, onDismiss }, ref) => {
+    const { tokens } = useTheme();
     const sheetRef = useRef<BaseBottomSheetHandle>(null);
     const [screen, setScreen] = useState<SupportScreen>("main");
 
@@ -386,6 +387,7 @@ const SupportSheet = forwardRef<SupportSheetHandle, SupportSheetProps>(
         ref={sheetRef}
         headerless
         snapPoints={["90%"]}
+        backgroundColor={tokens.settingsSheetBackground}
         onChange={onChange}
         onDismiss={handleDismiss}
       >

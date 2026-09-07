@@ -1,3 +1,4 @@
+import AppearanceModeToggle from "@/components/AppearanceModeToggle";
 import { useAppSettings } from "@/contexts/appSettingsContext";
 import { scenesLayout } from "@/components/settingsScreenTokens";
 import { useSoundscapeSheetAuditionHandlers } from "@/hooks/useSoundscapePickerAudition";
@@ -51,6 +52,7 @@ const ScenesSheet = forwardRef<ScenesSheetHandle, ScenesSheetProps>(
       >
         <View style={{ paddingTop: scenesLayout.contentTopInset }}>
           <SettingsSection title="Theme" bare>
+            <AppearanceModeToggle />
             <ThemePicker variant="bottomSheet" />
           </SettingsSection>
 

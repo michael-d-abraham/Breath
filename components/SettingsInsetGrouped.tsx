@@ -1,5 +1,5 @@
 import { useTheme } from "@/components/Theme";
-import { themedSceneBackground } from "@/components/settingsScreenTokens";
+import { modeColorWithAlpha } from "@/components/modeTokens";
 import { getAppVersionMetadata } from "@/lib/appVersion";
 import { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { Ionicons } from "@expo/vector-icons";
@@ -302,14 +302,11 @@ export function SettingsInsetGroupedLayout({
   onBack,
   backLabel = "Back",
 }: LayoutProps) {
-  const { tokens, mode } = useTheme();
+  const { tokens } = useTheme();
   const insets = useSafeAreaInsets();
   const scrollY = useSharedValue(0);
 
-  const sheetBackground = useMemo(() => {
-    const bg = tokens.sceneBackground;
-    return typeof bg === "string" ? themedSceneBackground(bg) : bg;
-  }, [tokens.sceneBackground]);
+  const sheetBackground = tokens.settingsSheetBackground;
 
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (event) => {
@@ -403,10 +400,10 @@ export function SettingsInsetGroupedLayout({
   const sheetStickyOverlayHeight =
     SHEET_HEADER_TOP_INSET + SHEET_STICKY_PILL_MIN_HEIGHT + 8;
 
-  const sheetStickyPillOverlay =
-    mode === "light"
-      ? `rgba(255, 255, 255, ${SHEET_STICKY_PILL_SURFACE_ALPHA})`
-      : `rgba(44, 44, 46, ${SHEET_STICKY_PILL_SURFACE_ALPHA})`;
+  const sheetStickyPillOverlay = modeColorWithAlpha(
+    tokens.mode.overlaySurface,
+    SHEET_STICKY_PILL_SURFACE_ALPHA,
+  );
 
   const scrollHeaderPaddingTop = isBottomSheet
     ? SHEET_HEADER_TOP_INSET

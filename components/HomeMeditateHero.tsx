@@ -1,9 +1,9 @@
 import HomeTechniquePicker from "@/components/HomeTechniquePicker";
 import HomeNavPressable from "@/components/HomeNavPressable";
+import { useTheme } from "@/components/Theme";
 import {
   HOME_HERO_TAGLINE_GAP,
   HOME_HERO_TECHNIQUE_GAP,
-  HOME_NAV_ON_DARK,
   HOME_START_PILL_FONT_SIZE,
   HOME_START_PILL_HEIGHT,
   HOME_START_PILL_HORIZONTAL_PADDING,
@@ -11,6 +11,7 @@ import {
   HOME_START_STACK_ABOVE_CENTER,
   HOME_TAGLINE,
   HOME_TAGLINE_OPACITY,
+  homeNavIconPrimary,
 } from "@/components/homeNavTokens";
 import React, { useMemo } from "react";
 import { StyleSheet, Text, View } from "react-native";
@@ -21,12 +22,14 @@ type Props = {
   onTechniquePress: () => void;
 };
 
-/** Meditate page hero — tagline, Start, and technique picker (swipes with pager). */
 export default function HomeMeditateHero({
   onStartPress,
   techniqueTitle,
   onTechniquePress,
 }: Props) {
+  const { tokens } = useTheme();
+  const foreground = homeNavIconPrimary(tokens.mode);
+
   const styles = useMemo(
     () =>
       StyleSheet.create({
@@ -40,7 +43,7 @@ export default function HomeMeditateHero({
           fontWeight: "500",
           letterSpacing: 2.4,
           textTransform: "uppercase",
-          color: HOME_NAV_ON_DARK,
+          color: foreground,
           opacity: HOME_TAGLINE_OPACITY,
           textAlign: "center",
           marginBottom: HOME_HERO_TAGLINE_GAP,
@@ -61,10 +64,10 @@ export default function HomeMeditateHero({
           fontSize: HOME_START_PILL_FONT_SIZE,
           fontWeight: "700",
           letterSpacing: -0.3,
-          color: HOME_NAV_ON_DARK,
+          color: foreground,
         },
       }),
-    [],
+    [foreground],
   );
 
   return (

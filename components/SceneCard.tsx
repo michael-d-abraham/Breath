@@ -97,7 +97,7 @@ export function EnvironmentImageCard({
   accessibilityLabel,
 }: EnvironmentImageCardProps) {
   const gradientId = useId().replace(/:/g, "");
-  const { tokens, mode } = useTheme();
+  const { tokens } = useTheme();
 
   const styles = useMemo(
     () =>
@@ -120,10 +120,8 @@ export function EnvironmentImageCard({
           overflow: "hidden",
           backgroundColor:
             variant === "utility"
-              ? mode === "light"
-                ? "rgba(120, 120, 128, 0.12)"
-                : "rgba(255, 255, 255, 0.06)"
-              : "#1C1C1E",
+              ? tokens.mode.utilityFill
+              : tokens.mode.surfacePlaceholder,
           ...(variant === "utility"
             ? {
                 alignItems: "center" as const,
@@ -132,7 +130,7 @@ export function EnvironmentImageCard({
                   ? cardStyle.selectedRingWidth
                   : StyleSheet.hairlineWidth,
                 borderColor: selected
-                  ? tokens.settingsSecondaryLabel
+                  ? tokens.mode.selectedBorder
                   : tokens.settingsSeparator,
               }
             : {}),
@@ -165,14 +163,17 @@ export function EnvironmentImageCard({
           ...StyleSheet.absoluteFillObject,
           borderRadius: cardStyle.radius,
           borderWidth: cardStyle.selectedRingWidth,
-          borderColor: cardStyle.selectedRingColor,
+          borderColor: tokens.mode.selectionRing,
         },
       }),
     [
       cardStyle,
       height,
-      mode,
       selected,
+      tokens.mode.selectedBorder,
+      tokens.mode.selectionRing,
+      tokens.mode.surfacePlaceholder,
+      tokens.mode.utilityFill,
       tokens.settingsSecondaryLabel,
       tokens.settingsSeparator,
       variant,

@@ -1,3 +1,5 @@
+import HomeNavPressable from "@/components/HomeNavPressable";
+import { useTheme } from "@/components/Theme";
 import {
   HOME_NAV_MENU_ICON_SIZE,
   HOME_NAV_MENU_ICON_SLOT,
@@ -5,12 +7,10 @@ import {
   HOME_NAV_MENU_PILL_HEIGHT,
   HOME_NAV_MENU_PILL_HORIZONTAL_PADDING,
   HOME_NAV_MENU_PILL_WIDTH,
-  HOME_NAV_ON_LIGHT,
-  homeNavLightBorder,
-  homeNavLightSurface,
+  homeNavIconPrimary,
 } from "@/components/homeNavTokens";
 import React, { useMemo } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 type IconComponent = React.ComponentType<{ size?: number; color: string }>;
 
@@ -21,26 +21,25 @@ type Props = {
   onPress: () => void;
 };
 
-/** Menu pill — light translucent material, black label (matches technique picker). */
+/** Hamburger menu row — matches selected footer tab chrome (frosted glass + active wash). */
 export default function HomeNavMenuItem({
   label,
   testID,
   Icon,
   onPress,
 }: Props) {
+  const { tokens } = useTheme();
+  const chromeColor = homeNavIconPrimary(tokens.mode);
+
   const styles = useMemo(
     () =>
       StyleSheet.create({
-        pill: {
+        inner: {
           flexDirection: "row",
           alignItems: "center",
-          width: HOME_NAV_MENU_PILL_WIDTH,
-          height: HOME_NAV_MENU_PILL_HEIGHT,
+          width: "100%",
+          height: "100%",
           paddingHorizontal: HOME_NAV_MENU_PILL_HORIZONTAL_PADDING,
-          borderRadius: 999,
-          borderWidth: StyleSheet.hairlineWidth,
-          borderColor: homeNavLightBorder(),
-          backgroundColor: homeNavLightSurface(),
         },
         iconSlot: {
           width: HOME_NAV_MENU_ICON_SLOT,
@@ -53,31 +52,36 @@ export default function HomeNavMenuItem({
           fontSize: HOME_NAV_MENU_LABEL_SIZE,
           fontWeight: "500",
           letterSpacing: -0.1,
-          color: HOME_NAV_ON_LIGHT,
-        },
-        pressed: {
-          opacity: 0.88,
+          color: chromeColor,
         },
       }),
-    [],
+    [chromeColor],
   );
 
   return (
-    <Pressable
+    <HomeNavPressable
+      active
       testID={testID}
       accessibilityRole="menuitem"
       accessibilityLabel={label}
       onPress={onPress}
-      style={({ pressed }) => [pressed && styles.pressed]}
+      style={pillStyles.pill}
     >
-      <View style={styles.pill}>
+      <View style={styles.inner}>
         <View style={styles.iconSlot}>
-          <Icon size={HOME_NAV_MENU_ICON_SIZE} color={HOME_NAV_ON_LIGHT} />
+          <Icon size={HOME_NAV_MENU_ICON_SIZE} color={chromeColor} />
         </View>
         <Text style={styles.label} numberOfLines={1}>
           {label}
         </Text>
       </View>
-    </Pressable>
+    </HomeNavPressable>
   );
 }
+
+const pillStyles = StyleSheet.create({
+  pill: {
+    width: HOME_NAV_MENU_PILL_WIDTH,
+    height: HOME_NAV_MENU_PILL_HEIGHT,
+  },
+});

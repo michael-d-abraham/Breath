@@ -182,6 +182,7 @@ export function SettingsOptionCard({
           ...settingsPickerBorderStyle(
             selected,
             tokens.bottomSheetSeparator,
+            tokens.mode.selectedBorder,
           ),
           backgroundColor,
           height,
@@ -212,6 +213,7 @@ export function SettingsOptionCard({
       titleColor,
       tokens.bottomSheetSeparator,
       tokens.bottomSheetText,
+      tokens.mode.selectedBorder,
       width,
     ],
   );

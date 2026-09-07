@@ -1,9 +1,11 @@
 import HomeNavFrostedSurface from "@/components/HomeNavFrostedSurface";
-import { homeNavActiveHighlight } from "@/components/homeNavTokens";
+import { useTheme } from "@/components/Theme";
+import { homeNavInnerCapsuleWash } from "@/components/homeNavTokens";
 import React, { useMemo } from "react";
 import {
   Pressable,
   StyleSheet,
+  View,
   type AccessibilityRole,
   type StyleProp,
   type ViewStyle,
@@ -20,7 +22,6 @@ type Props = {
   };
   style?: StyleProp<ViewStyle>;
   borderRadius?: number;
-  /** Translucent white inner highlight on dark glass. */
   active?: boolean;
   surfaceOverlay?: string;
   borderColor?: string;
@@ -29,7 +30,10 @@ type Props = {
   children: React.ReactNode;
 };
 
-/** Dark frosted pill — same material as footer and top icon buttons. */
+/**
+ * Frosted nav control — optional inner capsule wash layered above glass
+ * (same stack as footer selected tab: glass → activeWash → content).
+ */
 export default function HomeNavPressable({
   onPress,
   testID,
@@ -45,6 +49,9 @@ export default function HomeNavPressable({
   shadowOpacity,
   children,
 }: Props) {
+  const { tokens } = useTheme();
+  const innerWash = homeNavInnerCapsuleWash(tokens.mode);
+
   const styles = useMemo(
     () =>
       StyleSheet.create({
@@ -52,14 +59,20 @@ export default function HomeNavPressable({
           alignItems: "center",
           justifyContent: "center",
         },
-        active: {
-          backgroundColor: homeNavActiveHighlight(),
+        innerCapsule: {
+          backgroundColor: innerWash,
+        },
+        content: {
+          alignItems: "center",
+          justifyContent: "center",
+          width: "100%",
+          height: "100%",
         },
         pressed: {
           opacity: 0.88,
         },
       }),
-    [],
+    [innerWash],
   );
 
   return (
@@ -77,9 +90,15 @@ export default function HomeNavPressable({
         borderColor={borderColor}
         blurIntensity={blurIntensity}
         shadowOpacity={shadowOpacity}
-        style={[styles.surface, active && styles.active, style]}
+        style={[styles.surface, style]}
       >
-        {children}
+        {active ? (
+          <View
+            pointerEvents="none"
+            style={[StyleSheet.absoluteFill, styles.innerCapsule]}
+          />
+        ) : null}
+        <View style={styles.content}>{children}</View>
       </HomeNavFrostedSurface>
     </Pressable>
   );

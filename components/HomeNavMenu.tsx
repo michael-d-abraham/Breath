@@ -14,8 +14,9 @@ import {
   HOME_NAV_MENU_GAP_BELOW_TRIGGER,
   HOME_NAV_MENU_PILL_GAP,
   HOME_NAV_MENU_PILL_WIDTH,
-  HOME_NAV_ON_DARK,
+  homeNavIconPrimary,
 } from "@/components/homeNavTokens";
+import { useTheme } from "@/components/Theme";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import Animated, {
@@ -67,12 +68,14 @@ const MENU_TIMING = {
   easing: Easing.out(Easing.cubic),
 };
 
-/** Top-right hamburger — light menu pills beneath dark-glass trigger. */
+/** Top-right hamburger — mode-aware menu pills beneath frosted trigger. */
 export default function HomeNavMenu({
   onOneBreathPress,
   onProfilePress,
   onSettingsPress,
 }: Props) {
+  const { tokens } = useTheme();
+  const iconColor = homeNavIconPrimary(tokens.mode);
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuVisible, setMenuVisible] = useState(false);
 
@@ -172,18 +175,17 @@ export default function HomeNavMenu({
           testID="home.menu-button"
           accessibilityLabel={menuOpen ? "Close menu" : "Menu"}
           accessibilityState={{ expanded: menuOpen }}
-          active={menuOpen}
           onPress={() => (menuOpen ? closeMenu() : openMenu())}
         >
           <View style={styles.triggerIconStack}>
             <Animated.View style={[styles.triggerIcon, hamburgerIconStyle]}>
               <HamburgerNavIcon
                 size={HOME_NAV_ICON_SIZE}
-                color={HOME_NAV_ON_DARK}
+                color={iconColor}
               />
             </Animated.View>
             <Animated.View style={[styles.triggerIcon, closeIconStyle]}>
-              <CloseNavIcon size={HOME_NAV_ICON_SIZE} color={HOME_NAV_ON_DARK} />
+              <CloseNavIcon size={HOME_NAV_ICON_SIZE} color={iconColor} />
             </Animated.View>
           </View>
         </HomeNavIconButton>

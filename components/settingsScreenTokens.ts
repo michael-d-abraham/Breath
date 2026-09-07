@@ -1,3 +1,4 @@
+import { modeTokens } from "@/components/modeTokens";
 import { StyleSheet, type ColorValue, type ViewStyle } from "react-native";
 import { SETTINGS_LAYOUT } from "@/components/SettingsInsetGrouped";
 
@@ -226,25 +227,26 @@ export function themedSceneBackground(sceneBackground: string): string {
   return `#${clean}${a}`;
 }
 
-/** Neutral tile surface — no tinted selected fill. */
+/** Neutral tile surface — aligned with mode surface tokens. */
 export function settingsPickerSurfaceColor(
   mode: "light" | "dark",
   groupedSecondary: ColorValue,
 ): ColorValue {
-  return mode === "light" ? "#FFFFFF" : groupedSecondary;
+  return mode === "light" ? modeTokens.light.surface : groupedSecondary;
 }
 
-/** Unified border — neutral separator; selection shown via checkmark only. */
+/** Unified border — neutral separator; selection uses mode selectedBorder. */
 export function settingsPickerBorderStyle(
   selected: boolean,
   separator: ColorValue,
+  selectedBorder?: ColorValue,
 ): ViewStyle {
   return {
     borderRadius: settingsPickerCard.radius,
     borderWidth: selected
       ? settingsSelectionIndicator.borderWidth
       : StyleSheet.hairlineWidth,
-    borderColor: separator,
+    borderColor: selected ? (selectedBorder ?? separator) : separator,
   };
 }
 

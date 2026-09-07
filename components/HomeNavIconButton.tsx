@@ -1,12 +1,13 @@
 import HomeNavPressable from "@/components/HomeNavPressable";
+import { useTheme } from "@/components/Theme";
 import {
   HOME_NAV_BLUR_INTENSITY,
   HOME_NAV_ICON_BUTTON_SIZE,
   HOME_NAV_ICON_SIZE,
-  HOME_NAV_ON_DARK,
   HOME_NAV_SHADOW_OPACITY,
-  homeNavDarkBorderColor,
-  homeNavDarkSurfaceOverlay,
+  homeNavGlassBorder,
+  homeNavGlassOverlay,
+  homeNavIconPrimary,
 } from "@/components/homeNavTokens";
 import React from "react";
 import { Image, StyleSheet, type ImageSourcePropType } from "react-native";
@@ -15,12 +16,9 @@ type Props = {
   onPress: () => void;
   testID?: string;
   accessibilityLabel: string;
-  /** SVG icon — white on dark glass. */
   Icon?: React.ComponentType<{ size?: number; color: string }>;
   iconSize?: number;
-  /** Bitmap icon (e.g. Scenes tulip) — tinted white. */
   imageSource?: ImageSourcePropType;
-  /** Inner highlight — e.g. menu open state matches footer selected tab. */
   active?: boolean;
   accessibilityState?: {
     selected?: boolean;
@@ -30,7 +28,6 @@ type Props = {
   children?: React.ReactNode;
 };
 
-/** Circular top control — dark frosted glass, white symbol. */
 export default function HomeNavIconButton({
   onPress,
   testID,
@@ -43,6 +40,9 @@ export default function HomeNavIconButton({
   accessibilityRole = "button",
   children,
 }: Props) {
+  const { tokens } = useTheme();
+  const iconColor = homeNavIconPrimary(tokens.mode);
+
   return (
     <HomeNavPressable
       testID={testID}
@@ -53,14 +53,14 @@ export default function HomeNavIconButton({
       borderRadius={HOME_NAV_ICON_BUTTON_SIZE / 2}
       active={active}
       style={styles.button}
-      surfaceOverlay={homeNavDarkSurfaceOverlay()}
-      borderColor={homeNavDarkBorderColor()}
+      surfaceOverlay={homeNavGlassOverlay(tokens.mode)}
+      borderColor={homeNavGlassBorder(tokens.mode)}
       blurIntensity={HOME_NAV_BLUR_INTENSITY}
       shadowOpacity={HOME_NAV_SHADOW_OPACITY}
     >
       {children ??
         (Icon ? (
-          <Icon size={iconSize} color={HOME_NAV_ON_DARK} />
+          <Icon size={iconSize} color={iconColor} />
         ) : imageSource ? (
           <Image
             source={imageSource}
@@ -69,7 +69,7 @@ export default function HomeNavIconButton({
               {
                 width: iconSize,
                 height: iconSize,
-                tintColor: HOME_NAV_ON_DARK,
+                tintColor: iconColor,
               },
             ]}
             resizeMode="contain"
