@@ -15,12 +15,13 @@
 
 /**
  * Theme Preview Colors
- * Visual identifiers for each theme aesthetic
+ * Visual identifiers for each theme aesthetic — aligned with breathing ring / Scenes previews.
  */
 export const THEME_PREVIEW_COLORS = {
-  grounded: "#404040", // Black & white (neutral gray for picker)
-  calm: "#2B8FD9", // Peaceful blue
-  uplifting: "#6B5BD0", // Energetic purple
+  basic: "#8E8E93", // systemGray (breathing mainStroke)
+  grounded: "#697254", // Forest green (breathing mainStroke)
+  calm: "#DBD0C4", // Cream / tan (breathing mainFill)
+  uplifting: "#92735C", // Earth brown (breathing mainStroke)
 } as const;
 
 /**

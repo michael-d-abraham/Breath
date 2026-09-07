@@ -16,6 +16,12 @@ export type BreathingAnimationTokens = {
 // ============================================================================
 
 const breathingPalettes: Record<ThemeName, BreathingAnimationTokens> = {
+  basic: {
+    guideOuterStroke: '#E5E5EA', // systemGray5
+    guideInnerStroke: '#AEAEB2', // systemGray2
+    mainStroke: '#8E8E93',       // systemGray
+    mainFill: '#F2F2F7',         // grouped background gray
+  },
   grounded: {
     guideOuterStroke: '#8C916C', // Moss
     guideInnerStroke: '#697254', // Forest
@@ -38,6 +44,33 @@ const breathingPalettes: Record<ThemeName, BreathingAnimationTokens> = {
 
 export function getBreathingTokensForTheme(themeName: ThemeName): BreathingAnimationTokens {
   return breathingPalettes[themeName];
+}
+
+/**
+ * Frosted nav chrome tint — matches breathing ring identity in Scenes theme previews.
+ * Basic: neutral gray · Grounded: forest · Calm: cream · Earth: brown.
+ */
+export const THEME_CHROME_TINT: Record<ThemeName, string> = {
+  basic: breathingPalettes.basic.mainStroke,
+  grounded: breathingPalettes.grounded.mainStroke,
+  calm: breathingPalettes.calm.mainFill,
+  uplifting: breathingPalettes.uplifting.mainStroke,
+};
+
+/** Subtle frosted edge per theme — guide ring tones from breathing palettes. */
+export const THEME_CHROME_BORDER: Record<ThemeName, string> = {
+  basic: breathingPalettes.basic.guideOuterStroke,
+  grounded: breathingPalettes.grounded.guideOuterStroke,
+  calm: breathingPalettes.calm.guideOuterStroke,
+  uplifting: breathingPalettes.uplifting.guideOuterStroke,
+};
+
+export function getThemeChromeTint(themeName: ThemeName): string {
+  return THEME_CHROME_TINT[themeName];
+}
+
+export function getThemeChromeBorder(themeName: ThemeName): string {
+  return THEME_CHROME_BORDER[themeName];
 }
 
 export function useBreathingAnimationTokens(): BreathingAnimationTokens {

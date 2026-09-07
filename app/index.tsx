@@ -1,13 +1,16 @@
-import BreathingPageHeader from "@/components/BreathingPageHeader";
+import HomeMeditateHero from "@/components/HomeMeditateHero";
+import HomeNavigation, {
+  HOME_FLOATING_NAV_ESTIMATED_HEIGHT,
+} from "@/components/HomeNavigation";
 import ExerciseDetailSheet from "@/components/ExerciseDetailSheet";
 import ExerciseSelectionSheet from "@/components/ExerciseSelectionSheet";
 import ScenesSheet from "@/components/ScenesSheet";
 import SupportSheet from "@/components/SupportSheet";
-import { useWallpaperForeground } from "@/components/Theme";
 import { useAppSettings } from "@/contexts/appSettingsContext";
 import { useBreathing } from "@/contexts/breathingContext";
 import { useBreathingSheets } from "@/hooks/useBreathingSheets";
 import { defaultExercises } from "@/lib/storage";
+import { HOME_NAV_INACTIVE_OPACITY, HOME_NAV_ON_DARK } from "@/components/homeNavTokens";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
@@ -22,7 +25,7 @@ import {
   View,
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
@@ -34,8 +37,8 @@ const PAGES = [
   },
   {
     id: "relax",
-    subtitle: "Relax",
-    description: "Quiet your mind and relieve stress",
+    subtitle: "",
+    description: "",
   },
   {
     id: "benefits",
@@ -44,11 +47,9 @@ const PAGES = [
   },
 ] as const;
 
-type PageId = (typeof PAGES)[number]["id"];
-
 export default function Index() {
-  const wallpaperFg = useWallpaperForeground();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { currentExercise, updateExercise } = useBreathing();
   const sheets = useBreathingSheets();
   const { backgroundImage } = useAppSettings();
@@ -70,18 +71,7 @@ export default function Index() {
     defaultExercises.find((ex) => ex.id === "1") ||
     defaultExercises[0];
 
-  const currentPageId: PageId = PAGES[currentPageIndex]?.id ?? "relax";
-  const isRelaxPage = currentPageId === "relax";
-
   const handleStartPress = async () => {
-    if (currentPageId === "oneBreath") {
-      router.push("/global_room_picker");
-      return;
-    }
-    if (currentPageId === "benefits") {
-      router.push("/informationarchive");
-      return;
-    }
     await updateExercise(displayExercise);
     router.push({
       pathname: "/breathing",
@@ -89,12 +79,28 @@ export default function Index() {
     });
   };
 
-  const scrollToPage = (index: number) => {
+  const handleOneBreathPress = () => {
+    router.push("/global_room_picker");
+  };
+
+  const handleProfilePress = () => {
+    scrollToPage(2, true);
+  };
+
+  const handleSettingsPress = () => {
+    sheets.handleSupportPress();
+  };
+
+  const scrollToPage = (index: number, animated = false) => {
     scrollViewRef.current?.scrollTo({
       x: index * SCREEN_WIDTH,
-      animated: false,
+      animated,
     });
     setCurrentPageIndex(index);
+  };
+
+  const handleNavSelect = (index: number) => {
+    scrollToPage(index, true);
   };
 
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -105,34 +111,18 @@ export default function Index() {
     }
   };
 
-  const handleLeftArrow = () => {
-    if (currentPageIndex > 0) {
-      scrollToPage(currentPageIndex - 1);
-    }
-  };
-
-  const handleRightArrow = () => {
-    if (currentPageIndex < PAGES.length - 1) {
-      scrollToPage(currentPageIndex + 1);
-    }
-  };
+  const bottomContentInset =
+    insets.bottom + HOME_FLOATING_NAV_ESTIMATED_HEIGHT + 24;
 
   const styles = StyleSheet.create({
     container: {
       flex: 1,
       backgroundColor: backgroundImage ? "transparent" : "#FFFFFF",
     },
-    headerContainer: {
-      position: "absolute",
-      top: 0,
-      left: 0,
-      right: 0,
-      zIndex: 10,
-    },
     scrollableContent: {
       flex: 1,
       marginTop: 60,
-      marginBottom: 180,
+      marginBottom: bottomContentInset,
     },
     scrollView: {
       flex: 1,
@@ -145,78 +135,17 @@ export default function Index() {
       justifyContent: "center",
     },
     subtitle: {
-      color: wallpaperFg,
+      color: HOME_NAV_ON_DARK,
       fontSize: 48,
       fontWeight: "700",
       textAlign: "center",
       marginBottom: 16,
     },
     description: {
-      color: wallpaperFg,
+      color: HOME_NAV_ON_DARK,
       fontSize: 18,
       textAlign: "center",
-      opacity: 0.8,
-    },
-    footerContainer: {
-      position: "absolute",
-      bottom: 0,
-      left: 0,
-      right: 0,
-      paddingHorizontal: 24,
-      paddingBottom: 40,
-      zIndex: 10,
-    },
-    startButtonContainer: {
-      width: "100%",
-      justifyContent: "center",
-      alignItems: "center",
-      position: "relative",
-      marginBottom: 40,
-    },
-    startButton: {
-      paddingVertical: 16,
-      paddingHorizontal: 32,
-    },
-    startButtonText: {
-      color: wallpaperFg,
-      fontSize: 28,
-      fontWeight: "700",
-    },
-    arrowButton: {
-      position: "absolute",
-      width: 48,
-      height: 48,
-      justifyContent: "center",
-      alignItems: "center",
-      zIndex: 5,
-    },
-    arrowIcon: {
-      color: wallpaperFg,
-      fontSize: 32,
-      opacity: 0.7,
-    },
-    techniqueContainer: {
-      alignItems: "center",
-      minHeight: 56,
-    },
-    techniqueLabel: {
-      color: wallpaperFg,
-      fontSize: 20,
-      fontWeight: "600",
-      marginBottom: 12,
-    },
-    techniqueValue: {
-      color: wallpaperFg,
-      fontSize: 18,
-    },
-    techniqueSelectable: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: 8,
-    },
-    chevronIcon: {
-      color: wallpaperFg,
-      fontSize: 16,
+      opacity: HOME_NAV_INACTIVE_OPACITY,
     },
   });
 
@@ -224,13 +153,6 @@ export default function Index() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <BottomSheetModalProvider>
         <SafeAreaView style={styles.container}>
-          <View style={styles.headerContainer}>
-            <BreathingPageHeader
-              onScenesPress={sheets.handleScenesPress}
-              onSupportPress={sheets.handleSupportPress}
-            />
-          </View>
-
           <View style={styles.scrollableContent}>
             <ScrollView
               ref={scrollViewRef}
@@ -245,62 +167,35 @@ export default function Index() {
             >
               {PAGES.map((page) => (
                 <View key={page.id} style={styles.pageContainer}>
-                  <Text style={styles.subtitle}>{page.subtitle}</Text>
-                  <Text style={styles.description}>{page.description}</Text>
+                  {page.id === "relax" ? (
+                    <HomeMeditateHero
+                      onStartPress={handleStartPress}
+                      techniqueTitle={displayExercise.title}
+                      onTechniquePress={sheets.handleTechniquePress}
+                    />
+                  ) : (
+                    <>
+                      {page.subtitle ? (
+                        <Text style={styles.subtitle}>{page.subtitle}</Text>
+                      ) : null}
+                      {page.description ? (
+                        <Text style={styles.description}>{page.description}</Text>
+                      ) : null}
+                    </>
+                  )}
                 </View>
               ))}
             </ScrollView>
           </View>
 
-          <View style={styles.footerContainer}>
-            <View style={styles.startButtonContainer}>
-              {currentPageIndex > 0 && (
-                <Pressable
-                  accessibilityLabel="Previous page"
-                  onPress={handleLeftArrow}
-                  style={[styles.arrowButton, { left: 20 }]}
-                >
-                  <Text style={styles.arrowIcon}>‹</Text>
-                </Pressable>
-              )}
-
-              <Pressable
-                testID="home.start-button"
-                accessibilityLabel="Start"
-                onPress={handleStartPress}
-                style={styles.startButton}
-              >
-                <Text style={styles.startButtonText}>Start</Text>
-              </Pressable>
-
-              {currentPageIndex < PAGES.length - 1 && (
-                <Pressable
-                  accessibilityLabel="Next page"
-                  onPress={handleRightArrow}
-                  style={[styles.arrowButton, { right: 20 }]}
-                >
-                  <Text style={styles.arrowIcon}>›</Text>
-                </Pressable>
-              )}
-            </View>
-
-            <View style={styles.techniqueContainer}>
-              {isRelaxPage && (
-                <>
-                  <Text style={styles.techniqueLabel}>Technique:</Text>
-                  <Pressable
-                    onPress={sheets.handleTechniquePress}
-                    style={styles.techniqueSelectable}
-                  >
-                    <Text style={styles.techniqueValue}>
-                      {displayExercise.title}
-                    </Text>
-                    <Text style={styles.chevronIcon}>⌄</Text>
-                  </Pressable>
-                </>
-              )}
-            </View>
-          </View>
+          <HomeNavigation
+            selectedIndex={currentPageIndex}
+            onSelect={handleNavSelect}
+            onScenesPress={sheets.handleScenesPress}
+            onOneBreathPress={handleOneBreathPress}
+            onProfilePress={handleProfilePress}
+            onSettingsPress={handleSettingsPress}
+          />
 
           {(sheets.isSheetOpen ||
             sheets.isSupportSheetOpen ||

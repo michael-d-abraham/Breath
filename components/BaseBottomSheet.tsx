@@ -54,10 +54,11 @@ interface BaseBottomSheetProps {
  * This component uses ONLY the following tokens from Theme.tsx:
  * - tokens.bottomSheetBg: Base sheet fill (palette surface), blended to ~88% opacity for slight see-through
  * - tokens.bottomSheetText: Primary text color (PlatformColor('label'))
- * - tokens.bottomSheetSeparator: Handle indicator color (PlatformColor('separator'))
+ * - tokens.settingsLabel: Large title in headerless / inset-grouped sheets (PlatformColor('label'))
+ * - Handle indicator uses the same color as the sheet title (bottomSheetText or settingsLabel)
  * 
  * These tokens are:
- * - Independent from app theme colors (grounded/calm/uplifting)
+ * - Independent from app theme colors (basic/grounded/calm/uplifting)
  * - Automatically adapt to system light/dark mode
  * - Respect manual appearance override (Settings > Appearance Mode)
  * 
@@ -102,6 +103,9 @@ const BaseBottomSheet = forwardRef<BaseBottomSheetHandle, BaseBottomSheetProps>(
       return bg;
     }, [headerless, tokens.bottomSheetBg, tokens.systemGroupedBg]);
 
+    /** Match drag handle to title — settingsLabel for inset-grouped sheets, bottomSheetText otherwise. */
+    const handleColor = headerless ? tokens.settingsLabel : tokens.bottomSheetText;
+
     useImperativeHandle(ref, () => ({
       open: () => modalRef.current?.present(),
       close: () => modalRef.current?.dismiss(),
@@ -119,7 +123,7 @@ const BaseBottomSheet = forwardRef<BaseBottomSheetHandle, BaseBottomSheetProps>(
         onDismiss={onDismiss}
         backgroundStyle={{ backgroundColor: sheetBackgroundColor }}
         handleIndicatorStyle={{
-          backgroundColor: tokens.bottomSheetSeparator,
+          backgroundColor: handleColor,
           width: 36,
           height: 5,
         }}

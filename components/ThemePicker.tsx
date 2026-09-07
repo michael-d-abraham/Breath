@@ -2,8 +2,9 @@ import { settingsPickerSurfaceColor } from "@/components/settingsScreenTokens";
 import ThemeCard from "@/components/ThemeCard";
 import { SettingsOptionCardRow, usePickerCardWidth } from "@/components/SettingsOptionCard";
 import { useAppSettings } from "@/contexts/appSettingsContext";
+import { getThemeChromeTint } from "@/components/animationTheme";
 import CircularOptionButton from "./CircularOptionButton";
-import { THEMES, ThemeName, palettes, useTheme } from "./Theme";
+import { THEMES, ThemeName, useTheme } from "./Theme";
 import React from "react";
 
 type ThemePickerTarget = "app" | "animation";
@@ -14,7 +15,7 @@ interface ThemePickerProps {
   variant?: ThemePickerVariant;
 }
 
-const THEME_ORDER: ThemeName[] = ["grounded", "calm", "uplifting"];
+const THEME_ORDER: ThemeName[] = ["basic", "grounded", "calm", "uplifting"];
 
 export default function ThemePicker({
   target = "app",
@@ -71,7 +72,7 @@ function TileThemePicker({ target }: { target: ThemePickerTarget }) {
     <SettingsOptionCardRow>
       {THEME_ORDER.map((key) => {
         const meta = THEMES[key];
-        const palette = palettes[key][mode];
+        const chromeTint = getThemeChromeTint(key);
         return (
           <ThemeCard
             key={key}
@@ -79,7 +80,7 @@ function TileThemePicker({ target }: { target: ThemePickerTarget }) {
             themeName={key}
             selected={selectedTheme === key}
             onPress={() => setTheme(key)}
-            accentColor={palette.accentPrimary}
+            accentColor={chromeTint}
             backgroundColor={cardSurface}
             width={cardWidth}
             testID={`scenes.theme-${key}`}
