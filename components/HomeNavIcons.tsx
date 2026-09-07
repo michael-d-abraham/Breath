@@ -1,5 +1,5 @@
 import React from "react";
-import Svg, { Circle, Path, Rect } from "react-native-svg";
+import Svg, { Circle, Path } from "react-native-svg";
 
 type IconProps = {
   size?: number;
@@ -44,28 +44,31 @@ export function MeditateNavIcon({ size = 22, color }: IconProps) {
   );
 }
 
-/** Three ascending bars — You. */
-export function YouNavIcon({ size = 22, color }: IconProps) {
-  const barWidth = size * 0.16;
-  const gap = size * 0.12;
-  const heights = [size * 0.34, size * 0.52, size * 0.72];
-  const totalWidth = barWidth * 3 + gap * 2;
-  const startX = (size - totalWidth) / 2;
-  const baseY = size * 0.84;
-
+/** Open book — Learn. */
+export function LearnNavIcon({ size = 22, color }: IconProps) {
+  const stroke = Math.max(1.5, size * 0.07);
   return (
-    <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-      {heights.map((h, index) => (
-        <Rect
-          key={index}
-          x={startX + index * (barWidth + gap)}
-          y={baseY - h}
-          width={barWidth}
-          height={h}
-          rx={barWidth / 2}
-          fill={color}
-        />
-      ))}
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M12 6 C10.2 4.8 7.8 4.8 6 6 C5.2 6.5 4.8 7.2 4.8 8.2 V17.2 C4.8 17.9 5.4 18.4 6.1 18.2 C8 17.6 10.2 17.7 12 18.8"
+        stroke={color}
+        strokeWidth={stroke}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <Path
+        d="M12 6 C13.8 4.8 16.2 4.8 18 6 C18.8 6.5 19.2 7.2 19.2 8.2 V17.2 C19.2 17.9 18.6 18.4 17.9 18.2 C16 17.6 13.8 17.7 12 18.8"
+        stroke={color}
+        strokeWidth={stroke}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <Path
+        d="M12 6 V18.8"
+        stroke={color}
+        strokeWidth={stroke}
+        strokeLinecap="round"
+      />
     </Svg>
   );
 }
