@@ -12,8 +12,8 @@ import {
 } from "@/components/homeNavTokens";
 import {
   CreateNavIcon,
+  LearnNavIcon,
   MeditateNavIcon,
-  YouNavIcon,
 } from "@/components/HomeNavIcons";
 import React, { useMemo } from "react";
 import { Pressable, StyleSheet, Text, View, useWindowDimensions } from "react-native";
@@ -46,10 +46,10 @@ const TAB_ITEMS: TabItem[] = [
   },
   {
     id: "benefits",
-    label: "You",
+    label: "Learn",
     index: 2,
-    testID: "home.nav-you",
-    Icon: YouNavIcon,
+    testID: "home.nav-learn",
+    Icon: LearnNavIcon,
   },
 ];
 
