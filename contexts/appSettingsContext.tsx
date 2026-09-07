@@ -21,6 +21,9 @@ type AppContextType = {
   // App-specific settings
   settings: AppSettings;
   backgroundImage: string | null;
+  /** True while Scenes/settings soundscape picker is visible — enables preview. */
+  soundscapeAudition: boolean;
+  setSoundscapeAudition: (active: boolean) => void;
   updateSettings: (settings: Partial<AppSettings>) => void;
   setBackgroundImage: (imagePath: string | null) => void;
   toggleSound: () => void;
@@ -47,6 +50,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [backgroundImage, setBackgroundImageState] = useState<string | null>(
     DEFAULT_ZENSCAPE_BACKGROUND_FILENAME,
   );
+  const [soundscapeAudition, setSoundscapeAudition] = useState(false);
 
   const updateSettings = (newSettings: Partial<AppSettings>) => {
     setSettings(prev => ({ ...prev, ...newSettings }));
@@ -98,6 +102,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     <AppContext.Provider value={{ 
       settings, 
       backgroundImage,
+      soundscapeAudition,
+      setSoundscapeAudition,
       updateSettings,
       setBackgroundImage,
       toggleSound,

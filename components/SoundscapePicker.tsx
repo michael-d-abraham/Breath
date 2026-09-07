@@ -1,20 +1,22 @@
-import { settingsPickerSurfaceColor } from "@/components/settingsScreenTokens";
+import { SOUNDSCAPE_SHEET_ORDER } from "@/constants/soundscapeEnvironments";
+import {
+  getSoundscapeEnvironmentBaseWidth,
+  getSoundscapeEnvironmentCardSize,
+  soundscapeEnvironmentCard,
+} from "@/components/settingsScreenTokens";
 import SoundscapeCard from "@/components/SoundscapeCard";
-import { SettingsOptionCardRow, usePickerCardWidth } from "@/components/SettingsOptionCard";
-import { SOUNDSCAPE_COLORS, SOUNDSCAPE_PALETTES } from "@/constants/featureColors";
+import { SettingsOptionCardRow } from "@/components/SettingsOptionCard";
+import { SOUNDSCAPE_COLORS } from "@/constants/featureColors";
 import { SoundscapeType, useAppSettings } from "@/contexts/appSettingsContext";
 import CircularOptionButton from "./CircularOptionButton";
-import { useTheme } from "./Theme";
-import React from "react";
-import Svg, { Path } from "react-native-svg";
+import React, { useMemo } from "react";
+import { useWindowDimensions } from "react-native";
 
 type SoundscapePickerVariant = "page" | "bottomSheet";
 
 interface SoundscapePickerProps {
   variant?: SoundscapePickerVariant;
 }
-
-const SHEET_SOUNDSCAPE_ORDER: SoundscapeType[] = ["off", "dream", "fuzzy", "keys"];
 
 export default function SoundscapePicker({
   variant = "page",
@@ -25,20 +27,6 @@ export default function SoundscapePicker({
     <PageSoundscapePicker />
   );
 }
-
-const OffIcon = () => {
-  const { tokens } = useTheme();
-  return (
-    <Svg width={28} height={28} viewBox="0 0 28 28">
-      <Path
-        d="M 4 14 L 24 14"
-        stroke={tokens.textOnAccent}
-        strokeWidth={3}
-        strokeLinecap="round"
-      />
-    </Svg>
-  );
-};
 
 type PageSoundscapeOption = {
   label: string;
@@ -51,7 +39,7 @@ const PAGE_SOUNDSCAPE_OPTIONS: PageSoundscapeOption[] = [
   { label: "Dream", value: "dream", color: SOUNDSCAPE_COLORS.dream },
   { label: "Fuzzy", value: "fuzzy", color: SOUNDSCAPE_COLORS.fuzzy },
   { label: "Keys", value: "keys", color: SOUNDSCAPE_COLORS.keys },
-  { label: "OFF", value: "off", iconComponent: <OffIcon /> },
+  { label: "Silence", value: "off", color: "#4A4A4C" },
 ];
 
 function PageSoundscapePicker() {
@@ -73,39 +61,45 @@ function PageSoundscapePicker() {
   );
 }
 
-function soundscapeAccent(value: SoundscapeType): string {
-  if (value === "off") {
-    return "#8E8E93";
-  }
-  return SOUNDSCAPE_PALETTES[value].mainStroke;
-}
-
 function SheetSoundscapePicker() {
   const { settings, setSoundscape } = useAppSettings();
-  const { tokens, mode } = useTheme();
-  const cardSurface = settingsPickerSurfaceColor(
-    mode,
-    tokens.systemSecondaryGroupedBg,
+  const { width: screenWidth } = useWindowDimensions();
+  const baseWidth = useMemo(
+    () => getSoundscapeEnvironmentBaseWidth(screenWidth),
+    [screenWidth],
   );
-  const cardWidth = usePickerCardWidth();
+
+  const handleSelect = (value: SoundscapeType) => {
+    if (settings.soundscape === value) {
+      return;
+    }
+    setSoundscape(value);
+  };
 
   return (
-    <SettingsOptionCardRow>
-      {SHEET_SOUNDSCAPE_ORDER.map((value) => {
-        const label = value === "off" ? "OFF" : value.charAt(0).toUpperCase() + value.slice(1);
-        const accentHex =
-          value === "off" ? "#8E8E93" : soundscapeAccent(value);
+    <SettingsOptionCardRow
+      peek
+      contentStyle={{
+        alignItems: "flex-end",
+        gap: soundscapeEnvironmentCard.gap,
+        paddingHorizontal: soundscapeEnvironmentCard.screenInset,
+        paddingRight:
+          soundscapeEnvironmentCard.screenInset +
+          soundscapeEnvironmentCard.gap * 2,
+      }}
+    >
+      {SOUNDSCAPE_SHEET_ORDER.map((value) => {
+        const selected = settings.soundscape === value;
+        const { width, height } = getSoundscapeEnvironmentCardSize(baseWidth);
 
         return (
           <SoundscapeCard
             key={value}
-            title={label}
             soundscape={value}
-            selected={settings.soundscape === value}
-            onPress={() => setSoundscape(value)}
-            accentColor={accentHex}
-            backgroundColor={cardSurface}
-            width={cardWidth}
+            selected={selected}
+            onPress={() => handleSelect(value)}
+            width={width}
+            height={height}
             testID={`scenes.soundscape-${value}`}
           />
         );

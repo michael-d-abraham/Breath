@@ -124,3 +124,10 @@ export const THEMES = {
     preview: THEME_PREVIEW_COLORS.uplifting,
   },
 } as const;
+
+/** Outline symbols on theme picker cards — monochrome Ionicons. */
+export const THEME_SYMBOLS = {
+  grounded: 'leaf-outline',
+  calm: 'water-outline',
+  uplifting: 'globe-outline',
+} as const;

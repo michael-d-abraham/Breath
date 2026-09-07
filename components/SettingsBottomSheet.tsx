@@ -18,7 +18,7 @@ type SettingsSheetScreenProps = {
 
 /**
  * Shared inset-grouped chrome for bottom-sheet screens (Settings, Scenes, drill-downs).
- * Same header: × close top-right, large title, optional subtitle/back.
+ * Sheet: drag handle dismiss; large title scrolls; compact bar floats in on scroll.
  */
 export function SettingsSheetScreen({
   title,
@@ -54,7 +54,7 @@ type SettingsBottomSheetProps = Omit<SettingsSheetScreenProps, "onClose"> & {
 
 /**
  * Modal screen shell — Settings + Scenes bottom sheets.
- * Same: grouped background, drag indicator, 90% height, × close header via SettingsSheetScreen.
+ * Native handle dismiss + inset grouped layout (no visible ×).
  */
 const SettingsBottomSheet = forwardRef<
   SettingsBottomSheetHandle,
@@ -116,7 +116,7 @@ SettingsBottomSheet.displayName = "SettingsBottomSheet";
 
 /** Modal shell — Settings + Scenes. */
 export { SettingsBottomSheet as ModalScreen };
-/** Modal header + scroll body (centered title, × close). */
+/** Modal header + scroll body (centered title, handle dismiss). */
 export { SettingsSheetScreen as ModalHeaderLayout };
 export { SettingsSectionHeader } from "./SettingsInsetGrouped";
 export {

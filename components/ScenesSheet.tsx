@@ -1,11 +1,15 @@
 import { useAppSettings } from "@/contexts/appSettingsContext";
+import { scenesLayout } from "@/components/settingsScreenTokens";
+import { useSoundscapeSheetAuditionHandlers } from "@/hooks/useSoundscapePickerAudition";
 import React, { forwardRef, useCallback, useImperativeHandle, useRef } from "react";
-import { SettingsSection } from "./SettingsInsetGrouped";
+import { View } from "react-native";
+import { ScenesHeroSection } from "./ScenesPageSections";
 import SettingsBottomSheet, {
   SettingsBottomSheetHandle,
 } from "./SettingsBottomSheet";
+import { SettingsSection } from "./SettingsInsetGrouped";
 import SoundscapePicker from "./SoundscapePicker";
-import ThemePicker from "./ThemePicker";
+import ScenesThemePicker from "./ScenesThemePicker";
 import WallpaperCarousel from "./WallpaperCarousel";
 
 export type ScenesSheetHandle = SettingsBottomSheetHandle;
@@ -19,9 +23,14 @@ const ScenesSheet = forwardRef<ScenesSheetHandle, ScenesSheetProps>(
   ({ onChange, onDismiss }, ref) => {
     const sheetRef = useRef<SettingsBottomSheetHandle>(null);
     const { backgroundImage, setBackgroundImage } = useAppSettings();
+    const { handleChange, handleDismiss, enableAudition } =
+      useSoundscapeSheetAuditionHandlers(onChange, onDismiss);
 
     useImperativeHandle(ref, () => ({
-      open: () => sheetRef.current?.open(),
+      open: () => {
+        enableAudition();
+        sheetRef.current?.open();
+      },
       close: () => sheetRef.current?.close(),
     }));
 
@@ -37,23 +46,25 @@ const ScenesSheet = forwardRef<ScenesSheetHandle, ScenesSheetProps>(
         ref={sheetRef}
         title="Scenes"
         closeTestID="scenes.close-button"
-        onChange={onChange}
-        onDismiss={onDismiss}
+        onChange={handleChange}
+        onDismiss={handleDismiss}
       >
-        <SettingsSection title="Theme" bare>
-          <ThemePicker variant="bottomSheet" />
-        </SettingsSection>
+        <View style={{ paddingTop: scenesLayout.contentTopInset }}>
+          <SettingsSection title="Theme" bare>
+            <ScenesThemePicker />
+          </SettingsSection>
 
-        <SettingsSection title="Soundscape" bare>
-          <SoundscapePicker variant="bottomSheet" />
-        </SettingsSection>
+          <SettingsSection title="Soundscape" bare>
+            <SoundscapePicker variant="bottomSheet" />
+          </SettingsSection>
 
-        <SettingsSection title="Scenes" bare>
-          <WallpaperCarousel
-            selectedFilename={backgroundImage}
-            onSelect={handleScenePress}
-          />
-        </SettingsSection>
+          <ScenesHeroSection title="Scene">
+            <WallpaperCarousel
+              selectedFilename={backgroundImage}
+              onSelect={handleScenePress}
+            />
+          </ScenesHeroSection>
+        </View>
       </SettingsBottomSheet>
     );
   },

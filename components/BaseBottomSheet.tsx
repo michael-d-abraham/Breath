@@ -118,7 +118,12 @@ const BaseBottomSheet = forwardRef<BaseBottomSheetHandle, BaseBottomSheetProps>(
         onChange={onChange}
         onDismiss={onDismiss}
         backgroundStyle={{ backgroundColor: sheetBackgroundColor }}
-        handleIndicatorStyle={{ backgroundColor: tokens.bottomSheetSeparator }}
+        handleIndicatorStyle={{
+          backgroundColor: tokens.bottomSheetSeparator,
+          width: 36,
+          height: 5,
+        }}
+        handleStyle={{ paddingTop: 8, paddingBottom: 4 }}
       >
         {headerless ? (
           <View style={{ flex: 1 }}>{children}</View>

@@ -4,9 +4,11 @@ import React, { forwardRef, useCallback, useImperativeHandle, useRef, useState }
 import { Linking } from "react-native";
 import BaseBottomSheet, { BaseBottomSheetHandle } from "./BaseBottomSheet";
 import { SettingsSheetScreen } from "./SettingsBottomSheet";
+import { settingsRowIcons } from "./settingsRowIcons";
 import {
   SettingsGroupedCheckRow,
   SettingsGroupedFooter,
+  SettingsScreenFooter,
   SettingsGroupedLinkRow,
   SettingsGroupedToggleRow,
   SettingsRow,
@@ -23,12 +25,12 @@ interface SupportSheetProps {
 type SupportScreen =
   | "main"
   | "sounds-haptics"
+  | "appearance"
   | "reminders"
   | "apple-health"
-  | "appearance"
-  | "appearance-theme"
   | "app-icon"
   | "ideas"
+  | "about-me"
   | "privacy-policy"
   | "terms";
 
@@ -43,12 +45,27 @@ const APPEARANCE_LABELS: Record<AppearancePref, string> = {
   system: "System",
 };
 
+function soundsHapticsSummary(
+  soundEnabled: boolean,
+  hapticsEnabled: boolean,
+): string {
+  if (soundEnabled && hapticsEnabled) return "On";
+  if (!soundEnabled && !hapticsEnabled) return "Off";
+  const parts: string[] = [];
+  if (soundEnabled) parts.push("Sound");
+  if (hapticsEnabled) parts.push("Haptics");
+  return parts.join(", ");
+}
+
 type ScreenProps = {
   onNavigate: (screen: SupportScreen) => void;
   onDone: () => void;
 };
 
 function SettingsMainScreen({ onNavigate, onDone }: ScreenProps) {
+  const { settings } = useAppSettings();
+  const { appearance } = useTheme();
+
   return (
     <SettingsSheetScreen
       title="Settings"
@@ -58,67 +75,76 @@ function SettingsMainScreen({ onNavigate, onDone }: ScreenProps) {
       <SettingsSection title="Session">
         <SettingsRow
           title="Sounds & Haptics"
-          icon={{ name: "musical-notes-outline", backgroundColor: "#FF2D55" }}
+          value={soundsHapticsSummary(
+            settings.soundEnabled,
+            settings.hapticsEnabled,
+          )}
+          icon={settingsRowIcons.soundsHaptics}
           onPress={() => onNavigate("sounds-haptics")}
-        />
-        <SettingsRow
-          title="Reminders"
-          icon={{ name: "notifications-outline", backgroundColor: "#FF9500" }}
-          onPress={() => onNavigate("reminders")}
-        />
-        <SettingsRow
-          title="Apple Health"
-          icon={{ name: "heart-outline", backgroundColor: "#FF3B30" }}
-          onPress={() => onNavigate("apple-health")}
         />
       </SettingsSection>
 
-      <SettingsSection title="Look">
+      <SettingsSection title="Appearance">
         <SettingsRow
-          title="Appearance"
-          icon={{ name: "contrast-outline", backgroundColor: "#5856D6" }}
+          title="Theme"
+          value={APPEARANCE_LABELS[appearance]}
+          icon={settingsRowIcons.theme}
           onPress={() => onNavigate("appearance")}
         />
         <SettingsRow
           title="App Icon"
-          icon={{ name: "apps-outline", backgroundColor: "#8E8E93" }}
+          icon={settingsRowIcons.appIcon}
           onPress={() => onNavigate("app-icon")}
         />
       </SettingsSection>
 
-      <SettingsSection title="Contact Us">
+      <SettingsSection title="Integrations">
         <SettingsRow
+          title="Reminders"
+          icon={settingsRowIcons.reminders}
+          onPress={() => onNavigate("reminders")}
+        />
+        <SettingsRow
+          title="Apple Health"
+          icon={settingsRowIcons.appleHealth}
+          onPress={() => onNavigate("apple-health")}
+        />
+      </SettingsSection>
+
+      <SettingsSection title="About">
+        <SettingsGroupedLinkRow
+          title="About Me"
+          icon={settingsRowIcons.aboutMe}
+          onPress={() => onNavigate("about-me")}
+        />
+        <SettingsGroupedLinkRow
           title="Ideas & Suggestions"
-          icon={{ name: "bulb-outline", backgroundColor: "#FF9500" }}
+          icon={settingsRowIcons.ideas}
           onPress={() => onNavigate("ideas")}
         />
       </SettingsSection>
 
-      <SettingsSection title="Legal Notice">
-        <SettingsRow
+      <SettingsSection>
+        <SettingsGroupedLinkRow
           title="Privacy Policy"
-          icon={{ name: "shield-checkmark-outline", backgroundColor: "#8E8E93" }}
+          icon={settingsRowIcons.privacy}
+          subdued
           onPress={() => onNavigate("privacy-policy")}
         />
-        <SettingsRow
+        <SettingsGroupedLinkRow
           title="Terms of Service"
-          icon={{ name: "document-text-outline", backgroundColor: "#8E8E93" }}
+          icon={settingsRowIcons.terms}
+          subdued
           onPress={() => onNavigate("terms")}
         />
       </SettingsSection>
 
-      <SettingsGroupedFooter>
-        Breathing is cool. All the cool kids do it.{"\n"}
-        Version 2.0.8
-      </SettingsGroupedFooter>
+      <SettingsScreenFooter tagline="Breathing is cool. All the cool kids do it." />
     </SettingsSheetScreen>
   );
 }
 
-function SoundsHapticsScreen({
-  onNavigate,
-  onDone,
-}: ScreenProps) {
+function SoundsHapticsScreen({ onNavigate, onDone }: ScreenProps) {
   const { settings, toggleSound, toggleHaptics } = useAppSettings();
 
   return (
@@ -147,10 +173,11 @@ function SoundsHapticsScreen({
 function AppearanceScreen({ onNavigate, onDone }: ScreenProps) {
   const { appearance, setAppearance } = useTheme();
   const usesSystem = appearance === "system";
+  const themeOptions: AppearancePref[] = ["light", "dark", "system"];
 
   return (
     <SettingsSheetScreen
-      title="Appearance"
+      title="Theme"
       onClose={onDone}
       onBack={() => onNavigate("main")}
       backLabel="Settings"
@@ -167,35 +194,7 @@ function AppearanceScreen({ onNavigate, onDone }: ScreenProps) {
             }
           }}
         />
-        <SettingsGroupedLinkRow
-          title="Theme"
-          value={APPEARANCE_LABELS[appearance]}
-          onPress={() => onNavigate("appearance-theme")}
-        />
-      </SettingsSection>
-
-      <SettingsGroupedFooter>
-        Matching your system settings will automatically switch between light and
-        dark mode.
-      </SettingsGroupedFooter>
-    </SettingsSheetScreen>
-  );
-}
-
-function AppearanceThemeScreen({ onNavigate, onDone }: ScreenProps) {
-  const { appearance, setAppearance } = useTheme();
-
-  const options: AppearancePref[] = ["light", "dark", "system"];
-
-  return (
-    <SettingsSheetScreen
-      title="Theme"
-      onClose={onDone}
-      onBack={() => onNavigate("appearance")}
-      backLabel="Appearance"
-    >
-      <SettingsSection title="Appearance">
-        {options.map((option) => (
+        {themeOptions.map((option) => (
           <SettingsGroupedCheckRow
             key={option}
             title={APPEARANCE_LABELS[option]}
@@ -205,6 +204,17 @@ function AppearanceThemeScreen({ onNavigate, onDone }: ScreenProps) {
         ))}
       </SettingsSection>
     </SettingsSheetScreen>
+  );
+}
+
+function AboutMeScreen({ onNavigate, onDone }: ScreenProps) {
+  return (
+    <SettingsSheetScreen
+      title="About Me"
+      onClose={onDone}
+      onBack={() => onNavigate("main")}
+      backLabel="Settings"
+    />
   );
 }
 
@@ -348,8 +358,6 @@ const SupportSheet = forwardRef<SupportSheetHandle, SupportSheetProps>(
           );
         case "appearance":
           return <AppearanceScreen {...screenProps} />;
-        case "appearance-theme":
-          return <AppearanceThemeScreen {...screenProps} />;
         case "app-icon":
           return (
             <ComingSoonScreen
@@ -359,6 +367,8 @@ const SupportSheet = forwardRef<SupportSheetHandle, SupportSheetProps>(
               backLabel="Settings"
             />
           );
+        case "about-me":
+          return <AboutMeScreen {...screenProps} />;
         case "ideas":
           return <IdeasScreen {...screenProps} />;
         case "privacy-policy":

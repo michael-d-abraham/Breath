@@ -9,7 +9,6 @@ import { useBreathing } from "@/contexts/breathingContext";
 import { useBreathingSheets } from "@/hooks/useBreathingSheets";
 import { defaultExercises } from "@/lib/storage";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
-import { BlurView } from "expo-blur";
 import { useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
@@ -310,9 +309,9 @@ export default function Index() {
             <Pressable
               onPress={sheets.closeAllSheets}
               style={StyleSheet.absoluteFill}
-            >
-              <BlurView intensity={20} style={StyleSheet.absoluteFill} />
-            </Pressable>
+              accessibilityLabel="Close sheet"
+              accessibilityRole="button"
+            />
           )}
 
           <ExerciseDetailSheet

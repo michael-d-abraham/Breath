@@ -6,13 +6,12 @@ import { useBackgroundSoundscape } from "@/hooks/useBackgroundSoundscape";
  * Plays continuously in a loop and switches when soundscape changes in settings
  */
 export default function BackgroundSoundscapePlayer() {
-  const { settings } = useAppSettings();
+  const { settings, soundscapeAudition } = useAppSettings();
   useBackgroundSoundscape({
     soundscape: settings.soundscape,
     soundEnabled: settings.soundEnabled,
+    auditionEnabled: soundscapeAudition,
   });
 
-  // This component doesn't render anything - the hook handles everything
   return null;
 }
-

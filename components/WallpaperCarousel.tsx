@@ -1,7 +1,12 @@
 import SceneCard from "@/components/SceneCard";
-import { SettingsOptionCardRow } from "@/components/SettingsOptionCard";
+import {
+  getSceneEnvironmentBaseWidth,
+  getSceneEnvironmentCardSize,
+  sceneEnvironmentCard,
+} from "@/components/settingsScreenTokens";
 import { WALLPAPER_IMAGES } from "@/constants/wallpapers";
-import React from "react";
+import React, { useMemo } from "react";
+import { ScrollView, StyleSheet, useWindowDimensions } from "react-native";
 
 type Props = {
   selectedFilename: string | null;
@@ -9,24 +14,55 @@ type Props = {
 };
 
 /**
- * Horizontal scene picker — individual SceneCards, no grouped white container.
+ * Horizontal scene environments — hero-scale cards with selected emphasis.
  */
 export default function WallpaperCarousel({
   selectedFilename,
   onSelect,
 }: Props) {
+  const { width: screenWidth } = useWindowDimensions();
+  const baseWidth = useMemo(
+    () => getSceneEnvironmentBaseWidth(screenWidth),
+    [screenWidth],
+  );
+
   return (
-    <SettingsOptionCardRow>
-      {WALLPAPER_IMAGES.map((wallpaper) => (
-        <SceneCard
-          key={wallpaper.filename}
-          name={wallpaper.name}
-          imageSource={wallpaper.source}
-          selected={selectedFilename === wallpaper.filename}
-          onPress={() => onSelect(wallpaper.filename)}
-          testID={`scenes.scene-${wallpaper.filename}`}
-        />
-      ))}
-    </SettingsOptionCardRow>
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      style={styles.scroll}
+      contentContainerStyle={styles.content}
+    >
+      {WALLPAPER_IMAGES.map((wallpaper) => {
+        const selected = selectedFilename === wallpaper.filename;
+        const { width, height } = getSceneEnvironmentCardSize(baseWidth, selected);
+
+        return (
+          <SceneCard
+            key={wallpaper.filename}
+            name={wallpaper.name}
+            imageSource={wallpaper.source}
+            selected={selected}
+            onPress={() => onSelect(wallpaper.filename)}
+            width={width}
+            height={height}
+            testID={`scenes.scene-${wallpaper.filename}`}
+          />
+        );
+      })}
+    </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  scroll: {
+    flexGrow: 0,
+  },
+  content: {
+    flexDirection: "row",
+    alignItems: "flex-end",
+    gap: sceneEnvironmentCard.gap,
+    paddingHorizontal: sceneEnvironmentCard.screenInset,
+    paddingRight: sceneEnvironmentCard.screenInset + sceneEnvironmentCard.gap * 2,
+  },
+});

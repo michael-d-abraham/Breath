@@ -1,10 +1,14 @@
-import { settingsPickerSurfaceColor } from "@/components/settingsScreenTokens";
+import {
+  getThemePickerCardWidth,
+  settingsPickerSurfaceColor,
+  themePickerCard,
+} from "@/components/settingsScreenTokens";
 import ThemeCard from "@/components/ThemeCard";
-import { SettingsOptionCardRow, usePickerCardWidth } from "@/components/SettingsOptionCard";
 import { useAppSettings } from "@/contexts/appSettingsContext";
 import CircularOptionButton from "./CircularOptionButton";
-import { THEMES, ThemeName, useTheme, palettes } from "./Theme";
-import React from "react";
+import { THEMES, ThemeName, palettes, useTheme } from "./Theme";
+import React, { useMemo } from "react";
+import { StyleSheet, useWindowDimensions, View } from "react-native";
 
 type ThemePickerTarget = "app" | "animation";
 type ThemePickerVariant = "page" | "bottomSheet";
@@ -57,21 +61,26 @@ function TileThemePicker({ target }: { target: ThemePickerTarget }) {
   const themeContext = useTheme();
   const appSettings = useAppSettings();
   const { mode, tokens } = themeContext;
+  const { width: screenWidth } = useWindowDimensions();
+  const cardWidth = useMemo(
+    () => getThemePickerCardWidth(screenWidth),
+    [screenWidth],
+  );
   const cardSurface = settingsPickerSurfaceColor(
     mode,
     tokens.systemSecondaryGroupedBg,
   );
-  const cardWidth = usePickerCardWidth();
 
   const isApp = target === "app";
   const selectedTheme = isApp ? themeContext.themeName : appSettings.settings.animationTheme;
   const setTheme = isApp ? themeContext.setThemeName : appSettings.setAnimationTheme;
 
   return (
-    <SettingsOptionCardRow>
+    <View style={styles.row}>
       {THEME_ORDER.map((key) => {
         const meta = THEMES[key];
         const palette = palettes[key][mode];
+
         return (
           <ThemeCard
             key={key}
@@ -86,6 +95,14 @@ function TileThemePicker({ target }: { target: ThemePickerTarget }) {
           />
         );
       })}
-    </SettingsOptionCardRow>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  row: {
+    flexDirection: "row",
+    gap: themePickerCard.gap,
+    paddingHorizontal: themePickerCard.screenInset,
+  },
+});

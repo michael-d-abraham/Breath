@@ -59,6 +59,136 @@ export const settingsPickerCard = {
   sceneLabelInset: 12,
 } as const;
 
+/** Theme picker — exactly three zen palette tiles across the sheet width. */
+export const themePickerCard = {
+  gap: settingsPickerCard.gap,
+  screenInset: settingsPickerCard.screenInset,
+  themeCount: 3,
+  radius: settingsGroupRadius,
+  previewHeight: 48,
+  symbolSize: 22,
+  labelSize: 13,
+  labelMarginTop: 5,
+  selectedBorderWidth: 2,
+  unselectedOpacity: 0.88,
+  pressedOpacity: settingsSelectionIndicator.pressedOpacity,
+} as const;
+
+export function getThemePickerCardWidth(screenWidth: number): number {
+  const available = screenWidth - themePickerCard.screenInset * 2;
+  const gap = themePickerCard.gap;
+  const count = themePickerCard.themeCount;
+  return Math.floor((available - (count - 1) * gap) / count);
+}
+
+/** Immersive scene / zenscape cards — tall iPhone portrait preview. */
+export const sceneEnvironmentCard = {
+  radius: 16,
+  gap: 10,
+  screenInset: settingsScreenPadding,
+  /** ~2.4 tiles + peek — slightly wider for phone-like wallpaper preview */
+  scrollVisibleCount: 2.4,
+  /** width : height — ~iPhone portrait (9:16) so cover crop matches home screen */
+  aspectRatio: 9 / 16,
+  labelSize: 16,
+  labelInset: 12,
+  gradientHeightRatio: 0.38,
+  selectedWidthScale: 1.015,
+  unselectedWidthScale: 0.99,
+  selectedRingWidth: 2,
+  selectedRingColor: "rgba(255, 255, 255, 0.55)",
+  unselectedOpacity: 0.94,
+  offWidthScale: 0.46,
+  offLabelSize: 15,
+  utilityUnselectedOpacity: 0.78,
+  pressedOpacity: settingsSelectionIndicator.pressedOpacity,
+} as const;
+
+/** Immersive soundscape environment cards — compact square-ish tiles. */
+export const soundscapeEnvironmentCard = {
+  radius: 14,
+  gap: 10,
+  screenInset: settingsScreenPadding,
+  /** ~2.25 tiles + peek — slightly smaller cards */
+  scrollVisibleCount: 2.25,
+  /** width : height — a touch wider/shorter than 4:5 */
+  aspectRatio: 6 / 7,
+  labelSize: 15,
+  labelInset: 12,
+  gradientHeightRatio: 0.52,
+  selectedRingWidth: 2,
+  selectedRingColor: "rgba(255, 255, 255, 0.62)",
+  unselectedOpacity: 0.9,
+  offWidthScale: 0.46,
+  offLabelSize: 15,
+  utilityUnselectedOpacity: 0.78,
+  pressedOpacity: settingsSelectionIndicator.pressedOpacity,
+} as const;
+
+export function getSceneEnvironmentBaseWidth(
+  screenWidth: number,
+  visibleCount = sceneEnvironmentCard.scrollVisibleCount,
+): number {
+  const available = screenWidth - sceneEnvironmentCard.screenInset * 2;
+  const gap = sceneEnvironmentCard.gap;
+  return Math.floor((available - (visibleCount - 1) * gap) / visibleCount);
+}
+
+export function getSceneEnvironmentCardSize(
+  baseWidth: number,
+  selected: boolean,
+): { width: number; height: number } {
+  const scale = selected
+    ? sceneEnvironmentCard.selectedWidthScale
+    : sceneEnvironmentCard.unselectedWidthScale;
+  const width = Math.round(baseWidth * scale);
+  const height = Math.round(width / sceneEnvironmentCard.aspectRatio);
+  return { width, height };
+}
+
+export function getSceneEnvironmentOffCardWidth(baseWidth: number): number {
+  return Math.round(baseWidth * sceneEnvironmentCard.offWidthScale);
+}
+
+export function getSoundscapeEnvironmentBaseWidth(
+  screenWidth: number,
+  visibleCount = soundscapeEnvironmentCard.scrollVisibleCount,
+): number {
+  const available = screenWidth - soundscapeEnvironmentCard.screenInset * 2;
+  const gap = soundscapeEnvironmentCard.gap;
+  return Math.floor((available - (visibleCount - 1) * gap) / visibleCount);
+}
+
+export function getSoundscapeEnvironmentCardSize(
+  baseWidth: number,
+): { width: number; height: number } {
+  const width = baseWidth;
+  const height = Math.round(width / soundscapeEnvironmentCard.aspectRatio);
+  return { width, height };
+}
+
+export function getSoundscapeEnvironmentOffCardWidth(baseWidth: number): number {
+  return Math.round(baseWidth * soundscapeEnvironmentCard.offWidthScale);
+}
+
+/** @deprecated use getSoundscapeEnvironmentBaseWidth */
+export function getSoundscapeEnvironmentCardWidth(
+  screenWidth: number,
+  visibleCount = soundscapeEnvironmentCard.scrollVisibleCount,
+): number {
+  return getSoundscapeEnvironmentBaseWidth(screenWidth, visibleCount);
+}
+
+/** @deprecated use getSoundscapeEnvironmentCardSize */
+export function getSoundscapeEnvironmentCardHeight(cardWidth: number): number {
+  return Math.round(cardWidth / soundscapeEnvironmentCard.aspectRatio);
+}
+
+/** @deprecated use getSoundscapeEnvironmentOffCardWidth */
+export function getSoundscapeOffCardWidth(baseWidth: number): number {
+  return getSoundscapeEnvironmentOffCardWidth(baseWidth);
+}
+
 export function getSettingsPickerCardWidth(
   screenWidth: number,
   visibleCount = settingsPickerCard.scrollVisibleCount,
@@ -128,3 +258,13 @@ export function settingsPickerBorderStyle(
 }
 
 export { previewTint as settingsPreviewTint };
+
+/**
+ * Scenes page composition — calmer spacing and hierarchy on top of Settings tokens.
+ * Cards/pickers unchanged; only section structure and rhythm.
+ */
+export const scenesLayout = {
+  contentTopInset: 2,
+  /** Primary visual section (Scene) */
+  heroSectionSpacing: 36,
+} as const;

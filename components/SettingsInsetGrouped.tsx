@@ -1,4 +1,5 @@
 import { useTheme } from "@/components/Theme";
+import { getAppVersionMetadata } from "@/lib/appVersion";
 import { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { Ionicons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
@@ -17,6 +18,7 @@ import {
 import Animated, {
   Extrapolation,
   interpolate,
+  useAnimatedProps,
   useAnimatedScrollHandler,
   useAnimatedStyle,
   useSharedValue,
@@ -26,34 +28,62 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 /** Shared iOS Settings layout tokens — single source for all settings screens. */
 export const SETTINGS_LAYOUT = {
   horizontalInset: 16,
-  groupSpacing: 16,
-  cardRadius: 11,
-  rowMinHeight: 42,
-  rowPaddingVertical: 4,
+  /** Vertical space between grouped sections (header + card blocks). */
+  groupSpacing: 22,
+  cardRadius: 12,
+  /** Matches iOS minimum grouped row height; rows grow with content + padding. */
+  rowMinHeight: 44,
+  rowPaddingVertical: 8,
   rowPaddingHorizontal: 16,
-  iconSize: 28,
-  iconRadius: 6.5,
-  iconGlyphSize: 15,
-  iconMarginRight: 10,
-  chevronSize: 13,
+  /** Monochrome leading symbol — no colored tile */
+  rowIconSize: 22,
+  rowIconSlotWidth: 26,
+  rowIconMarginRight: 12,
+  chevronSize: 14,
   sectionHeaderSize: 13,
-  sectionHeaderMarginBottom: 8,
+  sectionHeaderMarginBottom: 10,
   sectionHeaderInset: 20,
   rowFontSize: 17,
+  /** Supporting links (legal, etc.) — slightly softer than primary rows */
+  subduedLinkFontSize: 16,
   collapseDistance: 44,
   stickyBarHeight: 44,
   largeTitleSizePage: 32,
   largeTitleSizeSheet: 28,
   largeTitleBlockPage: 36,
-  largeTitleBlockSheet: 28,
+  /** Line box for sheet large title — must exceed largeTitleSizeSheet */
+  largeTitleBlockSheet: 34,
   /** Space between large title and first section content */
-  largeTitleContentGapPage: 16,
-  largeTitleContentGapSheet: 20,
+  largeTitleContentGapPage: 20,
+  largeTitleContentGapSheet: 18,
+  /** Extra space above first grouped section inside scroll body */
+  contentBodyTopPadding: 4,
   headerSubtitleSize: 15,
   headerSubtitleBlock: 38,
   stickyBarHeightSheet: 36,
   closeIconSize: 22,
+  /** Compact inset below the native sheet handle before title / back row */
+  sheetHeaderTopInset: 12,
+  /** Floating sticky title pill (sheet scroll collapse) */
+  sheetStickyPillFontSize: 17,
+  sheetStickyPillPaddingHorizontal: 16,
+  sheetStickyPillPaddingVertical: 8,
+  sheetStickyPillMinHeight: 36,
+  sheetStickyPillBlurIntensity: 50,
+  /** Translucent tint over blur — keeps frosted look without a solid fill */
+  sheetStickyPillSurfaceAlpha: 0.38,
   bottomSheetTopPadding: 0,
+  footerMarginTop: 6,
+  footerMarginBottom: 14,
+  footerLineHeight: 20,
+  /** Settings screen end matter — tagline + version metadata */
+  footerTaglineSize: 13,
+  footerTaglineLineHeight: 18,
+  footerTaglineMarginTop: 20,
+  footerVersionSize: 12,
+  footerVersionLineHeight: 16,
+  footerVersionMarginTop: 10,
+  footerScreenMarginBottom: 20,
 } as const;
 
 const {
@@ -63,33 +93,55 @@ const {
   rowMinHeight: ROW_MIN_HEIGHT,
   rowPaddingVertical: ROW_PADDING_VERTICAL,
   rowPaddingHorizontal: ROW_PADDING_HORIZONTAL,
-  iconSize: ICON_SIZE,
-  iconRadius: ICON_RADIUS,
-  iconGlyphSize: ICON_GLYPH_SIZE,
-  iconMarginRight: ICON_MARGIN_RIGHT,
+  rowIconSize: ROW_ICON_SIZE,
+  rowIconSlotWidth: ROW_ICON_SLOT_WIDTH,
+  rowIconMarginRight: ROW_ICON_MARGIN_RIGHT,
   chevronSize: CHEVRON_SIZE,
   sectionHeaderSize: SECTION_HEADER_SIZE,
   sectionHeaderMarginBottom: SECTION_HEADER_MARGIN_BOTTOM,
   sectionHeaderInset: SECTION_HEADER_INSET,
   rowFontSize: ROW_FONT_SIZE,
+  subduedLinkFontSize: SUBDUED_LINK_FONT_SIZE,
   collapseDistance: COLLAPSE_DISTANCE,
   stickyBarHeight: STICKY_BAR_HEIGHT,
   largeTitleSizePage: LARGE_TITLE_SIZE_PAGE,
   largeTitleSizeSheet: LARGE_TITLE_SIZE_SHEET,
   largeTitleBlockPage: LARGE_TITLE_BLOCK_PAGE,
   largeTitleBlockSheet: LARGE_TITLE_BLOCK_SHEET,
-  bottomSheetTopPadding: BOTTOM_SHEET_TOP_PADDING,
 } = SETTINGS_LAYOUT;
 
 const LARGE_TITLE_CONTENT_GAP_PAGE = SETTINGS_LAYOUT.largeTitleContentGapPage;
 const LARGE_TITLE_CONTENT_GAP_SHEET = SETTINGS_LAYOUT.largeTitleContentGapSheet;
 const STICKY_BAR_HEIGHT_SHEET = SETTINGS_LAYOUT.stickyBarHeightSheet;
+const SHEET_HEADER_TOP_INSET = SETTINGS_LAYOUT.sheetHeaderTopInset;
+const SHEET_STICKY_PILL_FONT_SIZE = SETTINGS_LAYOUT.sheetStickyPillFontSize;
+const SHEET_STICKY_PILL_PADDING_H = SETTINGS_LAYOUT.sheetStickyPillPaddingHorizontal;
+const SHEET_STICKY_PILL_PADDING_V = SETTINGS_LAYOUT.sheetStickyPillPaddingVertical;
+const SHEET_STICKY_PILL_MIN_HEIGHT = SETTINGS_LAYOUT.sheetStickyPillMinHeight;
+const SHEET_STICKY_PILL_BLUR_INTENSITY =
+  SETTINGS_LAYOUT.sheetStickyPillBlurIntensity;
+const SHEET_STICKY_PILL_SURFACE_ALPHA =
+  SETTINGS_LAYOUT.sheetStickyPillSurfaceAlpha;
 const CLOSE_ICON_SIZE = SETTINGS_LAYOUT.closeIconSize;
+const CONTENT_BODY_TOP_PADDING = SETTINGS_LAYOUT.contentBodyTopPadding;
+const FOOTER_MARGIN_TOP = SETTINGS_LAYOUT.footerMarginTop;
+const FOOTER_MARGIN_BOTTOM = SETTINGS_LAYOUT.footerMarginBottom;
+const FOOTER_LINE_HEIGHT = SETTINGS_LAYOUT.footerLineHeight;
+const FOOTER_TAGLINE_SIZE = SETTINGS_LAYOUT.footerTaglineSize;
+const FOOTER_TAGLINE_LINE_HEIGHT = SETTINGS_LAYOUT.footerTaglineLineHeight;
+const FOOTER_TAGLINE_MARGIN_TOP = SETTINGS_LAYOUT.footerTaglineMarginTop;
+const FOOTER_VERSION_SIZE = SETTINGS_LAYOUT.footerVersionSize;
+const FOOTER_VERSION_LINE_HEIGHT = SETTINGS_LAYOUT.footerVersionLineHeight;
+const FOOTER_VERSION_MARGIN_TOP = SETTINGS_LAYOUT.footerVersionMarginTop;
+const FOOTER_SCREEN_MARGIN_BOTTOM = SETTINGS_LAYOUT.footerScreenMarginBottom;
 
 const ICON_ROW_DIVIDER_INSET =
-  ROW_PADDING_HORIZONTAL + ICON_SIZE + ICON_MARGIN_RIGHT;
+  ROW_PADDING_HORIZONTAL + ROW_ICON_SLOT_WIDTH + ROW_ICON_MARGIN_RIGHT;
 
 const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
+const AnimatedBottomSheetScrollView =
+  Animated.createAnimatedComponent(BottomSheetScrollView);
+const AnimatedStickyHeader = Animated.createAnimatedComponent(View);
 
 type LayoutVariant = "page" | "bottomSheet";
 
@@ -102,8 +154,6 @@ type LayoutProps = {
   doneAccessibilityLabel?: string;
   /** Secondary copy below the large title (bottom sheet). */
   subtitle?: string;
-  /** When set (e.g. "Done"), shows a text action instead of the × close icon. */
-  headerActionLabel?: string;
   /** Sub-screen back — shows chevron + label top-left */
   onBack?: () => void;
   backLabel?: string;
@@ -119,9 +169,12 @@ type SectionProps = {
   bare?: boolean;
 };
 
+export type SettingsRowIconName = React.ComponentProps<typeof Ionicons>["name"];
+
 export type SettingsGroupedIcon = {
-  name: React.ComponentProps<typeof Ionicons>["name"];
-  backgroundColor: string;
+  name: SettingsRowIconName;
+  /** Core rows default to primary; About/legal use quiet */
+  emphasis?: "primary" | "quiet";
 };
 
 type RowProps = {
@@ -136,6 +189,9 @@ type LinkRowProps = {
   onPress: () => void;
   value?: string;
   showChevron?: boolean;
+  icon?: SettingsGroupedIcon;
+  /** Softer treatment for supporting links (legal, etc.) */
+  subdued?: boolean;
 };
 
 type ToggleRowProps = {
@@ -153,32 +209,6 @@ type CheckRowProps = {
 type FooterProps = {
   children: React.ReactNode;
 };
-
-function DoneTextButton({
-  onPress,
-  testID,
-  accessibilityLabel = "Done",
-  color,
-  style,
-}: {
-  onPress: () => void;
-  testID?: string;
-  accessibilityLabel?: string;
-  color: ColorValue;
-  style?: StyleProp<ViewStyle>;
-}) {
-  return (
-    <Pressable
-      testID={testID}
-      accessibilityLabel={accessibilityLabel}
-      onPress={onPress}
-      hitSlop={8}
-      style={[styles.doneTextButton, style]}
-    >
-      <Text style={[styles.doneText, { color }]}>Done</Text>
-    </Pressable>
-  );
-}
 
 function CloseButton({
   onPress,
@@ -225,6 +255,28 @@ function BackButton({
   );
 }
 
+/** Swipe handle is primary; this keeps VoiceOver + Maestro dismiss without a visible ×. */
+function SheetDismissControl({
+  onPress,
+  testID,
+  accessibilityLabel = "Close",
+}: {
+  onPress: () => void;
+  testID?: string;
+  accessibilityLabel?: string;
+}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      testID={testID}
+      accessibilityLabel={accessibilityLabel}
+      accessibilityRole="button"
+      accessibilityHint="Swipe down to dismiss"
+      style={styles.sheetDismissA11y}
+    />
+  );
+}
+
 function InsetRowDivider({
   color,
   inset,
@@ -246,11 +298,10 @@ export function SettingsInsetGroupedLayout({
   doneTestID,
   doneAccessibilityLabel = "Close",
   subtitle,
-  headerActionLabel,
   onBack,
   backLabel = "Back",
 }: LayoutProps) {
-  const { tokens } = useTheme();
+  const { tokens, mode } = useTheme();
   const insets = useSafeAreaInsets();
   const scrollY = useSharedValue(0);
 
@@ -297,6 +348,38 @@ export function SettingsInsetGroupedLayout({
     ),
   }));
 
+  const sheetStickyPillStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(
+      scrollY.value,
+      [COLLAPSE_DISTANCE * 0.35, COLLAPSE_DISTANCE],
+      [0, 1],
+      Extrapolation.CLAMP,
+    ),
+    transform: [
+      {
+        translateY: interpolate(
+          scrollY.value,
+          [0, COLLAPSE_DISTANCE],
+          [-8, 0],
+          Extrapolation.CLAMP,
+        ),
+      },
+      {
+        scale: interpolate(
+          scrollY.value,
+          [0, COLLAPSE_DISTANCE],
+          [0.88, 1],
+          Extrapolation.CLAMP,
+        ),
+      },
+    ],
+  }));
+
+  const sheetStickyPointerProps = useAnimatedProps(() => ({
+    pointerEvents:
+      scrollY.value > COLLAPSE_DISTANCE * 0.25 ? ("box-none" as const) : ("none" as const),
+  }));
+
   const isBottomSheet = variant === "bottomSheet";
   const largeTitleSize = isBottomSheet
     ? LARGE_TITLE_SIZE_SHEET
@@ -304,40 +387,76 @@ export function SettingsInsetGroupedLayout({
   const largeTitleBlock = isBottomSheet
     ? LARGE_TITLE_BLOCK_SHEET
     : LARGE_TITLE_BLOCK_PAGE;
-  const barHeight = isBottomSheet ? STICKY_BAR_HEIGHT_SHEET : STICKY_BAR_HEIGHT;
+  const pageBarHeight = STICKY_BAR_HEIGHT;
   const contentGapBelowTitle = isBottomSheet
     ? LARGE_TITLE_CONTENT_GAP_SHEET
     : LARGE_TITLE_CONTENT_GAP_PAGE;
-  const headerInsetTop = isBottomSheet ? BOTTOM_SHEET_TOP_PADDING : insets.top;
-  const topBarHeight = headerInsetTop + barHeight;
-  const subtitleBlock =
-    isBottomSheet && subtitle ? SETTINGS_LAYOUT.headerSubtitleBlock : 0;
-  const fixedHeaderHeight = topBarHeight + largeTitleBlock + subtitleBlock;
-  const scrollHeaderPaddingTop = isBottomSheet ? fixedHeaderHeight : topBarHeight;
+  const headerInsetTop = isBottomSheet ? SHEET_HEADER_TOP_INSET : insets.top;
+  const topBarHeight = headerInsetTop + pageBarHeight;
+  const sheetStickyBarHeight = STICKY_BAR_HEIGHT_SHEET;
+  const sheetStickyOverlayHeight =
+    SHEET_HEADER_TOP_INSET + SHEET_STICKY_PILL_MIN_HEIGHT + 8;
+
+  const sheetStickyPillOverlay =
+    mode === "light"
+      ? `rgba(255, 255, 255, ${SHEET_STICKY_PILL_SURFACE_ALPHA})`
+      : `rgba(44, 44, 46, ${SHEET_STICKY_PILL_SURFACE_ALPHA})`;
+
+  const scrollHeaderPaddingTop = isBottomSheet
+    ? SHEET_HEADER_TOP_INSET
+    : topBarHeight;
 
   const scrollContent = (
     <>
-      {!isBottomSheet ? (
-        <View
+      <View
+        style={[
+          styles.scrollHeader,
+          isBottomSheet && styles.sheetScrollHeader,
+          {
+            paddingTop: scrollHeaderPaddingTop,
+            paddingBottom: contentGapBelowTitle,
+          },
+        ]}
+      >
+        {isBottomSheet && onBack ? (
+          <View style={styles.sheetScrollBackRow}>
+            <BackButton
+              onPress={onBack}
+              label={backLabel}
+              color={tokens.settingsLink}
+            />
+          </View>
+        ) : null}
+        <Animated.Text
           style={[
-            styles.scrollHeader,
+            styles.largeTitle,
+            isBottomSheet && styles.largeTitleFixedSheet,
+            isBottomSheet && (subtitle || onBack)
+              ? styles.largeTitleSheetSub
+              : isBottomSheet
+                ? styles.largeTitleCentered
+                : null,
             {
-              paddingTop: scrollHeaderPaddingTop,
-              paddingBottom: contentGapBelowTitle,
+              color: tokens.settingsLabel,
+              fontSize: largeTitleSize,
+              lineHeight: isBottomSheet ? largeTitleBlock : undefined,
             },
+            largeTitleStyle,
           ]}
         >
-          <Animated.Text
+          {title}
+        </Animated.Text>
+        {isBottomSheet && subtitle ? (
+          <Text
             style={[
-              styles.largeTitle,
-              { color: tokens.settingsLabel, fontSize: largeTitleSize },
-              largeTitleStyle,
+              styles.headerSubtitle,
+              { color: tokens.settingsSecondaryLabel },
             ]}
           >
-            {title}
-          </Animated.Text>
-        </View>
-      ) : null}
+            {subtitle}
+          </Text>
+        ) : null}
+      </View>
 
       <View
         style={[
@@ -351,10 +470,7 @@ export function SettingsInsetGroupedLayout({
     </>
   );
 
-  const scrollContentStyle = [
-    styles.scrollContent,
-    isBottomSheet && { paddingTop: fixedHeaderHeight + contentGapBelowTitle },
-  ];
+  const scrollContentStyle = styles.scrollContent;
 
   const pageScrollProps = {
     onScroll: scrollHandler,
@@ -365,6 +481,8 @@ export function SettingsInsetGroupedLayout({
   };
 
   const sheetScrollProps = {
+    onScroll: scrollHandler,
+    scrollEventThrottle: 16 as const,
     showsVerticalScrollIndicator: false,
     contentContainerStyle: scrollContentStyle,
     style: styles.scrollView,
@@ -374,39 +492,27 @@ export function SettingsInsetGroupedLayout({
     <View
       style={[styles.root, { backgroundColor: tokens.systemGroupedBg }]}
     >
-      <View
-        pointerEvents="box-none"
-        style={[
-          styles.fixedHeader,
-          {
-            paddingTop: headerInsetTop,
-            height: isBottomSheet ? fixedHeaderHeight : topBarHeight,
-            backgroundColor: tokens.systemGroupedBg,
-          },
-        ]}
-      >
-        {isBottomSheet ? (
-          headerActionLabel ? (
-            <DoneTextButton
-              onPress={onDone}
-              testID={doneTestID}
-              accessibilityLabel={doneAccessibilityLabel}
-              color={tokens.settingsLink}
-              style={styles.sheetCloseAbsolute}
-            />
-          ) : (
-            <CloseButton
-              onPress={onDone}
-              testID={doneTestID}
-              accessibilityLabel={doneAccessibilityLabel}
-              color={tokens.settingsSecondaryLabel}
-              style={styles.sheetCloseAbsolute}
-            />
-          )
-        ) : null}
+      {isBottomSheet ? (
+        <SheetDismissControl
+          onPress={onDone}
+          testID={doneTestID}
+          accessibilityLabel={doneAccessibilityLabel}
+        />
+      ) : null}
 
-        {!isBottomSheet ? (
-          <View style={[styles.topBarRow, { height: barHeight }]}>
+      {!isBottomSheet ? (
+        <View
+          pointerEvents="box-none"
+          style={[
+            styles.fixedHeader,
+            {
+              paddingTop: headerInsetTop,
+              height: topBarHeight,
+              backgroundColor: tokens.systemGroupedBg,
+            },
+          ]}
+        >
+          <View style={[styles.topBarRow, { height: pageBarHeight }]}>
             {onBack ? (
               <BackButton
                 onPress={onBack}
@@ -424,49 +530,8 @@ export function SettingsInsetGroupedLayout({
               color={tokens.settingsSecondaryLabel}
             />
           </View>
-        ) : (
-          <View style={[styles.topBarRow, { height: barHeight }]}>
-            {onBack ? (
-              <BackButton
-                onPress={onBack}
-                label={backLabel}
-                color={tokens.settingsLink}
-              />
-            ) : (
-              <View style={styles.topBarSpacer} />
-            )}
-            <View style={styles.topBarSpacer} />
-            <View style={styles.closePlaceholder} />
-          </View>
-        )}
-
-        {isBottomSheet ? (
-          <View style={styles.sheetTitleBlock}>
-            <Text
-              style={[
-                styles.largeTitle,
-                styles.largeTitleFixedSheet,
-                subtitle || onBack
-                  ? styles.largeTitleSheetSub
-                  : styles.largeTitleCentered,
-                { color: tokens.settingsLabel, fontSize: largeTitleSize },
-              ]}
-            >
-              {title}
-            </Text>
-            {subtitle ? (
-              <Text
-                style={[
-                  styles.headerSubtitle,
-                  { color: tokens.settingsSecondaryLabel },
-                ]}
-              >
-                {subtitle}
-              </Text>
-            ) : null}
-          </View>
-        ) : null}
-      </View>
+        </View>
+      ) : null}
 
       {!isBottomSheet ? (
         <Animated.View
@@ -501,12 +566,65 @@ export function SettingsInsetGroupedLayout({
             <View style={styles.closePlaceholder} />
           </View>
         </Animated.View>
-      ) : null}
+      ) : (
+        <AnimatedStickyHeader
+          animatedProps={sheetStickyPointerProps}
+          style={[
+            styles.sheetStickyOverlay,
+            { height: sheetStickyOverlayHeight },
+          ]}
+        >
+          {onBack ? (
+            <View
+              pointerEvents="auto"
+              style={[
+                styles.sheetStickyBack,
+                { top: SHEET_HEADER_TOP_INSET, height: sheetStickyBarHeight },
+              ]}
+            >
+              <BackButton
+                onPress={onBack}
+                label={backLabel}
+                color={tokens.settingsLink}
+              />
+            </View>
+          ) : null}
+          <Animated.View
+            style={[
+              styles.sheetStickyPill,
+              { borderColor: tokens.settingsSeparator },
+              sheetStickyPillStyle,
+            ]}
+          >
+            <BlurView
+              intensity={SHEET_STICKY_PILL_BLUR_INTENSITY}
+              tint="default"
+              style={StyleSheet.absoluteFill}
+            />
+            <View
+              pointerEvents="none"
+              style={[
+                StyleSheet.absoluteFill,
+                { backgroundColor: sheetStickyPillOverlay },
+              ]}
+            />
+            <Text
+              style={[
+                styles.sheetStickyPillTitle,
+                { color: tokens.settingsLabel },
+              ]}
+              numberOfLines={1}
+            >
+              {title}
+            </Text>
+          </Animated.View>
+        </AnimatedStickyHeader>
+      )}
 
       {variant === "bottomSheet" ? (
-        <BottomSheetScrollView {...sheetScrollProps}>
+        <AnimatedBottomSheetScrollView {...sheetScrollProps}>
           {scrollContent}
-        </BottomSheetScrollView>
+        </AnimatedBottomSheetScrollView>
       ) : (
         <AnimatedScrollView {...pageScrollProps}>{scrollContent}</AnimatedScrollView>
       )}
@@ -536,9 +654,32 @@ function isGroupedListRow(child: React.ReactNode): child is React.ReactElement {
 }
 
 function dividerInsetForRow(child: React.ReactElement): number {
-  return getRowDisplayName(child.type) === "SettingsGroupedRow"
-    ? ICON_ROW_DIVIDER_INSET
-    : ROW_PADDING_HORIZONTAL;
+  const name = getRowDisplayName(child.type);
+  if (name === "SettingsGroupedRow") {
+    return ICON_ROW_DIVIDER_INSET;
+  }
+  if (
+    name === "SettingsGroupedLinkRow" &&
+    (child.props as LinkRowProps).icon
+  ) {
+    return ICON_ROW_DIVIDER_INSET;
+  }
+  return ROW_PADDING_HORIZONTAL;
+}
+
+function SettingsRowIcon({ icon }: { icon: SettingsGroupedIcon }) {
+  const { tokens } = useTheme();
+  const emphasis = icon.emphasis ?? "primary";
+  const color =
+    emphasis === "quiet"
+      ? tokens.settingsTertiaryLabel
+      : tokens.settingsSecondaryLabel;
+
+  return (
+    <View style={styles.rowIconSlot}>
+      <Ionicons name={icon.name} size={ROW_ICON_SIZE} color={color} />
+    </View>
+  );
 }
 
 /** Uppercase section label — SESSION, THEME, etc. */
@@ -617,7 +758,7 @@ export function SettingsGroupedSection({
   );
 }
 
-/** Tappable settings row with colored icon badge and chevron. */
+/** Tappable settings row with monochrome leading symbol and chevron. */
 export function SettingsGroupedRow({ title, onPress, icon, value }: RowProps) {
   const { tokens } = useTheme();
 
@@ -629,14 +770,7 @@ export function SettingsGroupedRow({ title, onPress, icon, value }: RowProps) {
         pressed && styles.rowPressed,
       ]}
     >
-      <View
-        style={[
-          styles.iconBadge,
-          { backgroundColor: icon.backgroundColor },
-        ]}
-      >
-        <Ionicons name={icon.name} size={ICON_GLYPH_SIZE} color="#FFFFFF" />
-      </View>
+      <SettingsRowIcon icon={icon} />
       <Text
         style={[styles.rowTitle, { color: tokens.settingsLabel }]}
         numberOfLines={1}
@@ -668,19 +802,32 @@ export function SettingsGroupedLinkRow({
   onPress,
   value,
   showChevron = true,
+  icon,
+  subdued = false,
 }: LinkRowProps) {
   const { tokens } = useTheme();
+  const rowStyle = icon ? styles.row : styles.plainRow;
+  const titleStyle = icon ? styles.rowTitle : styles.plainRowTitle;
 
   return (
     <Pressable
       onPress={onPress}
       style={({ pressed }) => [
-        styles.plainRow,
+        rowStyle,
         pressed && styles.rowPressed,
       ]}
     >
+      {icon ? <SettingsRowIcon icon={icon} /> : null}
       <Text
-        style={[styles.plainRowTitle, { color: tokens.settingsLabel }]}
+        style={[
+          titleStyle,
+          subdued && styles.plainRowTitleSubdued,
+          {
+            color: subdued
+              ? tokens.settingsSecondaryLabel
+              : tokens.settingsLabel,
+          },
+        ]}
         numberOfLines={1}
       >
         {title}
@@ -698,7 +845,7 @@ export function SettingsGroupedLinkRow({
           name="chevron-forward"
           size={CHEVRON_SIZE}
           color={tokens.settingsTertiaryLabel}
-          style={styles.chevron}
+          style={[styles.chevron, subdued && styles.chevronSubdued]}
         />
       ) : null}
     </Pressable>
@@ -761,7 +908,7 @@ export function SettingsGroupedCheckRow({
 }
 SettingsGroupedCheckRow.displayName = "SettingsGroupedCheckRow";
 
-/** Centered caption below grouped sections (version, tagline). */
+/** Centered caption below grouped sections (single-line hints). */
 export function SettingsGroupedFooter({ children }: FooterProps) {
   const { tokens } = useTheme();
 
@@ -769,6 +916,33 @@ export function SettingsGroupedFooter({ children }: FooterProps) {
     <Text style={[styles.footer, { color: tokens.settingsSecondaryLabel }]}>
       {children}
     </Text>
+  );
+}
+
+/** Settings main footer — playful tagline + subtle version metadata. */
+export function SettingsScreenFooter({ tagline }: { tagline: string }) {
+  const { tokens } = useTheme();
+  const { versionLine } = getAppVersionMetadata();
+
+  return (
+    <View style={styles.settingsScreenFooter}>
+      <Text
+        style={[
+          styles.footerTagline,
+          { color: tokens.settingsSecondaryLabel },
+        ]}
+      >
+        {tagline}
+      </Text>
+      <Text
+        style={[
+          styles.footerVersion,
+          { color: tokens.settingsTertiaryLabel },
+        ]}
+      >
+        {versionLine}
+      </Text>
+    </View>
   );
 }
 
@@ -785,6 +959,12 @@ const styles = StyleSheet.create({
   scrollHeader: {
     paddingHorizontal: HORIZONTAL_INSET,
     paddingBottom: 4,
+  },
+  sheetScrollHeader: {
+    paddingBottom: 0,
+  },
+  sheetScrollBackRow: {
+    marginBottom: 4,
   },
   fixedHeader: {
     position: "absolute",
@@ -813,7 +993,7 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   largeTitleFixedSheet: {
-    marginTop: -4,
+    marginTop: 0,
     marginBottom: 0,
   },
   sheetTitleBlock: {
@@ -841,6 +1021,15 @@ const styles = StyleSheet.create({
     right: 0,
     zIndex: 12,
   },
+  sheetDismissA11y: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    width: 44,
+    minHeight: 44,
+    opacity: 0,
+    zIndex: 12,
+  },
   doneTextButton: {
     paddingHorizontal: HORIZONTAL_INSET,
     paddingVertical: 4,
@@ -853,7 +1042,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   childrenContainer: {
-    paddingTop: 2,
+    paddingTop: CONTENT_BODY_TOP_PADDING,
   },
   childrenContainerSheet: {
     paddingTop: 0,
@@ -866,6 +1055,38 @@ const styles = StyleSheet.create({
     zIndex: 10,
     overflow: "hidden",
     borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  sheetStickyOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 12,
+    alignItems: "center",
+    justifyContent: "flex-start",
+    paddingTop: SHEET_HEADER_TOP_INSET,
+  },
+  sheetStickyBack: {
+    position: "absolute",
+    left: HORIZONTAL_INSET - 6,
+    justifyContent: "center",
+  },
+  sheetStickyPill: {
+    overflow: "hidden",
+    borderRadius: 999,
+    borderWidth: StyleSheet.hairlineWidth,
+    minHeight: SHEET_STICKY_PILL_MIN_HEIGHT,
+    paddingHorizontal: SHEET_STICKY_PILL_PADDING_H,
+    paddingVertical: SHEET_STICKY_PILL_PADDING_V,
+    alignItems: "center",
+    justifyContent: "center",
+    maxWidth: "72%",
+  },
+  sheetStickyPillTitle: {
+    fontSize: SHEET_STICKY_PILL_FONT_SIZE,
+    fontWeight: "600",
+    letterSpacing: -0.24,
+    textAlign: "center",
   },
   stickyHeaderContent: {
     flexDirection: "row",
@@ -910,13 +1131,11 @@ const styles = StyleSheet.create({
   rowPressed: {
     opacity: 0.55,
   },
-  iconBadge: {
-    width: ICON_SIZE,
-    height: ICON_SIZE,
-    borderRadius: ICON_RADIUS,
+  rowIconSlot: {
+    width: ROW_ICON_SLOT_WIDTH,
+    marginRight: ROW_ICON_MARGIN_RIGHT,
     alignItems: "center",
     justifyContent: "center",
-    marginRight: ICON_MARGIN_RIGHT,
   },
   rowTitle: {
     flex: 1,
@@ -937,6 +1156,9 @@ const styles = StyleSheet.create({
     fontWeight: "400",
     letterSpacing: -0.41,
   },
+  plainRowTitleSubdued: {
+    fontSize: SUBDUED_LINK_FONT_SIZE,
+  },
   rowValue: {
     fontSize: ROW_FONT_SIZE,
     fontWeight: "400",
@@ -947,16 +1169,40 @@ const styles = StyleSheet.create({
     marginLeft: 0,
     opacity: 0.85,
   },
+  chevronSubdued: {
+    opacity: 0.45,
+  },
   insetDivider: {
     height: StyleSheet.hairlineWidth,
   },
   footer: {
     textAlign: "center",
     fontSize: SECTION_HEADER_SIZE,
-    lineHeight: 18,
+    lineHeight: FOOTER_LINE_HEIGHT,
     marginHorizontal: HORIZONTAL_INSET + 8,
-    marginTop: 2,
-    marginBottom: 8,
+    marginTop: FOOTER_MARGIN_TOP,
+    marginBottom: FOOTER_MARGIN_BOTTOM,
+  },
+  settingsScreenFooter: {
+    alignItems: "center",
+    marginTop: FOOTER_TAGLINE_MARGIN_TOP,
+    marginBottom: FOOTER_SCREEN_MARGIN_BOTTOM,
+    marginHorizontal: HORIZONTAL_INSET + 8,
+  },
+  footerTagline: {
+    textAlign: "center",
+    fontSize: FOOTER_TAGLINE_SIZE,
+    lineHeight: FOOTER_TAGLINE_LINE_HEIGHT,
+    fontWeight: "400",
+    letterSpacing: -0.08,
+  },
+  footerVersion: {
+    textAlign: "center",
+    fontSize: FOOTER_VERSION_SIZE,
+    lineHeight: FOOTER_VERSION_LINE_HEIGHT,
+    fontWeight: "400",
+    letterSpacing: 0,
+    marginTop: FOOTER_VERSION_MARGIN_TOP,
   },
 });
 
