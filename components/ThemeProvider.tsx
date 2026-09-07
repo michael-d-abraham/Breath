@@ -18,6 +18,14 @@ type Tokens = PaletteTokens &
     separator: any;
     systemBg: any;
     systemGroupedBg: any;
+    systemSecondaryGroupedBg: any;
+    /** iOS semantic colors for inset-grouped settings UI */
+    settingsLabel: any;
+    settingsSecondaryLabel: any;
+    settingsTertiaryLabel: any;
+    settingsSeparator: any;
+    settingsLink: any;
+    settingsSystemBlue: any;
   };
 
 // ============================================================================
@@ -35,6 +43,13 @@ type ThemeContextValue = {
     separator: any;
     systemBg: any;
     systemGroupedBg: any;
+    systemSecondaryGroupedBg: any;
+    settingsLabel: any;
+    settingsSecondaryLabel: any;
+    settingsTertiaryLabel: any;
+    settingsSeparator: any;
+    settingsLink: any;
+    settingsSystemBlue: any;
     // Dynamic colors for bottom sheets (follow app mode, independent of theme):
     bottomSheetBg: any;
     bottomSheetText: any;
@@ -71,6 +86,13 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       separator: PlatformColor('separator'),
       systemBg: PlatformColor('systemBackground'),
       systemGroupedBg: PlatformColor('systemGroupedBackground'),
+      systemSecondaryGroupedBg: PlatformColor('secondarySystemGroupedBackground'),
+      settingsLabel: PlatformColor('label'),
+      settingsSecondaryLabel: PlatformColor('secondaryLabel'),
+      settingsTertiaryLabel: PlatformColor('tertiaryLabel'),
+      settingsSeparator: PlatformColor('separator'),
+      settingsLink: PlatformColor('link'),
+      settingsSystemBlue: PlatformColor('systemBlue'),
       // Bottom sheets: follow app mode so they match the rest of the app
       bottomSheetBg: base.surface,
       bottomSheetText: base.textPrimary,

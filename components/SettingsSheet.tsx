@@ -1,5 +1,6 @@
 import React, { forwardRef } from 'react';
 import BaseBottomSheet, { BaseBottomSheetHandle } from './BaseBottomSheet';
+import { useSoundscapeSheetAuditionHandlers } from '@/hooks/useSoundscapePickerAudition';
 import SettingsSection from './SettingsSection';
 import SoundPicker from './SoundPicker';
 import SoundscapePicker from './SoundscapePicker';
@@ -14,12 +15,17 @@ interface SettingsSheetProps {
 
 const SettingsSheet = forwardRef<SettingsSheetHandle, SettingsSheetProps>(
   ({ onChange, onDismiss }, ref) => {
+    const { handleChange, handleDismiss } = useSoundscapeSheetAuditionHandlers(
+      onChange,
+      onDismiss,
+    );
+
     return (
       <BaseBottomSheet
         ref={ref}
         title="Settings"
-        onChange={onChange}
-        onDismiss={onDismiss}
+        onChange={handleChange}
+        onDismiss={handleDismiss}
       >
         <SettingsSection variant="bottomSheet" title="Inhale / Exhale Tone">
           <SoundPicker variant="bottomSheet" />

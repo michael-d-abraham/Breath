@@ -1,27 +1,71 @@
-import BreathingPageHeader from "@/components/BreathingPageHeader";
+import HomeMeditateHero from "@/components/HomeMeditateHero";
+import HomeNavigation, {
+  HOME_FLOATING_NAV_ESTIMATED_HEIGHT,
+} from "@/components/HomeNavigation";
 import ExerciseDetailSheet from "@/components/ExerciseDetailSheet";
 import ExerciseSelectionSheet from "@/components/ExerciseSelectionSheet";
+import ScenesSheet from "@/components/ScenesSheet";
 import SupportSheet from "@/components/SupportSheet";
-import { useWallpaperForeground } from "@/components/Theme";
-import { useBreathing } from "@/contexts/breathingContext";
 import { useAppSettings } from "@/contexts/appSettingsContext";
+import { useBreathing } from "@/contexts/breathingContext";
 import { useBreathingSheets } from "@/hooks/useBreathingSheets";
 import { defaultExercises } from "@/lib/storage";
+import { HOME_NAV_INACTIVE_OPACITY, HOME_NAV_ON_DARK } from "@/components/homeNavTokens";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
-import { BlurView } from "expo-blur";
 import { useRouter } from "expo-router";
-import React from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  Dimensions,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
+
+const PAGES = [
+  {
+    id: "oneBreath",
+    subtitle: "One Breath",
+    description: "Breathe together in a live room",
+  },
+  {
+    id: "relax",
+    subtitle: "",
+    description: "",
+  },
+  {
+    id: "benefits",
+    subtitle: "Benefits",
+    description: "Articles, books, and videos to go deeper",
+  },
+] as const;
 
 export default function Index() {
-  const wallpaperFg = useWallpaperForeground();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { currentExercise, updateExercise } = useBreathing();
   const sheets = useBreathingSheets();
+  const { backgroundImage } = useAppSettings();
+  const scrollViewRef = useRef<ScrollView>(null);
+  const [currentPageIndex, setCurrentPageIndex] = useState(1); // Start at Relax
 
-  // Get current exercise or default to Deep Breathing
+  useEffect(() => {
+    const id = setTimeout(() => {
+      scrollViewRef.current?.scrollTo({
+        x: 1 * SCREEN_WIDTH,
+        animated: false,
+      });
+    }, 100);
+    return () => clearTimeout(id);
+  }, []);
+
   const displayExercise =
     currentExercise ||
     defaultExercises.find((ex) => ex.id === "1") ||
@@ -35,99 +79,73 @@ export default function Index() {
     });
   };
 
-  const handleCirclePress = () => {
-    // Navigate to scenes screen
-    router.push("/scenes");
+  const handleOneBreathPress = () => {
+    router.push("/global_room_picker");
   };
 
-  const handleInfoLibraryPress = () => {
-    router.push("/informationarchive");
+  const handleProfilePress = () => {
+    scrollToPage(2, true);
   };
 
-  const { backgroundImage } = useAppSettings();
+  const handleSettingsPress = () => {
+    sheets.handleSupportPress();
+  };
+
+  const scrollToPage = (index: number, animated = false) => {
+    scrollViewRef.current?.scrollTo({
+      x: index * SCREEN_WIDTH,
+      animated,
+    });
+    setCurrentPageIndex(index);
+  };
+
+  const handleNavSelect = (index: number) => {
+    scrollToPage(index, true);
+  };
+
+  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const offsetX = event.nativeEvent.contentOffset.x;
+    const pageIndex = Math.round(offsetX / SCREEN_WIDTH);
+    if (pageIndex !== currentPageIndex) {
+      setCurrentPageIndex(pageIndex);
+    }
+  };
+
+  const bottomContentInset =
+    insets.bottom + HOME_FLOATING_NAV_ESTIMATED_HEIGHT + 24;
 
   const styles = StyleSheet.create({
     container: {
       flex: 1,
       backgroundColor: backgroundImage ? "transparent" : "#FFFFFF",
     },
-    headerContainer: {
-      position: "absolute",
-      top: 0,
-      left: 0,
-      right: 0,
-      zIndex: 10,
-    },
-    contentArea: {
+    scrollableContent: {
       flex: 1,
-      marginTop: 60, // Space for fixed header
-      marginBottom: 180, // Space for fixed footer
+      marginTop: 60,
+      marginBottom: bottomContentInset,
+    },
+    scrollView: {
+      flex: 1,
     },
     pageContainer: {
+      width: SCREEN_WIDTH,
       flex: 1,
       paddingHorizontal: 24,
       alignItems: "center",
       justifyContent: "center",
     },
     subtitle: {
-      color: wallpaperFg,
+      color: HOME_NAV_ON_DARK,
       fontSize: 48,
       fontWeight: "700",
       textAlign: "center",
       marginBottom: 16,
     },
     description: {
-      color: wallpaperFg,
+      color: HOME_NAV_ON_DARK,
       fontSize: 18,
       textAlign: "center",
-      opacity: 0.8,
-    },
-    footerContainer: {
-      position: "absolute",
-      bottom: 0,
-      left: 0,
-      right: 0,
-      paddingHorizontal: 24,
-      paddingBottom: 40,
-      zIndex: 10,
-    },
-    startButtonContainer: {
-      width: "100%",
-      justifyContent: "center",
-      alignItems: "center",
-      position: "relative",
-      marginBottom: 40,
-    },
-    startButton: {
-      paddingVertical: 16,
-      paddingHorizontal: 32,
-    },
-    startButtonText: {
-      color: wallpaperFg,
-      fontSize: 28,
-      fontWeight: "700",
-    },
-    techniqueContainer: {
-      alignItems: "center",
-    },
-    techniqueLabel: {
-      color: wallpaperFg,
-      fontSize: 20,
-      fontWeight: "600",
-      marginBottom: 12,
-    },
-    techniqueValue: {
-      color: wallpaperFg,
-      fontSize: 18,
-    },
-    techniqueSelectable: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: 8,
-    },
-    chevronIcon: {
-      color: wallpaperFg,
-      fontSize: 16,
+      opacity: HOME_NAV_INACTIVE_OPACITY,
     },
   });
 
@@ -135,69 +153,62 @@ export default function Index() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <BottomSheetModalProvider>
         <SafeAreaView style={styles.container}>
-          {/* Fixed Header */}
-          <View style={styles.headerContainer}>
-            <BreathingPageHeader
-              supportSheetRef={sheets.supportSheetRef}
-              onSupportPress={sheets.handleSupportPress}
-              onCirclePress={handleCirclePress}
-              onInfoLibraryPress={handleInfoLibraryPress}
-              globalBreathLabel="One Breath"
-              onGlobalBreathPress={() => router.push("/global_room_picker")}
-            />
+          <View style={styles.scrollableContent}>
+            <ScrollView
+              ref={scrollViewRef}
+              horizontal
+              pagingEnabled
+              showsHorizontalScrollIndicator={false}
+              onMomentumScrollEnd={handleScroll}
+              onScroll={handleScroll}
+              scrollEventThrottle={16}
+              style={styles.scrollView}
+              contentContainerStyle={{ flexDirection: "row" }}
+            >
+              {PAGES.map((page) => (
+                <View key={page.id} style={styles.pageContainer}>
+                  {page.id === "relax" ? (
+                    <HomeMeditateHero
+                      onStartPress={handleStartPress}
+                      techniqueTitle={displayExercise.title}
+                      onTechniquePress={sheets.handleTechniquePress}
+                    />
+                  ) : (
+                    <>
+                      {page.subtitle ? (
+                        <Text style={styles.subtitle}>{page.subtitle}</Text>
+                      ) : null}
+                      {page.description ? (
+                        <Text style={styles.description}>{page.description}</Text>
+                      ) : null}
+                    </>
+                  )}
+                </View>
+              ))}
+            </ScrollView>
           </View>
 
-          {/* Fixed middle content: Relax only */}
-          <View style={styles.contentArea}>
-            <View style={styles.pageContainer}>
-              <Text style={styles.subtitle}>Relax</Text>
-              <Text style={styles.description}>
-                Quiet your mind and relieve stress
-              </Text>
-            </View>
-          </View>
+          <HomeNavigation
+            selectedIndex={currentPageIndex}
+            onSelect={handleNavSelect}
+            onScenesPress={sheets.handleScenesPress}
+            onOneBreathPress={handleOneBreathPress}
+            onProfilePress={handleProfilePress}
+            onSettingsPress={handleSettingsPress}
+          />
 
-          {/* Fixed Footer */}
-          <View style={styles.footerContainer}>
-            <View style={styles.startButtonContainer}>
-              <Pressable
-                testID="home.start-button"
-                accessibilityLabel="Start"
-                onPress={handleStartPress}
-                style={styles.startButton}
-              >
-                <Text style={styles.startButtonText}>Start</Text>
-              </Pressable>
-            </View>
-
-            {/* Technique Section */}
-            <View style={styles.techniqueContainer}>
-              <Text style={styles.techniqueLabel}>Technique:</Text>
-              <Pressable
-                onPress={sheets.handleTechniquePress}
-                style={styles.techniqueSelectable}
-              >
-                <Text style={styles.techniqueValue}>
-                  {displayExercise.title}
-                </Text>
-                <Text style={styles.chevronIcon}>⌄</Text>
-              </Pressable>
-            </View>
-          </View>
-
-          {/* Blurred backdrop (tap to dismiss) */}
           {(sheets.isSheetOpen ||
             sheets.isSupportSheetOpen ||
+            sheets.isScenesSheetOpen ||
             sheets.isSelectionSheetOpen) && (
             <Pressable
               onPress={sheets.closeAllSheets}
               style={StyleSheet.absoluteFill}
-            >
-              <BlurView intensity={20} style={StyleSheet.absoluteFill} />
-            </Pressable>
+              accessibilityLabel="Close sheet"
+              accessibilityRole="button"
+            />
           )}
 
-          {/* Bottom Sheet Modals */}
           <ExerciseDetailSheet
             ref={sheets.sheetRef}
             exercise={sheets.selectedExerciseForInfo}
@@ -211,6 +222,11 @@ export default function Index() {
             onSelectExercise={sheets.handleSelectExercise}
             onChange={sheets.handleSelectionSheetChange}
             onDismiss={sheets.handleSelectionSheetDismiss}
+          />
+          <ScenesSheet
+            ref={sheets.scenesSheetRef}
+            onChange={sheets.handleScenesSheetChange}
+            onDismiss={sheets.handleScenesSheetDismiss}
           />
           <SupportSheet
             ref={sheets.supportSheetRef}

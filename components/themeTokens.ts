@@ -6,7 +6,7 @@ import { THEME_PREVIEW_COLORS } from '@/constants/featureColors';
 
 export type Mode = 'light' | 'dark';
 export type AppearancePref = 'system' | 'light' | 'dark';
-export type ThemeName = 'grounded' | 'calm' | 'uplifting';
+export type ThemeName = 'basic' | 'grounded' | 'calm' | 'uplifting';
 
 // ============================================================================
 // Palette token shape
@@ -29,6 +29,30 @@ export type PaletteTokens = {
 // ============================================================================
 
 export const palettes: Record<ThemeName, Record<Mode, PaletteTokens>> = {
+  basic: {
+    light: {
+      sceneBackground: '#F2F2F7',
+      surface: '#FFFFFF',
+      accentPrimary: '#48484A',
+      accentMuted: '#C7C7CC',
+      textOnAccent: '#FFFFFF',
+      textPrimary: '#000000',
+      textSecondary: '#8E8E93',
+      borderSubtle: '#C6C6C8',
+      shadow: '#000000',
+    },
+    dark: {
+      sceneBackground: '#000000',
+      surface: '#1C1C1E',
+      accentPrimary: '#EBEBF5',
+      accentMuted: '#636366',
+      textOnAccent: '#000000',
+      textPrimary: '#FFFFFF',
+      textSecondary: '#98989D',
+      borderSubtle: '#38383A',
+      shadow: '#000000',
+    },
+  },
   grounded: {
     light: {
       sceneBackground: '#F5F3ED',
@@ -79,24 +103,24 @@ export const palettes: Record<ThemeName, Record<Mode, PaletteTokens>> = {
   },
   uplifting: {
     light: {
-      sceneBackground: '#F7F4FF',
+      sceneBackground: '#F3EDE6',
       surface: '#E3DACB',
-      accentPrimary: '#6B5BD0',
-      accentMuted: '#C5BAEB',
+      accentPrimary: '#92735C',
+      accentMuted: '#B69C85',
       textOnAccent: '#1A1625',
       textPrimary: '#1A1625',
-      textSecondary: '#3D3648',
+      textSecondary: '#5C4F45',
       borderSubtle: '#5E5F5D',
       shadow: '#000000',
     },
     dark: {
-      sceneBackground: '#0D0B14',
-      surface: '#111111',
-      accentPrimary: '#9B8AE8',
-      accentMuted: '#6B5BD0',
+      sceneBackground: '#12100E',
+      surface: '#1C1916',
+      accentPrimary: '#B69C85',
+      accentMuted: '#92735C',
       textOnAccent: '#FFFFFF',
       textPrimary: '#FFFFFF',
-      textSecondary: '#B8B0C9',
+      textSecondary: '#B8A99A',
       borderSubtle: '#484540',
       shadow: '#000000',
     },
@@ -108,6 +132,11 @@ export const palettes: Record<ThemeName, Record<Mode, PaletteTokens>> = {
 // ============================================================================
 
 export const THEMES = {
+  basic: {
+    name: 'Basic',
+    description: 'Neutral gray, system clarity',
+    preview: THEME_PREVIEW_COLORS.basic,
+  },
   grounded: {
     name: 'Grounded',
     description: 'Deep forest, moss, stillness',

@@ -1,11 +1,19 @@
-import * as ExpoLinking from "expo-linking";
-import React, { forwardRef, useState } from "react";
-import { Linking, Text, View } from "react-native";
+import { useAppSettings } from "@/contexts/appSettingsContext";
+import { AppearancePref, useTheme } from "@/components/Theme";
+import React, { forwardRef, useCallback, useImperativeHandle, useRef, useState } from "react";
+import { Linking } from "react-native";
 import BaseBottomSheet, { BaseBottomSheetHandle } from "./BaseBottomSheet";
-import BottomSheetCollapsibleSection from "./BottomSheetCollapsibleSection";
-import BottomSheetDivider from "./BottomSheetDivider";
-import BottomSheetRow from "./BottomSheetRow";
-import { useTheme } from "./Theme";
+import { SettingsSheetScreen } from "./SettingsBottomSheet";
+import { settingsRowIcons } from "./settingsRowIcons";
+import {
+  SettingsGroupedCheckRow,
+  SettingsGroupedFooter,
+  SettingsScreenFooter,
+  SettingsGroupedLinkRow,
+  SettingsGroupedToggleRow,
+  SettingsRow,
+  SettingsSection,
+} from "./SettingsInsetGrouped";
 
 export type SupportSheetHandle = BaseBottomSheetHandle;
 
@@ -14,119 +22,374 @@ interface SupportSheetProps {
   onDismiss?: () => void;
 }
 
+type SupportScreen =
+  | "main"
+  | "sounds-haptics"
+  | "appearance"
+  | "reminders"
+  | "apple-health"
+  | "app-icon"
+  | "ideas"
+  | "about-me"
+  | "privacy-policy"
+  | "terms";
+
+const SUPPORT_VIDEO_URL = "https://www.youtube.com/watch?v=8WPaO819-_g";
+const PRIVACY_URL =
+  "https://michael-d-abraham.github.io/brethbro-privacy/privacy.html";
+const TERMS_URL = "https://www.youtube.com/watch?v=8WPaO819-_g";
+
+const APPEARANCE_LABELS: Record<AppearancePref, string> = {
+  light: "Light",
+  dark: "Dark",
+  system: "System",
+};
+
+function soundsHapticsSummary(
+  soundEnabled: boolean,
+  hapticsEnabled: boolean,
+): string {
+  if (soundEnabled && hapticsEnabled) return "On";
+  if (!soundEnabled && !hapticsEnabled) return "Off";
+  const parts: string[] = [];
+  if (soundEnabled) parts.push("Sound");
+  if (hapticsEnabled) parts.push("Haptics");
+  return parts.join(", ");
+}
+
+type ScreenProps = {
+  onNavigate: (screen: SupportScreen) => void;
+  onDone: () => void;
+};
+
+function SettingsMainScreen({ onNavigate, onDone }: ScreenProps) {
+  const { settings } = useAppSettings();
+  const { appearance } = useTheme();
+
+  return (
+    <SettingsSheetScreen
+      title="Settings"
+      onClose={onDone}
+      closeTestID="settings.close-button"
+    >
+      <SettingsSection title="Session">
+        <SettingsRow
+          title="Sounds & Haptics"
+          value={soundsHapticsSummary(
+            settings.soundEnabled,
+            settings.hapticsEnabled,
+          )}
+          icon={settingsRowIcons.soundsHaptics}
+          onPress={() => onNavigate("sounds-haptics")}
+        />
+      </SettingsSection>
+
+      <SettingsSection title="Appearance">
+        <SettingsRow
+          title="Theme"
+          value={APPEARANCE_LABELS[appearance]}
+          icon={settingsRowIcons.theme}
+          onPress={() => onNavigate("appearance")}
+        />
+        <SettingsRow
+          title="App Icon"
+          icon={settingsRowIcons.appIcon}
+          onPress={() => onNavigate("app-icon")}
+        />
+      </SettingsSection>
+
+      <SettingsSection title="Integrations">
+        <SettingsRow
+          title="Reminders"
+          icon={settingsRowIcons.reminders}
+          onPress={() => onNavigate("reminders")}
+        />
+        <SettingsRow
+          title="Apple Health"
+          icon={settingsRowIcons.appleHealth}
+          onPress={() => onNavigate("apple-health")}
+        />
+      </SettingsSection>
+
+      <SettingsSection title="About">
+        <SettingsGroupedLinkRow
+          title="About Me"
+          icon={settingsRowIcons.aboutMe}
+          onPress={() => onNavigate("about-me")}
+        />
+        <SettingsGroupedLinkRow
+          title="Ideas & Suggestions"
+          icon={settingsRowIcons.ideas}
+          onPress={() => onNavigate("ideas")}
+        />
+      </SettingsSection>
+
+      <SettingsSection>
+        <SettingsGroupedLinkRow
+          title="Privacy Policy"
+          icon={settingsRowIcons.privacy}
+          subdued
+          onPress={() => onNavigate("privacy-policy")}
+        />
+        <SettingsGroupedLinkRow
+          title="Terms of Service"
+          icon={settingsRowIcons.terms}
+          subdued
+          onPress={() => onNavigate("terms")}
+        />
+      </SettingsSection>
+
+      <SettingsScreenFooter tagline="Breathing is cool. All the cool kids do it." />
+    </SettingsSheetScreen>
+  );
+}
+
+function SoundsHapticsScreen({ onNavigate, onDone }: ScreenProps) {
+  const { settings, toggleSound, toggleHaptics } = useAppSettings();
+
+  return (
+    <SettingsSheetScreen
+      title="Sounds & Haptics"
+      onClose={onDone}
+      onBack={() => onNavigate("main")}
+      backLabel="Settings"
+    >
+      <SettingsSection title="Session">
+        <SettingsGroupedToggleRow
+          title="Sound"
+          value={settings.soundEnabled}
+          onValueChange={() => toggleSound()}
+        />
+        <SettingsGroupedToggleRow
+          title="Haptics"
+          value={settings.hapticsEnabled}
+          onValueChange={() => toggleHaptics()}
+        />
+      </SettingsSection>
+    </SettingsSheetScreen>
+  );
+}
+
+function AppearanceScreen({ onNavigate, onDone }: ScreenProps) {
+  const { appearance, setAppearance } = useTheme();
+  const usesSystem = appearance === "system";
+  const themeOptions: AppearancePref[] = ["light", "dark", "system"];
+
+  return (
+    <SettingsSheetScreen
+      title="Theme"
+      onClose={onDone}
+      onBack={() => onNavigate("main")}
+      backLabel="Settings"
+    >
+      <SettingsSection title="Appearance">
+        <SettingsGroupedToggleRow
+          title="System"
+          value={usesSystem}
+          onValueChange={(enabled) => {
+            if (enabled) {
+              setAppearance("system");
+            } else {
+              setAppearance("light");
+            }
+          }}
+        />
+        {themeOptions.map((option) => (
+          <SettingsGroupedCheckRow
+            key={option}
+            title={APPEARANCE_LABELS[option]}
+            selected={appearance === option}
+            onPress={() => setAppearance(option)}
+          />
+        ))}
+      </SettingsSection>
+    </SettingsSheetScreen>
+  );
+}
+
+function AboutMeScreen({ onNavigate, onDone }: ScreenProps) {
+  return (
+    <SettingsSheetScreen
+      title="About Me"
+      onClose={onDone}
+      onBack={() => onNavigate("main")}
+      backLabel="Settings"
+    />
+  );
+}
+
+function IdeasScreen({ onNavigate, onDone }: ScreenProps) {
+  const openFeedback = () => {
+    Linking.openURL(SUPPORT_VIDEO_URL);
+  };
+
+  return (
+    <SettingsSheetScreen
+      title="Ideas & Suggestions"
+      onClose={onDone}
+      onBack={() => onNavigate("main")}
+      backLabel="Settings"
+    >
+      <SettingsSection>
+        <SettingsGroupedLinkRow
+          title="Send Feedback"
+          onPress={openFeedback}
+        />
+      </SettingsSection>
+
+      <SettingsGroupedFooter>
+        Help us improve by sharing your thoughts.
+      </SettingsGroupedFooter>
+    </SettingsSheetScreen>
+  );
+}
+
+function PrivacyPolicyScreen({ onNavigate, onDone }: ScreenProps) {
+  return (
+    <SettingsSheetScreen
+      title="Privacy Policy"
+      onClose={onDone}
+      onBack={() => onNavigate("main")}
+      backLabel="Settings"
+    >
+      <SettingsSection>
+        <SettingsGroupedLinkRow
+          title="View Privacy Policy"
+          onPress={() => Linking.openURL(PRIVACY_URL)}
+        />
+      </SettingsSection>
+    </SettingsSheetScreen>
+  );
+}
+
+function TermsScreen({ onNavigate, onDone }: ScreenProps) {
+  return (
+    <SettingsSheetScreen
+      title="Terms of Service"
+      onClose={onDone}
+      onBack={() => onNavigate("main")}
+      backLabel="Settings"
+    >
+      <SettingsSection>
+        <SettingsGroupedLinkRow
+          title="View Terms of Service"
+          onPress={() => Linking.openURL(TERMS_URL)}
+        />
+      </SettingsSection>
+    </SettingsSheetScreen>
+  );
+}
+
+function ComingSoonScreen({
+  title,
+  onNavigate,
+  onDone,
+  backTarget,
+  backLabel,
+}: ScreenProps & {
+  title: string;
+  backTarget: SupportScreen;
+  backLabel: string;
+}) {
+  return (
+    <SettingsSheetScreen
+      title={title}
+      onClose={onDone}
+      onBack={() => onNavigate(backTarget)}
+      backLabel={backLabel}
+    >
+      <SettingsGroupedFooter>Coming soon.</SettingsGroupedFooter>
+    </SettingsSheetScreen>
+  );
+}
+
 const SupportSheet = forwardRef<SupportSheetHandle, SupportSheetProps>(
   ({ onChange, onDismiss }, ref) => {
-    const { tokens } = useTheme();
-    const [aboutExpanded, setAboutExpanded] = useState(false);
-    const [getInTouchExpanded, setGetInTouchExpanded] = useState(false);
-    const [feedbackExpanded, setFeedbackExpanded] = useState(false);
-    const [legalExpanded, setLegalExpanded] = useState(false);
+    const sheetRef = useRef<BaseBottomSheetHandle>(null);
+    const [screen, setScreen] = useState<SupportScreen>("main");
 
-    const SUPPORT_VIDEO_URL = "https://www.youtube.com/watch?v=8WPaO819-_g";
+    useImperativeHandle(ref, () => ({
+      open: () => {
+        setScreen("main");
+        sheetRef.current?.open();
+      },
+      close: () => sheetRef.current?.close(),
+    }));
 
-    const handleSupportVideoPress = () => {
-      Linking.openURL(SUPPORT_VIDEO_URL);
+    const handleDone = useCallback(() => {
+      sheetRef.current?.close();
+    }, []);
+
+    const handleDismiss = useCallback(() => {
+      setScreen("main");
+      onDismiss?.();
+    }, [onDismiss]);
+
+    const navigate = useCallback((next: SupportScreen) => {
+      setScreen(next);
+    }, []);
+
+    const screenProps: ScreenProps = {
+      onNavigate: navigate,
+      onDone: handleDone,
     };
 
-    const handlePrivacyPolicyPress = () => {
-      Linking.openURL(
-        "https://michael-d-abraham.github.io/brethbro-privacy/privacy.html",
-      );
-    };
-
-    const handleTermsPress = () => {
-      Linking.openURL("https://www.youtube.com/watch?v=8WPaO819-_g");
-    };
+    const content = (() => {
+      switch (screen) {
+        case "sounds-haptics":
+          return <SoundsHapticsScreen {...screenProps} />;
+        case "reminders":
+          return (
+            <ComingSoonScreen
+              {...screenProps}
+              title="Reminders"
+              backTarget="main"
+              backLabel="Settings"
+            />
+          );
+        case "apple-health":
+          return (
+            <ComingSoonScreen
+              {...screenProps}
+              title="Apple Health"
+              backTarget="main"
+              backLabel="Settings"
+            />
+          );
+        case "appearance":
+          return <AppearanceScreen {...screenProps} />;
+        case "app-icon":
+          return (
+            <ComingSoonScreen
+              {...screenProps}
+              title="App Icon"
+              backTarget="main"
+              backLabel="Settings"
+            />
+          );
+        case "about-me":
+          return <AboutMeScreen {...screenProps} />;
+        case "ideas":
+          return <IdeasScreen {...screenProps} />;
+        case "privacy-policy":
+          return <PrivacyPolicyScreen {...screenProps} />;
+        case "terms":
+          return <TermsScreen {...screenProps} />;
+        case "main":
+        default:
+          return <SettingsMainScreen {...screenProps} />;
+      }
+    })();
 
     return (
       <BaseBottomSheet
-        ref={ref}
-        title="Support"
-        subtitle="Breath through your nose homie"
+        ref={sheetRef}
+        headerless
+        snapPoints={["90%"]}
         onChange={onChange}
-        onDismiss={onDismiss}
+        onDismiss={handleDismiss}
       >
-        {/* About Section */}
-        <BottomSheetCollapsibleSection
-          title="ABOUT BREATH"
-          expanded={aboutExpanded}
-          onToggle={() => setAboutExpanded(!aboutExpanded)}
-          content={
-            <View>
-              <Text
-                style={{
-                  color: tokens.bottomSheetText,
-                  fontSize: 14,
-                  lineHeight: 22,
-                  marginBottom: 8,
-                }}
-              >
-                Breathing is cool. All the cool kids do it.
-              </Text>
-              <Text
-                style={{
-                  color: tokens.bottomSheetSecondaryText,
-                  fontSize: 12,
-                  opacity: 0.7,
-                }}
-              >
-                Version 2.0.8              </Text>
-            </View>
-          }
-        />
-
-        <BottomSheetDivider />
-
-        {/* Get in contact / site */}
-        <BottomSheetCollapsibleSection
-          title="SUPPORT"
-          expanded={getInTouchExpanded}
-          onToggle={() => setGetInTouchExpanded(!getInTouchExpanded)}
-          content={
-            <BottomSheetRow
-              title="Get in contact and Support the developer"
-              subtitle="breathbro.app"
-              onPress={() => void ExpoLinking.openURL("https://breathbro.app")}
-            />
-          }
-        />
-
-        <BottomSheetDivider />
-
-        {/* Feedback Section */}
-        <BottomSheetCollapsibleSection
-          title="WE'D LOVE YOUR FEEDBACK"
-          expanded={feedbackExpanded}
-          onToggle={() => setFeedbackExpanded(!feedbackExpanded)}
-          content={
-            <BottomSheetRow
-              title="Send Feedback"
-              subtitle="Help us improve by sharing your thoughts"
-              onPress={handleSupportVideoPress}
-            />
-          }
-        />
-
-        <BottomSheetDivider />
-
-        {/* Legal Section */}
-        <BottomSheetCollapsibleSection
-          title="LEGAL"
-          expanded={legalExpanded}
-          onToggle={() => setLegalExpanded(!legalExpanded)}
-          content={
-            <View>
-              <BottomSheetRow
-                title="Privacy Policy"
-                onPress={handlePrivacyPolicyPress}
-              />
-              <BottomSheetRow
-                title="Terms of Service"
-                onPress={handleTermsPress}
-              />
-            </View>
-          }
-        />
+        {content}
       </BaseBottomSheet>
     );
   },
