@@ -145,6 +145,23 @@ export function SettingsMenuIcon({ size = 22, color }: IconProps) {
   );
 }
 
+/** Clock outline — session timer picker on home hero. */
+export function TimerNavIcon({ size = 22, color }: IconProps) {
+  const stroke = Math.max(1.5, size * 0.07);
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Circle cx={12} cy={12} r={7.25} stroke={color} strokeWidth={stroke} />
+      <Path
+        d="M12 7.5 V12 L15 14"
+        stroke={color}
+        strokeWidth={stroke}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
+
 /** Close × — menu dismiss, pairs with HamburgerNavIcon stroke weight. */
 export function CloseNavIcon({ size = 22, color }: IconProps) {
   const stroke = Math.max(1.75, size * 0.08);

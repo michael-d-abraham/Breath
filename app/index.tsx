@@ -3,7 +3,6 @@ import HomeNavigation, {
   HOME_FLOATING_NAV_ESTIMATED_HEIGHT,
 } from "@/components/HomeNavigation";
 import ExerciseDetailSheet from "@/components/ExerciseDetailSheet";
-import ExerciseSelectionSheet from "@/components/ExerciseSelectionSheet";
 import ScenesSheet from "@/components/ScenesSheet";
 import SupportSheet from "@/components/SupportSheet";
 import { useAppSettings } from "@/contexts/appSettingsContext";
@@ -54,7 +53,12 @@ export default function Index() {
   const wallpaperFg = useWallpaperForeground();
   const { tokens } = useTheme();
   const inactiveOpacity = homeNavIconSecondaryOpacity(tokens.mode);
-  const { currentExercise, updateExercise } = useBreathing();
+  const {
+    currentExercise,
+    sessionDurationMinutes,
+    updateExercise,
+    updateSessionDuration,
+  } = useBreathing();
   const sheets = useBreathingSheets();
   const { backgroundImage } = useAppSettings();
   const scrollViewRef = useRef<ScrollView>(null);
@@ -75,12 +79,19 @@ export default function Index() {
     defaultExercises.find((ex) => ex.id === "1") ||
     defaultExercises[0];
 
-  const handleStartPress = async () => {
-    await updateExercise(displayExercise);
+  const handleStartPress = () => {
+    updateExercise(displayExercise);
     router.push({
       pathname: "/breathing",
       params: { autoStart: "true" },
     });
+  };
+
+  const handleTechniqueSelect = (exerciseId: string) => {
+    const exercise = defaultExercises.find((ex) => ex.id === exerciseId);
+    if (exercise) {
+      updateExercise(exercise);
+    }
   };
 
   const handleOneBreathPress = () => {
@@ -174,8 +185,11 @@ export default function Index() {
                   {page.id === "relax" ? (
                     <HomeMeditateHero
                       onStartPress={handleStartPress}
-                      techniqueTitle={displayExercise.title}
-                      onTechniquePress={sheets.handleTechniquePress}
+                      exerciseId={displayExercise.id}
+                      exerciseTitle={displayExercise.title}
+                      onTechniqueSelect={handleTechniqueSelect}
+                      durationMinutes={sessionDurationMinutes}
+                      onTimerSelect={updateSessionDuration}
                     />
                   ) : (
                     <>
@@ -203,8 +217,7 @@ export default function Index() {
 
           {(sheets.isSheetOpen ||
             sheets.isSupportSheetOpen ||
-            sheets.isScenesSheetOpen ||
-            sheets.isSelectionSheetOpen) && (
+            sheets.isScenesSheetOpen) && (
             <Pressable
               onPress={sheets.closeAllSheets}
               style={StyleSheet.absoluteFill}
@@ -218,14 +231,6 @@ export default function Index() {
             exercise={sheets.selectedExerciseForInfo}
             onChange={sheets.handleSheetChange}
             onDismiss={sheets.handleSheetDismiss}
-          />
-          <ExerciseSelectionSheet
-            ref={sheets.selectionSheetRef}
-            exercises={sheets.exercises}
-            currentExercise={sheets.currentExercise}
-            onSelectExercise={sheets.handleSelectExercise}
-            onChange={sheets.handleSelectionSheetChange}
-            onDismiss={sheets.handleSelectionSheetDismiss}
           />
           <ScenesSheet
             ref={sheets.scenesSheetRef}

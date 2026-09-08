@@ -28,8 +28,12 @@ export const HOME_START_PILL_HEIGHT = 56;
 export const HOME_START_PILL_FONT_SIZE = 28;
 export const HOME_START_PILL_HORIZONTAL_PADDING = 32;
 
-/** Secondary hero — technique picker */
-export const HOME_TECHNIQUE_PILL_WIDTH = 188;
+/** Secondary hero — technique + timer pickers (side by side; row = START width) */
+export const HOME_TECHNIQUE_PILL_WIDTH = 144;
+export const HOME_TIMER_PILL_WIDTH = 96;
+export const HOME_HERO_PICKER_GAP = 8;
+export const HOME_TECHNIQUE_DROPDOWN_WIDTH = 180;
+export const HOME_TIMER_DROPDOWN_WIDTH = 100;
 export const HOME_TECHNIQUE_PILL_HEIGHT = 38;
 export const HOME_TECHNIQUE_PILL_FONT_SIZE = 13;
 export const HOME_TECHNIQUE_PILL_HORIZONTAL_PADDING = 20;

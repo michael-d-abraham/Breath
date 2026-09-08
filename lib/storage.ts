@@ -75,6 +75,9 @@ const EXERCISES_KEY = 'breathing_exercises';
 const CURRENT_EXERCISE_KEY = 'current_exercise';
 const BACKGROUND_IMAGE_KEY = 'background_image';
 const ANIMATION_THEME_KEY = 'animation_theme';
+const SESSION_DURATION_MINUTES_KEY = 'session_duration_minutes';
+
+export const DEFAULT_SESSION_DURATION_MINUTES = 5;
 
 // Get all exercises
 export const getExercises = async (): Promise<Exercise[]> => {
@@ -149,4 +152,21 @@ export const getAnimationTheme = async (): Promise<string | null> => {
 // Save animation theme
 export const saveAnimationTheme = async (theme: string): Promise<void> => {
   await AsyncStorage.setItem(ANIMATION_THEME_KEY, theme);
+};
+
+// Get session duration (minutes)
+export const getSessionDurationMinutes = async (): Promise<number> => {
+  const stored = await AsyncStorage.getItem(SESSION_DURATION_MINUTES_KEY);
+  if (stored) {
+    const parsed = Number.parseInt(stored, 10);
+    if (!Number.isNaN(parsed) && parsed > 0) {
+      return parsed;
+    }
+  }
+  return DEFAULT_SESSION_DURATION_MINUTES;
+};
+
+// Save session duration (minutes)
+export const saveSessionDurationMinutes = async (minutes: number): Promise<void> => {
+  await AsyncStorage.setItem(SESSION_DURATION_MINUTES_KEY, String(minutes));
 };
