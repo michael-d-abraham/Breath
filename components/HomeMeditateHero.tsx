@@ -1,7 +1,9 @@
-import HomeTechniquePicker from "@/components/HomeTechniquePicker";
+import HomeTechniqueDropdown from "@/components/HomeTechniqueDropdown";
+import HomeTimerDropdown from "@/components/HomeTimerDropdown";
 import HomeNavPressable from "@/components/HomeNavPressable";
 import { useTheme } from "@/components/Theme";
 import {
+  HOME_HERO_PICKER_GAP,
   HOME_HERO_TAGLINE_GAP,
   HOME_HERO_TECHNIQUE_GAP,
   HOME_START_PILL_FONT_SIZE,
@@ -13,22 +15,31 @@ import {
   HOME_TAGLINE_OPACITY,
   homeNavIconPrimary,
 } from "@/components/homeNavTokens";
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
+
+type OpenDropdown = "technique" | "timer" | null;
 
 type Props = {
   onStartPress: () => void;
-  techniqueTitle: string;
-  onTechniquePress: () => void;
+  exerciseId: string;
+  exerciseTitle?: string;
+  onTechniqueSelect: (exerciseId: string) => void;
+  durationMinutes: number;
+  onTimerSelect: (minutes: number) => void;
 };
 
 export default function HomeMeditateHero({
   onStartPress,
-  techniqueTitle,
-  onTechniquePress,
+  exerciseId,
+  exerciseTitle,
+  onTechniqueSelect,
+  durationMinutes,
+  onTimerSelect,
 }: Props) {
   const { tokens } = useTheme();
   const foreground = homeNavIconPrimary(tokens.mode);
+  const [openDropdown, setOpenDropdown] = useState<OpenDropdown>(null);
 
   const styles = useMemo(
     () =>
@@ -53,6 +64,11 @@ export default function HomeMeditateHero({
           alignItems: "center",
           gap: HOME_HERO_TECHNIQUE_GAP,
         },
+        pickerRow: {
+          flexDirection: "row",
+          alignItems: "flex-start",
+          gap: HOME_HERO_PICKER_GAP,
+        },
         startButton: {
           width: HOME_START_PILL_WIDTH,
           height: HOME_START_PILL_HEIGHT,
@@ -70,6 +86,14 @@ export default function HomeMeditateHero({
     [foreground],
   );
 
+  const setTechniqueOpen = (open: boolean) => {
+    setOpenDropdown(open ? "technique" : null);
+  };
+
+  const setTimerOpen = (open: boolean) => {
+    setOpenDropdown(open ? "timer" : null);
+  };
+
   return (
     <View style={styles.stack}>
       <Text style={styles.tagline}>{HOME_TAGLINE}</Text>
@@ -84,10 +108,21 @@ export default function HomeMeditateHero({
           <Text style={styles.startButtonText}>Start</Text>
         </HomeNavPressable>
 
-        <HomeTechniquePicker
-          title={techniqueTitle}
-          onPress={onTechniquePress}
-        />
+        <View style={styles.pickerRow}>
+          <HomeTechniqueDropdown
+            exerciseId={exerciseId}
+            fallbackTitle={exerciseTitle}
+            open={openDropdown === "technique"}
+            onOpenChange={setTechniqueOpen}
+            onSelect={onTechniqueSelect}
+          />
+          <HomeTimerDropdown
+            durationMinutes={durationMinutes}
+            open={openDropdown === "timer"}
+            onOpenChange={setTimerOpen}
+            onSelect={onTimerSelect}
+          />
+        </View>
       </View>
     </View>
   );
